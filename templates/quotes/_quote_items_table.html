@@ -1,0 +1,26 @@
+{% comment %}Line items for quote emails. show_pricing is only true once
+Finance has priced the quote; customers never see cost data.{% endcomment %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:8px 0 4px;">
+  <tr style="background:#f1f5f7;">
+    <th align="left"  style="padding:8px 10px;font-size:12px;color:#475569;border-bottom:1px solid #e2e8f0;">Product</th>
+    <th align="left"  style="padding:8px 10px;font-size:12px;color:#475569;border-bottom:1px solid #e2e8f0;">SKU</th>
+    <th align="right" style="padding:8px 10px;font-size:12px;color:#475569;border-bottom:1px solid #e2e8f0;">Qty</th>
+    {% if show_pricing %}
+      <th align="right" style="padding:8px 10px;font-size:12px;color:#475569;border-bottom:1px solid #e2e8f0;">Unit</th>
+      <th align="right" style="padding:8px 10px;font-size:12px;color:#475569;border-bottom:1px solid #e2e8f0;">Total</th>
+    {% endif %}
+  </tr>
+  {% for item in quote.items.all %}
+    <tr>
+      <td style="padding:9px 10px;font-size:13px;border-bottom:1px solid #eef2f5;">{{ item.product.name }}</td>
+      <td style="padding:9px 10px;font-size:13px;color:#64748b;border-bottom:1px solid #eef2f5;">{{ item.product.sku }}</td>
+      <td align="right" style="padding:9px 10px;font-size:13px;border-bottom:1px solid #eef2f5;">{{ item.quantity }}</td>
+      {% if show_pricing %}
+        <td align="right" style="padding:9px 10px;font-size:13px;border-bottom:1px solid #eef2f5;">{% if item.unit_price %}${{ item.unit_price }}{% else %}&mdash;{% endif %}</td>
+        <td align="right" style="padding:9px 10px;font-size:13px;border-bottom:1px solid #eef2f5;">{% if item.unit_price %}${{ item.line_total }}{% else %}&mdash;{% endif %}</td>
+      {% endif %}
+    </tr>
+  {% empty %}
+    <tr><td colspan="{% if show_pricing %}5{% else %}3{% endif %}" style="padding:12px 10px;font-size:13px;color:#64748b;">No items listed.</td></tr>
+  {% endfor %}
+</table>

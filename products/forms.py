@@ -9,12 +9,6 @@ class ProductSearchForm(forms.Form):
             'placeholder': 'Search products...'
         })
     )
-    brand = forms.ModelChoiceField(
-        queryset=Brand.objects.all(),
-        required=False,
-        empty_label='All Brands',
-        widget=forms.Select(attrs={'class': 'px-4 py-2 border border-gray-300 rounded-lg'})
-    )
     category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         required=False,

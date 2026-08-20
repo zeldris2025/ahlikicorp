@@ -1,0 +1,23 @@
+{% extends 'quotes/email_base.html' %}
+{% block body %}
+  <p style="margin:0 0 14px;font-size:16px;font-weight:bold;color:#04212a;">Thank you, {{ quote.customer_name }}</p>
+  <p style="margin:0 0 16px;font-size:14px;line-height:1.7;">
+    We have received your quote request. Your reference is
+    <strong style="color:#04212a;">{{ quote.reference }}</strong> — quote it if you get in touch about this request.
+  </p>
+  <p style="margin:0 0 6px;font-size:13px;font-weight:bold;color:#04212a;">What you asked for</p>
+  {% include 'quotes/_quote_items_table.html' with show_pricing=False %}
+  {% if quote.delivery_location or quote.delivery_address %}
+    <p style="margin:16px 0 0;font-size:13px;line-height:1.7;">
+      <strong>Delivery:</strong>
+      {% if quote.delivery_location %}{{ quote.delivery_location.name }}{% endif %}
+      {% if quote.delivery_address %}<br>{{ quote.delivery_address|linebreaksbr }}{% endif %}
+    </p>
+  {% endif %}
+  {% if quote.notes %}
+    <p style="margin:12px 0 0;font-size:13px;line-height:1.7;"><strong>Your notes:</strong><br>{{ quote.notes|linebreaksbr }}</p>
+  {% endif %}
+  <p style="margin:20px 0 0;font-size:14px;line-height:1.7;">
+    Our team is preparing your pricing now and will send your formal quote, normally within one business day.
+  </p>
+{% endblock %}

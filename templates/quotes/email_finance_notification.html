@@ -1,0 +1,18 @@
+{% extends 'quotes/email_base.html' %}
+{% block strapline %}Internal Notification{% endblock %}
+{% block body %}
+  <p style="margin:0 0 14px;font-size:16px;font-weight:bold;color:#04212a;">New quote request — {{ quote.reference }}</p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+    <tr><td style="padding:3px 0;font-size:13px;color:#475569;" width="110">Customer</td><td style="padding:3px 0;font-size:13px;">{{ quote.customer_name }}</td></tr>
+    {% if quote.company %}<tr><td style="padding:3px 0;font-size:13px;color:#475569;">Company</td><td style="padding:3px 0;font-size:13px;">{{ quote.company }}</td></tr>{% endif %}
+    <tr><td style="padding:3px 0;font-size:13px;color:#475569;">Email</td><td style="padding:3px 0;font-size:13px;">{{ quote.email }}</td></tr>
+    <tr><td style="padding:3px 0;font-size:13px;color:#475569;">Phone</td><td style="padding:3px 0;font-size:13px;">{{ quote.phone }}</td></tr>
+    {% if quote.delivery_location %}<tr><td style="padding:3px 0;font-size:13px;color:#475569;">Location</td><td style="padding:3px 0;font-size:13px;">{{ quote.delivery_location.name }}</td></tr>{% endif %}
+    <tr><td style="padding:3px 0;font-size:13px;color:#475569;">Submitted</td><td style="padding:3px 0;font-size:13px;">{{ quote.created_at }}</td></tr>
+  </table>
+  {% include 'quotes/_quote_items_table.html' with show_pricing=False %}
+  {% if quote.notes %}
+    <p style="margin:14px 0 0;font-size:13px;line-height:1.7;"><strong>Customer notes:</strong><br>{{ quote.notes|linebreaksbr }}</p>
+  {% endif %}
+  <p style="margin:20px 0 0;font-size:13px;color:#64748b;">Open the Finance dashboard to price this request.</p>
+{% endblock %}

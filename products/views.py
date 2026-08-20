@@ -11,20 +11,25 @@ class ProductListView(ListView):
     context_object_name = 'products'
     paginate_by = 24
 
+    # The public catalogue is the wholesale trade list. The other group
+    # companies are retail/hospitality operations and do not sell from here.
+    CATALOGUE_BRAND_SLUG = 'ahliki-wholesale'
+
     def get_queryset(self):
-        queryset = Product.objects.filter(is_active=True).select_related('brand', 'category')
+        queryset = (
+            Product.objects
+            .filter(is_active=True, brand__slug=self.CATALOGUE_BRAND_SLUG)
+            .select_related('brand', 'category')
+        )
 
         form = ProductSearchForm(self.request.GET)
         if form.is_valid():
             query = form.cleaned_data.get('query')
-            brand = form.cleaned_data.get('brand')
             category = form.cleaned_data.get('category')
             is_exclusive = form.cleaned_data.get('is_exclusive')
 
             if query:
                 queryset = queryset.filter(Q(name__icontains=query) | Q(description__icontains=query))
-            if brand:
-                queryset = queryset.filter(brand=brand)
             if category:
                 queryset = queryset.filter(category=category)
             if is_exclusive:
@@ -35,8 +40,8 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = ProductSearchForm(self.request.GET)
-        context['brands'] = Brand.objects.all()
         context['categories'] = Category.objects.all()
+        context['catalogue_brand'] = Brand.objects.filter(slug=self.CATALOGUE_BRAND_SLUG).first()
         return context
 
 class ProductDetailView(DetailView):
@@ -46,4 +51,9 @@ class ProductDetailView(DetailView):
     slug_field = 'slug'
 
     def get_queryset(self):
-        return Product.objects.filter(is_active=True).select_related('brand', 'category').prefetch_related('gallery')
+        return (
+            Product.objects
+            .filter(is_active=True, brand__slug=ProductListView.CATALOGUE_BRAND_SLUG)
+            .select_related('brand', 'category')
+            .prefetch_related('gallery')
+        )

@@ -39,6 +39,7 @@ _SOCIAL_ORDER = (
     ('instagram', 'Instagram'),
     ('tiktok', 'TikTok'),
     ('linkedin', 'LinkedIn'),
+    ('youtube', 'YouTube'),
 )
 
 
@@ -63,3 +64,37 @@ def social_links(request):
             for key, label in _SOCIAL_ORDER
         ]
     }
+
+
+def quote_basket(request):
+    """Item count for the quote basket indicator in the header."""
+    if not hasattr(request, 'session'):
+        return {'quote_basket_count': 0}
+    from quotes.basket import QuoteBasket
+    return {'quote_basket_count': len(QuoteBasket(request))}
+
+
+def site_assistant(request):
+    """FAQ content for the floating assistant widget."""
+    from django.urls import reverse
+
+    from .faq import FAQ_TOPICS, STARTER_IDS
+
+    topics = []
+    for topic in FAQ_TOPICS:
+        links = []
+        for link in topic.get('links', []):
+            try:
+                links.append({'label': link['label'], 'url': reverse(link['url'])})
+            except Exception:
+                # A renamed route should not take the whole widget down.
+                continue
+        topics.append({
+            'id': topic['id'],
+            'q': topic['q'],
+            'a': topic['a'],
+            'keywords': topic['keywords'],
+            'links': links,
+        })
+
+    return {'assistant_topics': topics, 'assistant_starters': STARTER_IDS}

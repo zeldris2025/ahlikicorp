@@ -1,42 +1,75 @@
 {% extends 'base.html' %}
-{% block title %}Products - Ah Liki{% endblock %}
-{% block content %}
-<div class="max-w-7xl mx-auto px-4 py-12">
-    <h1 class="section-heading mb-8">Products Catalogue</h1>
+{% block title %}Wholesale Catalogue | Ah Liki Samoa Wholesale{% endblock %}
+{% block meta_description %}Browse the Ah Liki Samoa Wholesale trade catalogue — bulk food, foodstuff and non-food lines. Add items to a quote request for trade pricing.{% endblock %}
 
-    <!-- Search Form -->
-    <form method="get" class="mb-8 p-6 bg-white rounded-lg shadow">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {{ form.query }} {{ form.brand }} {{ form.category }}
-            <div><label><input type="checkbox" name="is_exclusive"> Exclusive only</label></div>
+{% block content %}
+<section class="bg-gradient-to-br from-[#04212a] via-[#073236] to-[#05202f] text-white py-12">
+    <div class="max-w-7xl mx-auto px-4">
+        <p class="text-xs font-bold uppercase tracking-[0.14em] text-[#e8c96a] mb-2">Ah Liki Samoa Wholesale</p>
+        <h1 class="text-3xl md:text-4xl font-bold brand-font mb-3">Wholesale Catalogue</h1>
+        <p class="text-gray-300 max-w-2xl">Bulk food, foodstuff and non-food lines for trade, hospitality and institutional customers. Add what you need to a quote request and our team will price it for you.</p>
+    </div>
+</section>
+
+<div class="max-w-7xl mx-auto px-4 py-10">
+    <form method="get" class="mb-8 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            {{ form.query }}
+            {{ form.category }}
+            <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                {{ form.is_exclusive }} Exclusive lines only
+            </label>
             <button type="submit" class="btn-primary">Search</button>
         </div>
     </form>
 
-    <!-- Products Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <p class="text-sm text-gray-500 mb-5">{{ page_obj.paginator.count|default:products|length }} product{{ page_obj.paginator.count|pluralize }} available</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {% for product in products %}
-            <div class="bg-white rounded-lg shadow-md card-hover overflow-hidden">
-                {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-40 object-cover">
-                {% else %}<div class="w-full h-40 bg-gray-200 flex items-center justify-center">📦</div>{% endif %}
-                <div class="p-4">
-                    {% if product.is_exclusive %}<span class="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Exclusive</span>{% endif %}
-                    <h3 class="font-bold mt-2">{{ product.name }}</h3>
-                    <p class="text-sm text-gray-600">{{ product.brand.name }}</p>
-                    <p class="text-sm text-gray-600 mb-3">SKU: {{ product.sku }}</p>
-                    <a href="{{ product.get_absolute_url }}" class="text-blue-900 font-semibold text-sm">View Details →</a>
+            <article class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="w-full h-40 object-cover">
+                {% else %}
+                    <div class="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 grid place-items-center text-4xl">📦</div>
+                {% endif %}
+
+                <div class="p-4 flex flex-col flex-1">
+                    {% if product.is_exclusive %}
+                        <span class="self-start text-[10px] font-bold uppercase tracking-wide bg-[#e8c96a] text-[#04212a] px-2 py-1 rounded mb-2">Exclusive</span>
+                    {% endif %}
+                    <h2 class="font-bold text-[15px] leading-snug mb-1">
+                        <a href="{{ product.get_absolute_url }}" class="text-blue-900 hover:underline">{{ product.name }}</a>
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-1">{{ product.category.name }}</p>
+                    <p class="text-xs text-gray-400 mb-4">SKU {{ product.sku }}</p>
+
+                    <form method="post" action="{% url 'quotes:basket_add' product.pk %}" class="mt-auto flex gap-2">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="1" min="1"
+                               class="w-16 px-2 py-2 border border-gray-300 rounded text-sm"
+                               aria-label="Quantity of {{ product.name }}">
+                        <button type="submit" class="flex-1 bg-[#04212a] text-white text-sm font-semibold py-2 rounded hover:bg-[#073236] transition">
+                            Add to quote
+                        </button>
+                    </form>
                 </div>
-            </div>
+            </article>
         {% empty %}
-            <div class="col-span-full text-center py-12">No products found.</div>
+            <p class="col-span-full text-center py-16 text-gray-500">No products match your search.</p>
         {% endfor %}
     </div>
 
-    <!-- Pagination -->
-    {% if is_paginated %}<div class="mt-8 text-center">
-        {% if page_obj.has_previous %}<a href="?page=1" class="px-3 py-1">« First</a> <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1">‹ Prev</a>{% endif %}
-        <span class="px-3 py-1">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1">Next ›</a> <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1">Last »</a>{% endif %}
-    </div>{% endif %}
+    {% if is_paginated %}
+        <nav class="mt-10 flex justify-center gap-2 text-sm" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50">Previous</a>
+            {% endif %}
+            <span class="px-3 py-2 text-gray-600">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50">Next</a>
+            {% endif %}
+        </nav>
+    {% endif %}
 </div>
 {% endblock %}

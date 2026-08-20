@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Complete Your Quote Request | Ah Liki{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-12">
+    <h1 class="section-heading mb-2">Complete Your Request</h1>
+    <p class="text-gray-600 mb-8">Tell us where this is going and we will prepare your pricing.</p>
+
+    <form method="post" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {% csrf_token %}
+
+        <div class="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label for="{{ form.customer_name.id_for_label }}" class="block font-semibold mb-1 text-sm">Full name *</label>
+                    {{ form.customer_name }}
+                    {% for e in form.customer_name.errors %}<p class="text-red-700 text-sm mt-1">{{ e }}</p>{% endfor %}
+                </div>
+                <div>
+                    <label for="{{ form.company.id_for_label }}" class="block font-semibold mb-1 text-sm">Company</label>
+                    {{ form.company }}
+                </div>
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block font-semibold mb-1 text-sm">Email *</label>
+                    {{ form.email }}
+                    {% for e in form.email.errors %}<p class="text-red-700 text-sm mt-1">{{ e }}</p>{% endfor %}
+                </div>
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block font-semibold mb-1 text-sm">Phone *</label>
+                    {{ form.phone }}
+                    {% for e in form.phone.errors %}<p class="text-red-700 text-sm mt-1">{{ e }}</p>{% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <label for="{{ form.delivery_location.id_for_label }}" class="block font-semibold mb-1 text-sm">Nearest location</label>
+                {{ form.delivery_location }}
+            </div>
+            <div>
+                <label for="{{ form.delivery_address.id_for_label }}" class="block font-semibold mb-1 text-sm">Delivery address</label>
+                {{ form.delivery_address }}
+            </div>
+            <div>
+                <label for="{{ form.notes.id_for_label }}" class="block font-semibold mb-1 text-sm">Notes</label>
+                {{ form.notes }}
+            </div>
+        </div>
+
+        <aside class="bg-gray-50 border border-gray-200 rounded-xl p-6 h-fit">
+            <h2 class="font-bold text-blue-900 mb-4">Request summary</h2>
+            <ul class="divide-y divide-gray-200 mb-5">
+                {% for line in basket_items %}
+                    <li class="py-3 flex justify-between gap-3 text-sm">
+                        <span>
+                            <span class="font-semibold block">{{ line.product.name }}</span>
+                            <span class="text-gray-500 text-xs">{{ line.product.sku }}</span>
+                        </span>
+                        <span class="text-gray-600 whitespace-nowrap">x {{ line.quantity }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <button type="submit" class="btn-primary w-full text-center">Submit request</button>
+            <a href="{% url 'quotes:basket' %}" class="block text-center text-sm text-gray-600 hover:underline mt-3">Edit selection</a>
+            <p class="text-xs text-gray-500 mt-4">No pricing is shown here. Our team prepares your quote and sends it by email.</p>
+        </aside>
+    </form>
+</div>
+{% endblock %}

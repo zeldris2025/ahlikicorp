@@ -46,12 +46,14 @@
 
         <!-- Actions -->
         <div class="site-actions">
-            <a href="{% url 'quotes:create' %}" class="site-cta">
+            <a href="{% url 'quotes:basket' %}" class="site-cta"
+               aria-label="Quote request{% if quote_basket_count %}, {{ quote_basket_count }} item{{ quote_basket_count|pluralize }}{% endif %}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
-                Request Quote
+                My Quote
+                {% if quote_basket_count %}<span class="site-cta-count">{{ quote_basket_count }}</span>{% endif %}
             </a>
 
             {% if user.is_authenticated %}
@@ -104,7 +106,9 @@
         <a href="{% url 'core:locations' %}" class="site-drawer-link">Locations</a>
         <a href="{% url 'core:contact' %}" class="site-drawer-link">Contact</a>
 
-        <a href="{% url 'quotes:create' %}" class="site-drawer-cta">Request a Quote</a>
+        <a href="{% url 'quotes:basket' %}" class="site-drawer-cta">
+            My Quote Request{% if quote_basket_count %} ({{ quote_basket_count }}){% endif %}
+        </a>
 
         {% if user.is_authenticated %}
             <a href="{% url 'accounts:profile' %}" class="site-drawer-link">My Profile</a>

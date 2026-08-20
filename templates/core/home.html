@@ -425,12 +425,14 @@
         position: relative;
         overflow: hidden;
         padding: 4rem 1.5rem;
-        background: #fff;
     }
     /* Alternating bands pick up a whisper of the company's own accent rather
        than a flat neutral, so each section reads as its own space. */
-    .company--alt { background: #f8fafb; }
-    .company--alt { background: color-mix(in srgb, var(--accent, #0e7c86) 4%, #fbfcfc); }
+    /* Deeper tint so the bands hold their own against the vivid logos. */
+    .company { background: #f4f7f8; }
+    .company { background: color-mix(in srgb, var(--accent, #0e7c86) 7%, #f6f9fa); }
+    .company--alt { background: #e8eef1; }
+    .company--alt { background: color-mix(in srgb, var(--accent, #0e7c86) 15%, #eef3f5); }
     .company + .company { border-top: 1px solid #f1f5f9; }
     @media (min-width: 1024px) { .company { padding: 5.5rem 2rem; } }
 
@@ -444,7 +446,7 @@
         transform: translateY(-50%);
         border-radius: 50%;
         background: var(--accent, #0e7c86);
-        opacity: 0.09;
+        opacity: 0.16;
         filter: blur(70px);
         pointer-events: none;
     }
@@ -639,6 +641,7 @@
         margin: 0 0 1.75rem;
     }
     .company-chip {
+        background: #fff;
         padding: 0.4rem 0.9rem;
         border-radius: 999px;
         font-size: 0.8125rem;

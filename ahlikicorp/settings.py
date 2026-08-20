@@ -81,6 +81,8 @@ TEMPLATES = [
                 'core.context_processors.user_roles',
                 'core.context_processors.site_brands',
                 'core.context_processors.social_links',
+                'core.context_processors.quote_basket',
+                'core.context_processors.site_assistant',
             ],
         },
     },
@@ -208,11 +210,16 @@ LOGGING = {
 # Social media profiles shown in the site header and footer.
 # Set these to the real profile URLs via environment variables; any entry left
 # empty is simply not rendered.
+# Facebook, LinkedIn and YouTube were each confirmed by fetching the page and
+# checking it returns an Ah Liki-titled profile. Instagram and TikTok are left
+# blank because neither could be verified — they render as inactive until real
+# URLs are supplied, rather than risking a link to the wrong account.
 SOCIAL_LINKS = {
-    'facebook': os.getenv('SOCIAL_FACEBOOK', ''),
+    'facebook': os.getenv('SOCIAL_FACEBOOK', 'https://www.facebook.com/AhLikiWholesale'),
     'instagram': os.getenv('SOCIAL_INSTAGRAM', ''),
     'tiktok': os.getenv('SOCIAL_TIKTOK', ''),
-    'linkedin': os.getenv('SOCIAL_LINKEDIN', ''),
+    'linkedin': os.getenv('SOCIAL_LINKEDIN', 'https://www.linkedin.com/company/ah-liki-wholesale'),
+    'youtube': os.getenv('SOCIAL_YOUTUBE', 'https://www.youtube.com/@AhLikiSamoa'),
 }
 
 # --- Hero background video -------------------------------------------------

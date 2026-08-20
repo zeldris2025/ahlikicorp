@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Your Quote Request | Ah Liki{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-12">
+    <div class="mb-8">
+        <h1 class="section-heading mb-2">Your Quote Request</h1>
+        <p class="text-gray-600">Review your selection, then continue to send it to our team. Pricing is prepared individually and returned to you by email.</p>
+    </div>
+
+    {% if basket_items %}
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+                        <tr>
+                            <th class="px-5 py-3">Product</th>
+                            <th class="px-5 py-3">SKU</th>
+                            <th class="px-5 py-3 w-40">Quantity</th>
+                            <th class="px-5 py-3 w-20"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for line in basket_items %}
+                            <tr>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        {% if line.product.image %}
+                                            <img src="{{ line.product.image.url }}" alt="" loading="lazy" class="w-12 h-12 rounded object-cover flex-shrink-0">
+                                        {% else %}
+                                            <div class="w-12 h-12 rounded bg-gray-100 grid place-items-center flex-shrink-0">📦</div>
+                                        {% endif %}
+                                        <div>
+                                            <a href="{{ line.product.get_absolute_url }}" class="font-semibold text-blue-900 hover:underline">{{ line.product.name }}</a>
+                                            <p class="text-xs text-gray-500">{{ line.product.category.name }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-sm text-gray-600">{{ line.product.sku }}</td>
+                                <td class="px-5 py-4">
+                                    <form method="post" action="{% url 'quotes:basket_update' line.product.pk %}" class="flex gap-2">
+                                        {% csrf_token %}
+                                        <input type="number" name="quantity" value="{{ line.quantity }}" min="1"
+                                               class="w-20 px-2 py-1 border border-gray-300 rounded"
+                                               aria-label="Quantity for {{ line.product.name }}">
+                                        <button type="submit" class="text-sm font-semibold text-blue-900 hover:underline">Update</button>
+                                    </form>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <form method="post" action="{% url 'quotes:basket_remove' line.product.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-sm text-red-700 hover:underline">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 justify-between items-center mt-6">
+            <div class="flex gap-3">
+                <a href="{% url 'products:list' %}" class="btn-outline">Continue browsing</a>
+                <form method="post" action="{% url 'quotes:basket_clear' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="px-6 py-3 text-gray-600 font-semibold hover:text-red-700">Empty request</button>
+                </form>
+            </div>
+            <a href="{% url 'quotes:checkout' %}" class="btn-primary">Continue to details →</a>
+        </div>
+
+        <p class="mt-6 text-sm text-gray-500">
+            Prices are not shown online. Our team reviews every request and returns a formal quote, usually within 24 hours.
+        </p>
+    {% else %}
+        <div class="text-center py-16 bg-gray-50 rounded-xl border border-gray-200">
+            <div class="text-5xl mb-4">📋</div>
+            <h2 class="text-xl font-bold text-blue-900 mb-2">Your quote request is empty</h2>
+            <p class="text-gray-600 mb-6">Browse the wholesale catalogue and add the products you need.</p>
+            <a href="{% url 'products:list' %}" class="btn-primary">Browse products</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
