@@ -504,7 +504,7 @@
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        padding: 2rem;
+        padding: 1.75rem 1.75rem 2.25rem;
         transform-style: preserve-3d;
         transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
         will-change: transform;
@@ -533,31 +533,58 @@
         opacity: 0.55;
         transform: translateZ(30px);
     }
-    /* Logo demoted to a corner badge so the animated scene can lead. */
-    .company-plate-badge {
-        position: absolute;
-        top: 1rem;
-        right: 1.1rem;
-        max-width: 62px;
-        max-height: 34px;
-        object-fit: contain;
-        opacity: 0.9;
-        transform: translateZ(40px);
-    }
-    .company-plate-stage {
+    /* The logo leads the card; the animation is a small accent in the corner. */
+    .company-plate-logo {
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        transform: translateZ(34px);
+        padding: 0 0.5rem;
+        transform: translateZ(52px);
+    }
+    .company-plate-logo img {
+        max-width: 100%;
+        max-height: 118px;
+        object-fit: contain;
+        filter: drop-shadow(0 8px 18px rgba(4, 33, 42, 0.16));
+    }
+    /* Companies without artwork yet fall back to a set wordmark. */
+    .company-plate-wordmark {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        text-align: center;
+        color: var(--accent, #0e7c86);
+    }
+
+    .company-plate-stage {
+        position: absolute;
+        left: 0.5rem;
+        bottom: 2.4rem;
+        width: 118px;
+        height: 82px;
+        transform: translateZ(26px);
+        pointer-events: none;
+    }
+    /* Scale the whole scene down rather than re-authoring it at a second size. */
+    .company-plate-stage .scene {
+        transform: scale(0.5);
+        transform-origin: left bottom;
+        opacity: 0.92;
     }
     .company-plate-sector {
-        font-size: 0.7rem;
+        position: absolute;
+        right: 1.3rem;
+        bottom: 1.1rem;
+        max-width: 55%;
+        font-size: 0.66rem;
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: #94a3b8;
-        text-align: center;
+        text-align: right;
         transform: translateZ(24px);
     }
 
@@ -1362,11 +1389,15 @@
                 <div class="company-plate">
                     <span class="company-plate-index" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span>
 
-                    {% if company.logo %}
-                        <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy" class="company-plate-badge">
-                    {% endif %}
+                    <div class="company-plate-logo">
+                        {% if company.logo %}
+                            <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy">
+                        {% else %}
+                            <span class="company-plate-wordmark">{{ company.name }}</span>
+                        {% endif %}
+                    </div>
 
-                    <div class="company-plate-stage">
+                    <div class="company-plate-stage" aria-hidden="true">
                         {% include 'components/company_scene.html' with slug=company.slug %}
                     </div>
 
