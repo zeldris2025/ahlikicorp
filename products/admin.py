@@ -8,13 +8,19 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'sort_order')
-    search_fields = ('name',)
+    """Group operating companies (surfaced to visitors as "companies")."""
+
+    list_display = ('name', 'sector', 'slug', 'sort_order')
+    list_filter = ('sector',)
+    search_fields = ('name', 'sector', 'tagline')
     prepopulated_fields = {'slug': ('name',)}
     fieldsets = (
-        ('Basic Info', {'fields': ('name', 'slug', 'tagline')}),
+        ('Basic Info', {'fields': ('name', 'slug', 'sector', 'tagline')}),
         ('Branding', {'fields': ('accent_color', 'logo')}),
-        ('Details', {'fields': ('description', 'sort_order')}),
+        ('Details', {
+            'fields': ('description', 'highlights', 'sort_order'),
+            'description': 'Highlights must be a JSON list of short strings, e.g. ["Eggs", "Fresh produce"].',
+        }),
     )
 
 @admin.register(Category)

@@ -12,7 +12,14 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['brands'] = cache.get_or_set('brands', lambda: Brand.objects.all()[:5], 3600)
+        companies = cache.get_or_set(
+            'group_companies',
+            lambda: list(Brand.objects.all().order_by('sort_order', 'name')),
+            3600,
+        )
+        context['companies'] = companies
+        # Hero spotlight deck reuses the same records.
+        context['brands'] = companies
         context['featured_products'] = cache.get_or_set('featured_products', lambda: Product.objects.filter(is_active=True, is_exclusive=True)[:6], 1800)
         context['locations_count'] = cache.get_or_set('locations_count', lambda: Location.objects.count(), 3600)
         return context
@@ -20,12 +27,14 @@ class HomeView(TemplateView):
 class AboutView(TemplateView):
     template_name = 'core/about.html'
 
-class BrandsView(TemplateView):
-    template_name = 'core/brands.html'
+class CompaniesView(TemplateView):
+    """Detail page for the operating companies within the group."""
+
+    template_name = 'core/companies.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['brands'] = Brand.objects.all()
+        context['companies'] = Brand.objects.all().order_by('sort_order', 'name')
         return context
 
 class LocationsView(ListView):

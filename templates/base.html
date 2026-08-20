@@ -148,6 +148,73 @@
         }
 
         /* ============================================
+           TOP BAR (marquee + social)
+           ============================================ */
+        .topbar {
+            display: flex;
+            align-items: stretch;
+            background: linear-gradient(90deg, #04212a, #073236 60%, #04212a);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.22);
+        }
+        .topbar .marquee {
+            flex: 1;
+            min-width: 0;
+            border-bottom: none;
+            background: none;
+        }
+        .topbar-social {
+            display: none;
+            align-items: center;
+            padding: 0 1.25rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+        @media (min-width: 768px) { .topbar-social { display: flex; } }
+
+        /* ---- Social icon list ---- */
+        .social-list {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .social-link {
+            display: grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 0.45rem;
+            text-decoration: none;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+        .social-link svg { width: 15px; height: 15px; }
+        .social-link:hover { transform: translateY(-2px); }
+
+        .social-list--light .social-link { color: rgba(232, 201, 106, 0.8); }
+        .social-list--light .social-link:hover {
+            color: #04212a;
+            background: #e8c96a;
+        }
+        .social-list--dark .social-link { color: #64748b; }
+        .social-list--dark .social-link:hover {
+            color: #fff;
+            background: #04212a;
+        }
+        .social-link.is-inactive { opacity: 0.55; cursor: default; }
+        .social-link.is-inactive:hover { transform: none; }
+
+        .site-drawer-social {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.9rem;
+            padding-top: 0.9rem;
+            border-top: 1px solid #eef2f5;
+        }
+
+        /* ============================================
            SITE HEADER
            ============================================ */
         .site-header {

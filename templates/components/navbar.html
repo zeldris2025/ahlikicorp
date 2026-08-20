@@ -1,17 +1,23 @@
 {% load static %}
 
-<!-- ===== Announcement marquee ===== -->
-<div class="marquee" role="complementary" aria-label="Announcements">
-    <div class="marquee-track">
+<!-- ===== Top bar: marquee + social ===== -->
+<div class="topbar">
+    <div class="marquee" role="complementary" aria-label="Announcements">
+        <div class="marquee-track">
         {% for i in "12" %}
         <div class="marquee-group" {% if forloop.counter > 1 %}aria-hidden="true"{% endif %}>
             <span class="marquee-item"><span class="marquee-dot"></span>100% Samoan owned &amp; operated since 2000</span>
             <span class="marquee-item"><span class="marquee-dot"></span>Bulk wholesale pricing available on request</span>
-            <span class="marquee-item"><span class="marquee-dot"></span>Five trusted brands under one roof</span>
+            <span class="marquee-item"><span class="marquee-dot"></span>Five operating companies, one group</span>
             <span class="marquee-item"><span class="marquee-dot"></span>Nationwide delivery across Upolu &amp; Savai&rsquo;i</span>
             <span class="marquee-item"><span class="marquee-dot"></span>Quotes answered within 24 hours</span>
         </div>
         {% endfor %}
+        </div>
+    </div>
+
+    <div class="topbar-social">
+        {% include 'components/social_icons.html' with variant="light" %}
     </div>
 </div>
 
@@ -32,7 +38,7 @@
         <nav class="site-nav" aria-label="Primary">
             <a href="{% url 'core:home' %}" class="site-nav-link">Home</a>
             <a href="{% url 'core:about' %}" class="site-nav-link">About</a>
-            <a href="{% url 'core:brands' %}" class="site-nav-link">Brands</a>
+            <a href="{% url 'core:companies' %}" class="site-nav-link">Our Companies</a>
             <a href="{% url 'products:list' %}" class="site-nav-link">Products</a>
             <a href="{% url 'core:locations' %}" class="site-nav-link">Locations</a>
             <a href="{% url 'core:contact' %}" class="site-nav-link">Contact</a>
@@ -93,7 +99,7 @@
     <div class="site-drawer" x-show="mobileMenuOpen" x-transition x-cloak>
         <a href="{% url 'core:home' %}" class="site-drawer-link">Home</a>
         <a href="{% url 'core:about' %}" class="site-drawer-link">About</a>
-        <a href="{% url 'core:brands' %}" class="site-drawer-link">Brands</a>
+        <a href="{% url 'core:companies' %}" class="site-drawer-link">Our Companies</a>
         <a href="{% url 'products:list' %}" class="site-drawer-link">Products</a>
         <a href="{% url 'core:locations' %}" class="site-drawer-link">Locations</a>
         <a href="{% url 'core:contact' %}" class="site-drawer-link">Contact</a>
@@ -110,5 +116,9 @@
             <a href="{% url 'accounts:login' %}" class="site-drawer-link">Sign In</a>
             <a href="{% url 'accounts:register' %}" class="site-drawer-link">Create Account</a>
         {% endif %}
+
+        <div class="site-drawer-social">
+            {% include 'components/social_icons.html' with variant="dark" %}
+        </div>
     </div>
 </header>

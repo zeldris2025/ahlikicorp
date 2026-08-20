@@ -31,3 +31,35 @@ def user_roles(request):
         'is_admin': is_admin,
         'can_manage_quotes': is_finance or is_admin,
     }
+
+
+# Order in which social icons appear in the header and footer.
+_SOCIAL_ORDER = (
+    ('facebook', 'Facebook'),
+    ('instagram', 'Instagram'),
+    ('tiktok', 'TikTok'),
+    ('linkedin', 'LinkedIn'),
+)
+
+
+def social_links(request):
+    """Social profile links for the header and footer.
+
+    Any profile without a configured URL still renders (so the header looks
+    complete) but points at '#'. Set SOCIAL_FACEBOOK / SOCIAL_INSTAGRAM /
+    SOCIAL_TIKTOK / SOCIAL_LINKEDIN in the environment to activate them.
+    """
+    from django.conf import settings
+
+    configured = getattr(settings, 'SOCIAL_LINKS', {})
+    return {
+        'social_links': [
+            {
+                'key': key,
+                'label': label,
+                'url': configured.get(key) or '#',
+                'configured': bool(configured.get(key)),
+            }
+            for key, label in _SOCIAL_ORDER
+        ]
+    }

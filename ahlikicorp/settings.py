@@ -80,6 +80,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.user_roles',
                 'core.context_processors.site_brands',
+                'core.context_processors.social_links',
             ],
         },
     },
@@ -202,4 +203,14 @@ LOGGING = {
         'django': {'handlers': ['console'], 'level': 'INFO'},
         'quotes': {'handlers': ['console', 'file'], 'level': 'DEBUG'},
     },
+}
+
+# Social media profiles shown in the site header and footer.
+# Set these to the real profile URLs via environment variables; any entry left
+# empty is simply not rendered.
+SOCIAL_LINKS = {
+    'facebook': os.getenv('SOCIAL_FACEBOOK', ''),
+    'instagram': os.getenv('SOCIAL_INSTAGRAM', ''),
+    'tiktok': os.getenv('SOCIAL_TIKTOK', ''),
+    'linkedin': os.getenv('SOCIAL_LINKEDIN', ''),
 }

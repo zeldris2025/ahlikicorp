@@ -331,6 +331,283 @@
         .hero-card, .hero-btn, .hero-search-btn, .hero-dot { transition: none !important; }
         .animate-fade-in-up { animation: none !important; }
     }
+
+    /* ============================================
+       GROUP COMPANY SECTIONS
+       ============================================ */
+    .companies-intro {
+        padding: 4.5rem 1.5rem 2.5rem;
+        text-align: center;
+        background: #fff;
+    }
+    .companies-intro-inner { max-width: 46rem; margin: 0 auto; }
+    .companies-kicker {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #0e7c86;
+        margin-bottom: 0.9rem;
+    }
+    .companies-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        color: #04212a;
+        margin-bottom: 1rem;
+    }
+    .companies-lede {
+        font-size: 1.0625rem;
+        line-height: 1.75;
+        color: #64748b;
+    }
+
+    .company {
+        position: relative;
+        overflow: hidden;
+        padding: 4rem 1.5rem;
+        background: #fff;
+    }
+    .company--alt { background: #f7fafb; }
+    @media (min-width: 1024px) { .company { padding: 5.5rem 2rem; } }
+
+    /* Accent wash bleeding in from the visual side */
+    .company-wash {
+        position: absolute;
+        top: 50%;
+        right: -12%;
+        width: 46rem;
+        height: 46rem;
+        transform: translateY(-50%);
+        border-radius: 50%;
+        background: var(--accent, #0e7c86);
+        opacity: 0.07;
+        filter: blur(70px);
+        pointer-events: none;
+    }
+    .company:nth-of-type(even) .company-wash { right: auto; left: -12%; }
+
+    .company-inner {
+        position: relative;
+        max-width: 76rem;
+        margin: 0 auto;
+    }
+    .company-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        align-items: center;
+    }
+    @media (min-width: 1024px) {
+        .company-grid { grid-template-columns: 0.85fr 1.15fr; gap: 4.5rem; }
+        /* Alternate which side the visual sits on */
+        .company--alt .company-visual { order: 2; }
+        .company--alt .company-copy   { order: 1; }
+    }
+
+    /* ---------- Visual: tilting logo plate ---------- */
+    .company-visual {
+        position: relative;
+        perspective: 1200px;
+        display: flex;
+        justify-content: center;
+    }
+    .company-orb {
+        position: absolute;
+        inset: 12% 8%;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, var(--accent, #0e7c86), transparent 68%);
+        opacity: 0.16;
+        filter: blur(28px);
+        animation: company-drift 9s ease-in-out infinite;
+    }
+    @keyframes company-drift {
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        50%      { transform: translate3d(0, -14px, 0) scale(1.06); }
+    }
+
+    .company-plate {
+        position: relative;
+        width: 100%;
+        max-width: 21rem;
+        aspect-ratio: 1 / 1;
+        border-radius: 1.5rem;
+        background: #fff;
+        border: 1px solid #eef2f5;
+        box-shadow: 0 24px 60px rgba(4, 33, 42, 0.13);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        transform-style: preserve-3d;
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+        will-change: transform;
+    }
+    .company-visual.is-tilting .company-plate {
+        transition: transform 0.12s linear, box-shadow 0.4s ease;
+        box-shadow: 0 34px 80px rgba(4, 33, 42, 0.2);
+    }
+    .company-plate::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        border-top: 3px solid var(--accent, #0e7c86);
+        pointer-events: none;
+    }
+    .company-plate-index {
+        position: absolute;
+        top: 1.1rem;
+        left: 1.3rem;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: var(--accent, #0e7c86);
+        opacity: 0.55;
+        transform: translateZ(30px);
+    }
+    .company-plate-logo {
+        max-width: 74%;
+        max-height: 52%;
+        object-fit: contain;
+        transform: translateZ(46px);
+    }
+    .company-plate-fallback {
+        font-size: 4.5rem;
+        line-height: 1;
+        transform: translateZ(46px);
+    }
+    .company-plate-sector {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        text-align: center;
+        transform: translateZ(24px);
+    }
+
+    /* ---------- Copy ---------- */
+    .company-sector {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent, #0e7c86);
+        margin-bottom: 1rem;
+    }
+    .company-sector-rule {
+        width: 32px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--accent, #0e7c86);
+        flex-shrink: 0;
+    }
+    .company-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        color: #04212a;
+        margin-bottom: 0.65rem;
+    }
+    .company-tagline {
+        font-size: 1.0625rem;
+        font-weight: 600;
+        color: var(--accent, #0e7c86);
+        margin-bottom: 1rem;
+    }
+    .company-desc {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: #475569;
+        max-width: 36rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .company-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.75rem;
+    }
+    .company-chip {
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #04212a;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+    }
+    .company--alt .company-chip { background: #fff; }
+
+    .company-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.25rem;
+    }
+    .company-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.6rem;
+        background: var(--accent, #0e7c86);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: filter 0.2s ease, transform 0.2s ease;
+    }
+    .company-cta:hover { filter: brightness(1.1); }
+    .company-cta:active { transform: translateY(1px); }
+    .company-link {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #475569;
+        text-decoration: none;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 2px;
+        transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .company-link:hover { color: #04212a; border-color: #04212a; }
+
+    /* ---------- Scroll reveal ---------- */
+    .company-visual,
+    .company-copy {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .company.is-revealed .company-visual { opacity: 1; transform: translateY(0); }
+    .company.is-revealed .company-copy {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 0.12s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .company-orb { animation: none !important; }
+        .company-plate { transition: none !important; }
+        .company-visual, .company-copy {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -377,7 +654,7 @@
                         Request a Quote
                         <span aria-hidden="true">&rarr;</span>
                     </a>
-                    <a href="{% url 'core:brands' %}" class="hero-btn hero-btn-ghost">Explore Our Brands</a>
+                    <a href="{% url 'core:companies' %}" class="hero-btn hero-btn-ghost">Our Companies</a>
                 </div>
             </div>
 
@@ -406,7 +683,7 @@
                             </div>
                         </div>
                         <p class="hero-card-desc">{{ brand.description|truncatewords:16 }}</p>
-                        <a href="{% url 'core:brands' %}" class="hero-card-link">
+                        <a href="{% url 'core:companies' %}" class="hero-card-link">
                             Learn more <span aria-hidden="true">&rarr;</span>
                         </a>
                     </article>
@@ -445,85 +722,74 @@
     </div>
 </section>
 
-<!-- Brands Showcase with 3D Scroll Animation -->
-<section class="py-20 bg-gradient-to-b from-white via-blue-50 to-white overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="section-heading mb-4">Our Brands</h2>
-            <p class="text-gray-600 text-lg max-w-2xl mx-auto">Proudly serving the Pacific with quality, innovation, and Samoan excellence across five distinct ventures</p>
-        </div>
+<!-- ============ GROUP COMPANIES ============ -->
+<section class="companies-intro">
+    <div class="companies-intro-inner">
+        <span class="companies-kicker">The Group</span>
+        <h2 class="companies-title">Five companies. One corporation.</h2>
+        <p class="companies-lede">
+            Ah Liki Investment Corporation Limited operates across distribution, retail, brewing,
+            hospitality and agriculture &mdash; each company run to the same standard, together
+            forming one of Samoa&rsquo;s most established supply-chain networks.
+        </p>
+    </div>
+</section>
 
-        <!-- 3D Brand Cards -->
-        <div class="space-y-24">
-            {% for brand in brands %}
-                <div class="brand-showcase" data-brand="{{ brand.slug }}">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center {% if forloop.counter|divisibleby:2 %}lg:flex-row-reverse{% endif %}">
-                        <!-- 3D Product/Brand Visual -->
-                        <div class="perspective h-96 flex items-center justify-center">
-                            <div class="brand-card-3d rounded-2xl shadow-2xl overflow-hidden" style="background: linear-gradient(135deg, {{ brand.accent_color }}22 0%, {{ brand.accent_color }}44 100%);">
-                                <div class="relative w-full h-full flex items-center justify-center p-8">
-                                    <div class="brand-logo-container text-center">
-                                        {% if brand.logo %}
-                                            <div class="bg-white rounded-2xl p-6 shadow-xl inline-flex items-center justify-center">
-                                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }} logo" loading="lazy" class="max-h-48 max-w-full object-contain">
-                                            </div>
-                                        {% else %}
-                                            <div class="text-8xl font-bold" style="color: {{ brand.accent_color }}">
-                                                {% if 'Taula' in brand.name %}🍺
-                                                {% elif 'Farmer' in brand.name %}🛒
-                                                {% elif 'Burger' in brand.name %}🍔
-                                                {% elif 'Tanumapua' in brand.name %}🌾
-                                                {% else %}📦{% endif %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+{% for company in companies %}
+<section class="company{% if forloop.counter|divisibleby:2 %} company--alt{% endif %}"
+         style="--accent: {{ company.accent_color }};"
+         id="company-{{ company.slug }}"
+         aria-labelledby="company-{{ company.slug }}-name">
+    <div class="company-wash" aria-hidden="true"></div>
 
-                        <!-- Brand Information -->
-                        <div class="brand-info">
-                            <div class="inline-block px-4 py-2 rounded-full text-sm font-semibold text-white mb-4" style="background-color: {{ brand.accent_color }};">
-                                {% if 'Taula' in brand.name %}Premium Beverages
-                                {% elif 'Farmer' in brand.name %}Retail Excellence
-                                {% elif 'Burger' in brand.name %}Quick Service
-                                {% elif 'Tanumapua' in brand.name %}Sustainable Agriculture
-                                {% elif 'Wholesale' in brand.name %}Distribution Leader
-                                {% else %}Venture{% endif %}
-                            </div>
-                            <h3 class="text-4xl font-bold brand-font mb-3 text-blue-900">{{ brand.name }}</h3>
-                            <p class="text-xl font-semibold mb-4" style="color: {{ brand.accent_color }};">{{ brand.tagline }}</p>
-                            <p class="text-gray-700 leading-relaxed mb-6">{{ brand.description }}</p>
+    <div class="company-inner">
+        <div class="company-grid">
 
-                            <!-- Brand Stats/Details -->
-                            <div class="grid grid-cols-2 gap-4 mb-6">
-                                <div class="p-4 rounded-lg" style="background-color: {{ brand.accent_color }}11;">
-                                    <p class="text-sm text-gray-600 mb-1">Established</p>
-                                    <p class="text-2xl font-bold" style="color: {{ brand.accent_color }};">2000+</p>
-                                </div>
-                                <div class="p-4 rounded-lg" style="background-color: {{ brand.accent_color }}11;">
-                                    <p class="text-sm text-gray-600 mb-1">Locations</p>
-                                    <p class="text-2xl font-bold" style="color: {{ brand.accent_color }};">{{ forloop.counter }}</p>
-                                </div>
-                            </div>
-
-                            <a href="{% url 'core:brands' %}" class="inline-block px-6 py-3 rounded-lg font-semibold text-white transition-transform hover:scale-105" style="background-color: {{ brand.accent_color }};">
-                                Explore {{ brand.name }} →
-                            </a>
-                        </div>
-                    </div>
+            <!-- Visual -->
+            <div class="company-visual" data-tilt>
+                <div class="company-orb" aria-hidden="true"></div>
+                <div class="company-plate">
+                    <span class="company-plate-index" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span>
+                    {% if company.logo %}
+                        <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy" class="company-plate-logo">
+                    {% else %}
+                        <span class="company-plate-fallback" aria-hidden="true">{% if 'Farmer' in company.name %}🛒{% elif 'Tanumapua' in company.name %}🌾{% else %}📦{% endif %}</span>
+                    {% endif %}
+                    <span class="company-plate-sector">{{ company.sector|default:"Ah Liki Group" }}</span>
                 </div>
-            {% endfor %}
-        </div>
+            </div>
 
-        <!-- CTA Button -->
-        <div class="text-center mt-20">
-            <a href="{% url 'core:brands' %}" class="inline-block bg-blue-900 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-800 transition-all transform hover:scale-105">
-                Discover All Our Brands
-            </a>
+            <!-- Copy -->
+            <div class="company-copy">
+                <span class="company-sector">
+                    <span class="company-sector-rule" aria-hidden="true"></span>
+                    {{ company.sector|default:"Group Company" }}
+                </span>
+
+                <h3 class="company-name" id="company-{{ company.slug }}-name">{{ company.name }}</h3>
+                <p class="company-tagline">{{ company.tagline }}</p>
+                <p class="company-desc">{{ company.description }}</p>
+
+                {% if company.highlights %}
+                    <ul class="company-chips">
+                        {% for item in company.highlights %}
+                            <li class="company-chip">{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                <div class="company-actions">
+                    <a href="{% url 'products:list' %}?brand={{ company.pk }}" class="company-cta">
+                        View products
+                        <span aria-hidden="true">&rarr;</span>
+                    </a>
+                    <a href="{% url 'core:companies' %}" class="company-link">About this company</a>
+                </div>
+            </div>
         </div>
     </div>
 </section>
+{% endfor %}
 
 <!-- Featured Products -->
 <section class="py-16 bg-gray-50">
@@ -602,41 +868,58 @@
         }));
     });
 
-    // Scroll-triggered 3D rotation for the brand showcase section
+    // ---- Group company sections: scroll reveal + pointer tilt ----
     document.addEventListener('DOMContentLoaded', function () {
-        const showcases = Array.from(document.querySelectorAll('.brand-showcase'));
-        if (!showcases.length) return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const sections = Array.from(document.querySelectorAll('.company'));
+        if (!sections.length) return;
 
-        let visible = new Set();
+        // Reveal each section once as it scrolls into view.
+        if (reduceMotion) {
+            sections.forEach((el) => el.classList.add('is-revealed'));
+        } else {
+            const revealer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add('is-revealed');
+                    revealer.unobserve(entry.target);
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+            sections.forEach((el) => revealer.observe(el));
+        }
 
-        const render = () => {
-            visible.forEach((el) => {
-                const card = el.querySelector('.brand-card-3d');
-                if (!card) return;
-                const isEven = showcases.indexOf(el) % 2 === 0;
-                const rect = el.getBoundingClientRect();
-                const distFromCenter = (rect.top + rect.height / 2) - window.innerHeight / 2;
-                const ratio = Math.max(-1, Math.min(1, distFromCenter / (window.innerHeight / 2)));
-                const rotX = ratio * 5;
-                const rotY = isEven ? 8 - ratio * 16 : -8 + ratio * 16;
-                card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        if (reduceMotion || window.matchMedia('(hover: none)').matches) return;
+
+        // Light 3D: the logo plate tilts toward the cursor.
+        const MAX_TILT = 9;
+
+        document.querySelectorAll('.company-visual[data-tilt]').forEach((visual) => {
+            const plate = visual.querySelector('.company-plate');
+            if (!plate) return;
+
+            let frame = null;
+
+            const onMove = (event) => {
+                if (frame) return;
+                frame = requestAnimationFrame(() => {
+                    frame = null;
+                    const rect = visual.getBoundingClientRect();
+                    const px = (event.clientX - rect.left) / rect.width - 0.5;
+                    const py = (event.clientY - rect.top) / rect.height - 0.5;
+                    plate.style.transform =
+                        'rotateY(' + (px * MAX_TILT * 2).toFixed(2) + 'deg) ' +
+                        'rotateX(' + (-py * MAX_TILT * 2).toFixed(2) + 'deg)';
+                });
+            };
+
+            visual.addEventListener('mouseenter', () => visual.classList.add('is-tilting'));
+            visual.addEventListener('mousemove', onMove);
+            visual.addEventListener('mouseleave', () => {
+                if (frame) { cancelAnimationFrame(frame); frame = null; }
+                visual.classList.remove('is-tilting');
+                plate.style.transform = '';
             });
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    visible.add(entry.target);
-                } else {
-                    visible.delete(entry.target);
-                }
-            });
-            render();
-        }, { threshold: 0.2 });
-
-        showcases.forEach((el) => observer.observe(el));
-        window.addEventListener('scroll', render, { passive: true });
+        });
     });
 </script>
 {% endblock %}

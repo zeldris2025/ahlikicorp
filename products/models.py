@@ -3,10 +3,26 @@ from django.urls import reverse
 
 
 class Brand(models.Model):
+	"""An operating company within the Ah Liki Investment Corporation group.
+
+	Named ``Brand`` for historical reasons; presented to visitors as a
+	"company" throughout the site.
+	"""
+
 	name = models.CharField(max_length=120)
 	slug = models.SlugField(unique=True)
 	tagline = models.CharField(max_length=180)
 	description = models.TextField()
+	sector = models.CharField(
+		max_length=80,
+		blank=True,
+		help_text='Short sector label shown above the company name, e.g. "Wholesale Distribution".',
+	)
+	highlights = models.JSONField(
+		default=list,
+		blank=True,
+		help_text='List of short capability statements shown as chips on the company section.',
+	)
 	accent_color = models.CharField(max_length=7, default='#0A6B4E')
 	logo = models.ImageField(upload_to='brands/', blank=True)
 	sort_order = models.PositiveSmallIntegerField(default=0)

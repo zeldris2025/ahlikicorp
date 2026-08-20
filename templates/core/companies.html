@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Companies | Ah Liki Investment Corporation{% endblock %}
+{% block meta_description %}The operating companies of Ah Liki Investment Corporation Limited — wholesale distribution, supermarket retail, brewing, restaurants and sustainable agriculture in Samoa.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .co-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(155deg, #04212a 0%, #073236 55%, #05202f 100%);
+        color: #fff;
+        padding: 3.5rem 1.5rem;
+    }
+    .co-hero-weave {
+        position: absolute;
+        inset: 0;
+        background-image:
+            repeating-linear-gradient(45deg,  rgba(212,175,55,.07) 0 1px, transparent 1px 16px),
+            repeating-linear-gradient(-45deg, rgba(212,175,55,.07) 0 1px, transparent 1px 16px);
+        mask-image: radial-gradient(ellipse at 25% 50%, black 0%, transparent 78%);
+        -webkit-mask-image: radial-gradient(ellipse at 25% 50%, black 0%, transparent 78%);
+        pointer-events: none;
+    }
+    .co-hero-inner { position: relative; max-width: 76rem; margin: 0 auto; }
+    .co-kicker {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #e8c96a;
+        margin-bottom: 0.85rem;
+    }
+    .co-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(1.9rem, 4vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 0.9rem;
+    }
+    .co-lede {
+        font-size: 1.0625rem;
+        line-height: 1.75;
+        color: rgba(226, 240, 240, 0.72);
+        max-width: 42rem;
+    }
+
+    .co-grid-wrap { max-width: 76rem; margin: 0 auto; padding: 3.5rem 1.5rem 4.5rem; }
+    .co-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    @media (min-width: 700px)  { .co-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1100px) { .co-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .co-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border: 1px solid #eef2f5;
+        border-top: 3px solid var(--accent, #0e7c86);
+        border-radius: 1rem;
+        padding: 1.75rem;
+        box-shadow: 0 6px 20px rgba(4, 33, 42, 0.05);
+        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+    }
+    .co-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 22px 48px rgba(4, 33, 42, 0.13);
+    }
+    .co-card-mark {
+        height: 68px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    .co-card-mark img { max-height: 100%; max-width: 160px; object-fit: contain; }
+    .co-card-mark span { font-size: 2.5rem; line-height: 1; }
+    .co-sector {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent, #0e7c86);
+        margin-bottom: 0.5rem;
+    }
+    .co-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #04212a;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.4rem;
+    }
+    .co-tagline {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.85rem;
+    }
+    .co-desc {
+        font-size: 0.9rem;
+        line-height: 1.7;
+        color: #64748b;
+        margin-bottom: 1.25rem;
+    }
+    .co-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem;
+    }
+    .co-chip {
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #04212a;
+        background: #f7fafb;
+        border: 1px solid #e2e8f0;
+    }
+    .co-cta {
+        margin-top: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--accent, #0e7c86);
+        text-decoration: none;
+    }
+    .co-cta:hover { text-decoration: underline; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .co-card { transition: none !important; }
+        .co-card:hover { transform: none !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="co-hero">
+    <div class="co-hero-weave" aria-hidden="true"></div>
+    <div class="co-hero-inner">
+        <span class="co-kicker">The Group</span>
+        <h1 class="co-title">Our Companies</h1>
+        <p class="co-lede">
+            Ah Liki Investment Corporation Limited operates five companies spanning wholesale
+            distribution, supermarket retail, brewing, restaurants and sustainable agriculture —
+            together serving the entire Samoan market and Samoans abroad.
+        </p>
+    </div>
+</section>
+
+<div class="co-grid-wrap">
+    <div class="co-grid">
+        {% for company in companies %}
+            <article class="co-card" style="--accent: {{ company.accent_color }};">
+                <div class="co-card-mark">
+                    {% if company.logo %}
+                        <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy">
+                    {% else %}
+                        <span aria-hidden="true">{% if 'Farmer' in company.name %}🛒{% elif 'Tanumapua' in company.name %}🌾{% else %}📦{% endif %}</span>
+                    {% endif %}
+                </div>
+
+                <p class="co-sector">{{ company.sector|default:"Group Company" }}</p>
+                <h2 class="co-name">{{ company.name }}</h2>
+                <p class="co-tagline">{{ company.tagline }}</p>
+                <p class="co-desc">{{ company.description }}</p>
+
+                {% if company.highlights %}
+                    <ul class="co-chips">
+                        {% for item in company.highlights %}
+                            <li class="co-chip">{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                <a href="{% url 'products:list' %}?brand={{ company.pk }}" class="co-cta">
+                    View products <span aria-hidden="true">&rarr;</span>
+                </a>
+            </article>
+        {% empty %}
+            <p class="text-gray-600">Company information is being updated.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
