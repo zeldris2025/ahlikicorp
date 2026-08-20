@@ -1,0 +1,93 @@
+{% comment %}
+Animated CSS-3D scene for a company card. Chosen by slug; purely decorative,
+so the whole thing is aria-hidden and pauses under prefers-reduced-motion.
+Usage: {% include 'components/company_scene.html' with slug=company.slug %}
+{% endcomment %}
+
+{% if slug == 'ahliki-wholesale' %}
+    {# Delivery truck rolling along a road #}
+    <div class="scene scene--truck" aria-hidden="true">
+        <div class="truck">
+            <div class="truck-box">
+                <span class="truck-box-stripe"></span>
+                <span class="truck-box-door"></span>
+            </div>
+            <div class="truck-cab">
+                <span class="truck-window"></span>
+                <span class="truck-bumper"></span>
+            </div>
+            <div class="truck-wheel truck-wheel--rear"><span></span></div>
+            <div class="truck-wheel truck-wheel--front"><span></span></div>
+        </div>
+        <div class="road">
+            <i></i><i></i><i></i><i></i>
+        </div>
+        <div class="speedlines"><i></i><i></i><i></i></div>
+    </div>
+
+{% elif slug == 'farmer-joe' %}
+    {# Shopping trolley with items stacked in the basket #}
+    <div class="scene scene--trolley" aria-hidden="true">
+        <div class="trolley">
+            <div class="trolley-goods">
+                <span class="good good--1"></span>
+                <span class="good good--2"></span>
+                <span class="good good--3"></span>
+            </div>
+            <div class="trolley-basket">
+                <i></i><i></i><i></i>
+            </div>
+            <div class="trolley-handle"></div>
+            <div class="trolley-leg"></div>
+            <div class="trolley-wheel trolley-wheel--rear"></div>
+            <div class="trolley-wheel trolley-wheel--front"></div>
+        </div>
+        <div class="road road--soft"><i></i><i></i><i></i><i></i></div>
+    </div>
+
+{% elif slug == 'taula-beverage' %}
+    {# Floating beer bottle, slowly turning, with rising bubbles #}
+    <div class="scene scene--bottle" aria-hidden="true">
+        <div class="bottle-orbit">
+            <div class="bottle">
+                <span class="bottle-cap"></span>
+                <span class="bottle-neck"></span>
+                <span class="bottle-shoulder"></span>
+                <span class="bottle-body">
+                    <span class="bottle-label"><i></i><i></i></span>
+                    <span class="bottle-shine"></span>
+                </span>
+            </div>
+        </div>
+        <div class="bubbles">
+            <i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="scene-shadow"></div>
+    </div>
+
+{% elif slug == 'burger-bills' %}
+    {# Floating burger, layers offset for depth #}
+    <div class="scene scene--burger" aria-hidden="true">
+        <div class="burger">
+            <span class="layer bun-top"><i class="seed s1"></i><i class="seed s2"></i><i class="seed s3"></i></span>
+            <span class="layer lettuce"></span>
+            <span class="layer cheese"></span>
+            <span class="layer patty"></span>
+            <span class="layer bun-base"></span>
+        </div>
+        <div class="scene-shadow"></div>
+    </div>
+
+{% elif slug == 'tanumapua-farm' %}
+    {# Sprouting seedling with a floating egg #}
+    <div class="scene scene--farm" aria-hidden="true">
+        <div class="sprout">
+            <span class="stem"></span>
+            <span class="leaf leaf--l"></span>
+            <span class="leaf leaf--r"></span>
+        </div>
+        <div class="egg"></div>
+        <div class="soil"></div>
+        <div class="sun"></div>
+    </div>
+{% endif %}

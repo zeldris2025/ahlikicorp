@@ -53,7 +53,9 @@
         transition: opacity 0.9s ease;
         overflow: hidden;
     }
-    /* Fades in only once the poster or video is actually ready. */
+    /* The poster is a plain image, so it shows straight away — the hero never
+       depends on JavaScript or on a third-party iframe to look finished. */
+    .hero-media.has-poster,
     .hero-media.is-ready { opacity: 1; }
 
     /* Once footage is playing, pull back the decorative layers that would
@@ -531,16 +533,23 @@
         opacity: 0.55;
         transform: translateZ(30px);
     }
-    .company-plate-logo {
-        max-width: 74%;
-        max-height: 52%;
+    /* Logo demoted to a corner badge so the animated scene can lead. */
+    .company-plate-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1.1rem;
+        max-width: 62px;
+        max-height: 34px;
         object-fit: contain;
-        transform: translateZ(46px);
+        opacity: 0.9;
+        transform: translateZ(40px);
     }
-    .company-plate-fallback {
-        font-size: 4.5rem;
-        line-height: 1;
-        transform: translateZ(46px);
+    .company-plate-stage {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateZ(34px);
     }
     .company-plate-sector {
         font-size: 0.7rem;
@@ -664,6 +673,533 @@
         transition-delay: 0.12s;
     }
 
+    /* ============================================
+       ANIMATED COMPANY SCENES (pure CSS 3D)
+       Each scene is decorative; no library, no canvas.
+       ============================================ */
+    .scene {
+        position: relative;
+        width: 100%;
+        max-width: 230px;
+        height: 158px;
+        transform-style: preserve-3d;
+    }
+    .scene-shadow {
+        position: absolute;
+        left: 50%;
+        bottom: 6px;
+        width: 105px;
+        height: 12px;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: rgba(4, 33, 42, 0.22);
+        filter: blur(7px);
+        animation: shadow-pulse 3.6s ease-in-out infinite;
+    }
+    @keyframes shadow-pulse {
+        0%, 100% { transform: translateX(-50%) scale(1);    opacity: 0.5; }
+        50%      { transform: translateX(-50%) scale(0.82); opacity: 0.3; }
+    }
+
+    /* ---- Shared road ---- */
+    .road {
+        position: absolute;
+        left: 0; right: 0; bottom: 16px;
+        height: 3px;
+        border-radius: 999px;
+        background: rgba(4, 33, 42, 0.1);
+        overflow: hidden;
+    }
+    .road i {
+        position: absolute;
+        top: 0;
+        width: 22px;
+        height: 3px;
+        border-radius: 999px;
+        background: var(--accent, #0e7c86);
+        opacity: 0.45;
+        animation: road-run 1.1s linear infinite;
+    }
+    .road i:nth-child(1) { left: 100%; animation-delay: 0s; }
+    .road i:nth-child(2) { left: 100%; animation-delay: 0.28s; }
+    .road i:nth-child(3) { left: 100%; animation-delay: 0.55s; }
+    .road i:nth-child(4) { left: 100%; animation-delay: 0.82s; }
+    .road--soft i { animation-duration: 1.9s; opacity: 0.3; }
+    @keyframes road-run {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-260px); }
+    }
+
+    /* ============ 1. DELIVERY TRUCK ============ */
+    .scene--truck { perspective: 620px; }
+    .truck {
+        position: absolute;
+        left: 50%; bottom: 19px;
+        width: 186px; height: 88px;
+        transform: translateX(-50%) rotateY(-14deg) rotateX(4deg);
+        transform-style: preserve-3d;
+        animation: truck-bob 1.1s ease-in-out infinite;
+    }
+    @keyframes truck-bob {
+        0%, 100% { transform: translateX(-50%) translateY(0)     rotateY(-14deg) rotateX(4deg); }
+        50%      { transform: translateX(-50%) translateY(-1.5px) rotateY(-14deg) rotateX(4deg); }
+    }
+    .truck-box {
+        position: absolute;
+        left: 0; bottom: 14px;
+        width: 112px; height: 62px;
+        border-radius: 5px 4px 3px 3px;
+        background: linear-gradient(160deg, #ffffff 0%, #eef3f6 55%, #dde6ec 100%);
+        border: 2px solid var(--accent, #0e7c86);
+        box-shadow: inset -8px 0 14px rgba(4, 33, 42, 0.09);
+        transform: translateZ(12px);
+    }
+    .truck-box-stripe {
+        position: absolute;
+        left: 0; right: 0; top: 42%;
+        height: 9px;
+        background: var(--accent, #0e7c86);
+        opacity: 0.9;
+    }
+    .truck-box-door {
+        position: absolute;
+        right: 7px; top: 9px; bottom: 9px;
+        width: 2px;
+        background: rgba(4, 33, 42, 0.18);
+    }
+    .truck-cab {
+        position: absolute;
+        left: 110px; bottom: 14px;
+        width: 60px; height: 45px;
+        border-radius: 5px 12px 3px 3px;
+        background: linear-gradient(160deg, var(--accent, #0e7c86), rgba(4, 33, 42, 0.85));
+        transform: translateZ(12px);
+    }
+    .truck-window {
+        position: absolute;
+        right: 7px; top: 7px;
+        width: 30px; height: 18px;
+        border-radius: 3px 8px 3px 3px;
+        background: linear-gradient(150deg, rgba(255,255,255,0.92), rgba(255,255,255,0.55));
+    }
+    .truck-bumper {
+        position: absolute;
+        right: -4px; bottom: 2px;
+        width: 8px; height: 12px;
+        border-radius: 2px;
+        background: rgba(4, 33, 42, 0.55);
+    }
+    .truck-wheel {
+        position: absolute;
+        bottom: 0;
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        background: #14303a;
+        border: 3px solid #0a1f27;
+        transform: translateZ(14px);
+        animation: wheel-spin 0.62s linear infinite;
+    }
+    .truck-wheel span {
+        position: absolute;
+        inset: 7px;
+        border-radius: 50%;
+        background: #e9eef1;
+    }
+    .truck-wheel span::after {
+        content: '';
+        position: absolute;
+        left: 50%; top: 2px; bottom: 2px;
+        width: 2px;
+        margin-left: -1px;
+        background: #b9c6cd;
+    }
+    .truck-wheel--rear  { left: 18px; }
+    .truck-wheel--front { left: 128px; }
+    @keyframes wheel-spin { to { transform: translateZ(14px) rotate(360deg); } }
+
+    .speedlines {
+        position: absolute;
+        left: 0; top: 34%;
+        width: 46px; height: 30px;
+    }
+    .speedlines i {
+        position: absolute;
+        left: 0;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--accent, #0e7c86);
+        opacity: 0;
+        animation: speed-dash 1.05s ease-out infinite;
+    }
+    .speedlines i:nth-child(1) { top: 2px;  width: 26px; animation-delay: 0s; }
+    .speedlines i:nth-child(2) { top: 12px; width: 34px; animation-delay: 0.18s; }
+    .speedlines i:nth-child(3) { top: 22px; width: 20px; animation-delay: 0.36s; }
+    @keyframes speed-dash {
+        0%   { transform: translateX(14px); opacity: 0; }
+        35%  { opacity: 0.5; }
+        100% { transform: translateX(-30px); opacity: 0; }
+    }
+
+    /* ============ 2. SHOPPING TROLLEY ============ */
+    .scene--trolley { perspective: 620px; }
+    .trolley {
+        position: absolute;
+        left: 50%; bottom: 19px;
+        width: 150px; height: 104px;
+        transform: translateX(-50%) rotateY(-15deg) rotateX(5deg);
+        transform-style: preserve-3d;
+        animation: trolley-roll 2.6s ease-in-out infinite;
+    }
+    @keyframes trolley-roll {
+        0%, 100% { transform: translateX(-50%) rotateY(-15deg) rotateX(5deg) translateY(0); }
+        50%      { transform: translateX(-52%) rotateY(-15deg) rotateX(5deg) translateY(-2px); }
+    }
+    .trolley-basket {
+        position: absolute;
+        left: 20px; bottom: 30px;
+        width: 104px; height: 50px;
+        background: linear-gradient(160deg, rgba(255,255,255,0.96), #eef3f6);
+        border: 2.5px solid var(--accent, #0e7c86);
+        border-top-width: 3px;
+        border-radius: 3px 3px 10px 4px;
+        transform: skewX(-9deg) translateZ(10px);
+        overflow: hidden;
+    }
+    .trolley-basket i {
+        position: absolute;
+        top: 0; bottom: 0;
+        width: 2px;
+        background: var(--accent, #0e7c86);
+        opacity: 0.35;
+    }
+    .trolley-basket i:nth-child(1) { left: 26px; }
+    .trolley-basket i:nth-child(2) { left: 52px; }
+    .trolley-basket i:nth-child(3) { left: 78px; }
+    .trolley-basket::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; top: 22px;
+        height: 2px;
+        background: var(--accent, #0e7c86);
+        opacity: 0.35;
+    }
+    .trolley-goods {
+        position: absolute;
+        left: 30px; bottom: 74px;
+        width: 86px; height: 26px;
+        transform: translateZ(14px);
+    }
+    .good {
+        position: absolute;
+        bottom: 0;
+        border-radius: 3px;
+        animation: good-jiggle 2.6s ease-in-out infinite;
+    }
+    .good--1 { left: 2px;  width: 22px; height: 22px; background: #e0b64e; animation-delay: 0s; }
+    .good--2 { left: 30px; width: 20px; height: 26px; background: var(--accent, #0e7c86); animation-delay: 0.2s; }
+    .good--3 { left: 56px; width: 24px; height: 18px; background: #5c7b20; animation-delay: 0.4s; }
+    @keyframes good-jiggle {
+        0%, 100% { transform: translateY(0)    rotate(0deg); }
+        50%      { transform: translateY(-2px) rotate(-2deg); }
+    }
+    .trolley-handle {
+        position: absolute;
+        right: 6px; bottom: 46px;
+        width: 4px; height: 56px;
+        border-radius: 999px;
+        background: var(--accent, #0e7c86);
+        transform: skewX(-9deg) translateZ(10px);
+    }
+    .trolley-handle::after {
+        content: '';
+        position: absolute;
+        top: -3px; right: -2px;
+        width: 26px; height: 4px;
+        border-radius: 999px;
+        background: var(--accent, #0e7c86);
+    }
+    .trolley-leg {
+        position: absolute;
+        left: 30px; bottom: 12px;
+        width: 84px; height: 3px;
+        border-radius: 999px;
+        background: rgba(4, 33, 42, 0.35);
+        transform: skewX(-9deg) translateZ(8px);
+    }
+    .trolley-wheel {
+        position: absolute;
+        bottom: 0;
+        width: 15px; height: 15px;
+        border-radius: 50%;
+        background: #14303a;
+        border: 2.5px solid #0a1f27;
+        transform: translateZ(12px);
+        animation: wheel-spin 1.3s linear infinite;
+    }
+    .trolley-wheel--rear  { left: 30px; }
+    .trolley-wheel--front { left: 100px; }
+
+    /* ============ 3. FLOATING BEER BOTTLE ============ */
+    .scene--bottle { perspective: 720px; }
+    .bottle-orbit {
+        position: absolute;
+        left: 50%; top: 50%;
+        transform: translate(-50%, -55%);
+        transform-style: preserve-3d;
+        animation: bottle-float 4.2s ease-in-out infinite;
+    }
+    @keyframes bottle-float {
+        0%, 100% { transform: translate(-50%, -52%) rotateY(-16deg) rotateZ(-4deg); }
+        50%      { transform: translate(-50%, -62%) rotateY(16deg)  rotateZ(4deg); }
+    }
+    .bottle {
+        position: relative;
+        width: 52px; height: 122px;
+        transform-style: preserve-3d;
+    }
+    .bottle-cap {
+        position: absolute;
+        left: 50%; top: 0;
+        width: 20px; height: 11px;
+        margin-left: -10px;
+        border-radius: 3px 3px 2px 2px;
+        background: linear-gradient(120deg, #e0b64e, #b8912a);
+    }
+    .bottle-neck {
+        position: absolute;
+        left: 50%; top: 10px;
+        width: 15px; height: 33px;
+        margin-left: -7.5px;
+        background: linear-gradient(100deg,
+            color-mix(in srgb, var(--accent, #0e7c86) 78%, #04212a) 0%,
+            var(--accent, #0e7c86) 42%,
+            color-mix(in srgb, var(--accent, #0e7c86) 70%, #04212a) 100%);
+    }
+    .bottle-shoulder {
+        position: absolute;
+        left: 50%; top: 40px;
+        width: 44px; height: 22px;
+        margin-left: -22px;
+        border-radius: 50% 50% 14% 14% / 90% 90% 12% 12%;
+        background: linear-gradient(100deg,
+            color-mix(in srgb, var(--accent, #0e7c86) 78%, #04212a) 0%,
+            var(--accent, #0e7c86) 42%,
+            color-mix(in srgb, var(--accent, #0e7c86) 70%, #04212a) 100%);
+    }
+    .bottle-body {
+        position: absolute;
+        left: 50%; top: 58px;
+        width: 44px; height: 62px;
+        margin-left: -22px;
+        border-radius: 5px 5px 9px 9px;
+        overflow: hidden;
+        background: linear-gradient(100deg,
+            color-mix(in srgb, var(--accent, #0e7c86) 80%, #04212a) 0%,
+            var(--accent, #0e7c86) 40%,
+            color-mix(in srgb, var(--accent, #0e7c86) 72%, #04212a) 100%);
+    }
+    .bottle-label {
+        position: absolute;
+        left: 0; right: 0; top: 14px;
+        height: 30px;
+        background: linear-gradient(100deg, #f4f7f8, #e2eaee);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+    .bottle-label i {
+        display: block;
+        height: 3px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--accent, #0e7c86) 70%, #04212a);
+        opacity: 0.75;
+    }
+    .bottle-label i:nth-child(1) { width: 24px; }
+    .bottle-label i:nth-child(2) { width: 15px; opacity: 0.5; }
+    .bottle-shine {
+        position: absolute;
+        left: 6px; top: 0; bottom: 0;
+        width: 7px;
+        border-radius: 999px;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0.12));
+    }
+
+    .bubbles { position: absolute; inset: 0; }
+    .bubbles i {
+        position: absolute;
+        bottom: 34px;
+        border-radius: 50%;
+        background: var(--accent, #0e7c86);
+        opacity: 0;
+        animation: bubble-rise 3.4s ease-in infinite;
+    }
+    .bubbles i:nth-child(1) { left: 32%; width: 6px; height: 6px; animation-delay: 0s; }
+    .bubbles i:nth-child(2) { left: 62%; width: 4px; height: 4px; animation-delay: 0.7s; }
+    .bubbles i:nth-child(3) { left: 44%; width: 8px; height: 8px; animation-delay: 1.3s; }
+    .bubbles i:nth-child(4) { left: 71%; width: 5px; height: 5px; animation-delay: 2s; }
+    .bubbles i:nth-child(5) { left: 25%; width: 4px; height: 4px; animation-delay: 2.6s; }
+    @keyframes bubble-rise {
+        0%   { transform: translateY(0) scale(0.6);      opacity: 0; }
+        18%  { opacity: 0.4; }
+        100% { transform: translateY(-104px) scale(1.1); opacity: 0; }
+    }
+
+    /* ============ 4. FLOATING BURGER ============ */
+    .scene--burger { perspective: 760px; }
+    .burger {
+        position: absolute;
+        left: 50%; top: 50%;
+        width: 132px; height: 104px;
+        transform: translate(-50%, -55%);
+        transform-style: preserve-3d;
+        animation: burger-float 5s ease-in-out infinite;
+    }
+    @keyframes burger-float {
+        0%, 100% { transform: translate(-50%, -50%) rotateX(16deg) rotateY(-14deg); }
+        50%      { transform: translate(-50%, -60%) rotateX(16deg) rotateY(14deg); }
+    }
+    .burger .layer {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 3px 6px rgba(4, 33, 42, 0.16);
+    }
+    .bun-top {
+        top: 0;
+        width: 122px; height: 46px;
+        border-radius: 62px 62px 12px 12px;
+        background: linear-gradient(165deg, #f0c073 0%, #dda352 55%, #c78e3f 100%);
+        transform: translateX(-50%) translateZ(18px);
+    }
+    .seed {
+        position: absolute;
+        width: 9px; height: 5px;
+        border-radius: 50%;
+        background: rgba(255, 250, 240, 0.9);
+    }
+    .seed.s1 { left: 30px; top: 16px; transform: rotate(-18deg); }
+    .seed.s2 { left: 56px; top: 9px;  transform: rotate(6deg); }
+    .seed.s3 { left: 82px; top: 18px; transform: rotate(20deg); }
+    .lettuce {
+        top: 40px;
+        width: 130px; height: 15px;
+        border-radius: 999px;
+        background: #6fa832;
+        clip-path: polygon(0% 0%, 100% 0%, 100% 58%, 92% 100%, 82% 58%, 72% 100%, 61% 58%, 50% 100%, 39% 58%, 28% 100%, 18% 58%, 8% 100%, 0% 58%);
+        transform: translateX(-50%) translateZ(22px);
+    }
+    .cheese {
+        top: 52px;
+        width: 124px; height: 12px;
+        border-radius: 4px;
+        background: linear-gradient(160deg, #f6c744, #e8a91e);
+        clip-path: polygon(0% 0%, 100% 0%, 100% 55%, 88% 100%, 74% 55%, 58% 100%, 44% 55%, 28% 100%, 14% 55%, 0% 92%);
+        transform: translateX(-50%) translateZ(20px);
+    }
+    .patty {
+        top: 62px;
+        width: 126px; height: 22px;
+        border-radius: 999px;
+        background: linear-gradient(165deg, #7a4a2b 0%, #5e3620 60%, #4a2a18 100%);
+        transform: translateX(-50%) translateZ(16px);
+    }
+    .bun-base {
+        top: 80px;
+        width: 120px; height: 22px;
+        border-radius: 10px 10px 34px 34px;
+        background: linear-gradient(165deg, #dda352 0%, #c78e3f 60%, #b07c34 100%);
+        transform: translateX(-50%) translateZ(12px);
+    }
+
+    /* ============ 5. FARM: SPROUT + EGG ============ */
+    .scene--farm { perspective: 640px; }
+    .sun {
+        position: absolute;
+        right: 24px; top: 16px;
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 40% 38%, #f4d67a, #e0b64e);
+        box-shadow: 0 0 22px rgba(224, 182, 78, 0.5);
+        animation: sun-pulse 4.5s ease-in-out infinite;
+    }
+    @keyframes sun-pulse {
+        0%, 100% { transform: scale(1);    opacity: 0.9; }
+        50%      { transform: scale(1.08); opacity: 1; }
+    }
+    .soil {
+        position: absolute;
+        left: 50%; bottom: 18px;
+        width: 128px; height: 16px;
+        margin-left: -64px;
+        border-radius: 50% 50% 8px 8px / 100% 100% 8px 8px;
+        background: linear-gradient(160deg, #6b4f2a, #4a3619);
+    }
+    .sprout {
+        position: absolute;
+        left: 50%; bottom: 30px;
+        width: 4px; height: 74px;
+        margin-left: -18px;
+        transform-origin: bottom center;
+        animation: sprout-sway 4s ease-in-out infinite;
+    }
+    @keyframes sprout-sway {
+        0%, 100% { transform: rotate(-3deg); }
+        50%      { transform: rotate(3deg); }
+    }
+    .stem {
+        position: absolute;
+        left: 0; bottom: 0;
+        width: 4px; height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(to top, #3f6b18, var(--accent, #5c7b20));
+    }
+    .leaf {
+        position: absolute;
+        width: 34px; height: 20px;
+        background: var(--accent, #5c7b20);
+    }
+    .leaf--l {
+        left: -32px; top: 12px;
+        border-radius: 100% 6px 100% 6px;
+        transform-origin: right center;
+        animation: leaf-l 4s ease-in-out infinite;
+    }
+    .leaf--r {
+        left: 2px; top: 30px;
+        border-radius: 6px 100% 6px 100%;
+        transform-origin: left center;
+        background: color-mix(in srgb, var(--accent, #5c7b20) 82%, #3f6b18);
+        animation: leaf-r 4s ease-in-out infinite;
+    }
+    @keyframes leaf-l {
+        0%, 100% { transform: rotate(-6deg) scaleY(1); }
+        50%      { transform: rotate(2deg)  scaleY(1.06); }
+    }
+    @keyframes leaf-r {
+        0%, 100% { transform: rotate(6deg)  scaleY(1); }
+        50%      { transform: rotate(-2deg) scaleY(1.06); }
+    }
+    .egg {
+        position: absolute;
+        right: 34px; bottom: 40px;
+        width: 34px; height: 44px;
+        border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+        background: linear-gradient(150deg, #fdf6e6 0%, #f3e3c4 60%, #e3cfa6 100%);
+        box-shadow: inset -5px -3px 10px rgba(120, 95, 55, 0.25);
+        animation: egg-float 3.8s ease-in-out infinite;
+    }
+    @keyframes egg-float {
+        0%, 100% { transform: translateY(0)    rotate(-7deg); }
+        50%      { transform: translateY(-12px) rotate(7deg); }
+    }
+
+    /* Motion off for everything decorative. */
+    @media (prefers-reduced-motion: reduce) {
+        .scene *, .scene { animation: none !important; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .company-orb { animation: none !important; }
         .company-plate { transition: none !important; }
@@ -683,7 +1219,7 @@
         {% if hero_video_file or hero_video_youtube_id %}
             {# The poster (or the gradient below it) paints immediately; the
                video is injected by script only on capable connections. #}
-            <div class="hero-media"
+            <div class="hero-media{% if hero_video_poster %} has-poster{% endif %}"
                  data-hero-video
                  {% if hero_video_file %}data-video-src="{{ hero_video_file }}"{% endif %}
                  {% if hero_video_youtube_id %}data-youtube-id="{{ hero_video_youtube_id }}"{% endif %}
@@ -825,11 +1361,15 @@
                 <div class="company-orb" aria-hidden="true"></div>
                 <div class="company-plate">
                     <span class="company-plate-index" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span>
+
                     {% if company.logo %}
-                        <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy" class="company-plate-logo">
-                    {% else %}
-                        <span class="company-plate-fallback" aria-hidden="true">{% if 'Farmer' in company.name %}🛒{% elif 'Tanumapua' in company.name %}🌾{% else %}📦{% endif %}</span>
+                        <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy" class="company-plate-badge">
                     {% endif %}
+
+                    <div class="company-plate-stage">
+                        {% include 'components/company_scene.html' with slug=company.slug %}
+                    </div>
+
                     <span class="company-plate-sector">{{ company.sector|default:"Ah Liki Group" }}</span>
                 </div>
             </div>

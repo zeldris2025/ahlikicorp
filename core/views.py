@@ -27,7 +27,11 @@ class HomeView(TemplateView):
         # Hero background video. A self-hosted file takes precedence over the
         # YouTube fallback; both are loaded lazily by the template.
         context['hero_video_file'] = settings.HERO_VIDEO_FILE
-        context['hero_video_poster'] = settings.HERO_VIDEO_POSTER
+        poster = settings.HERO_VIDEO_POSTER
+        if poster and not poster.startswith(('http://', 'https://', '/')):
+            from django.templatetags.static import static as static_url
+            poster = static_url(poster)
+        context['hero_video_poster'] = poster
         context['hero_video_youtube_id'] = (
             '' if settings.HERO_VIDEO_FILE else settings.HERO_VIDEO_YOUTUBE_ID
         )

@@ -224,5 +224,5 @@ SOCIAL_LINKS = {
 # Either way the video is deferred — the poster image paints first and the
 # video is only fetched after load on a wide screen with a fast connection.
 HERO_VIDEO_FILE = os.getenv('HERO_VIDEO_FILE', '')
-HERO_VIDEO_POSTER = os.getenv('HERO_VIDEO_POSTER', '')
+HERO_VIDEO_POSTER = os.getenv('HERO_VIDEO_POSTER', 'images/hero_poster.jpg')
 HERO_VIDEO_YOUTUBE_ID = os.getenv('HERO_VIDEO_YOUTUBE_ID', 'qTc19B9_7iQ')
