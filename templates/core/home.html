@@ -42,6 +42,52 @@
         background: radial-gradient(circle, rgba(212, 175, 55, 0.28), transparent 70%);
     }
 
+    /* ---------- Background video layer ---------- */
+    .hero-media {
+        position: absolute;
+        inset: 0;
+        background-color: #04212a;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 0.9s ease;
+        overflow: hidden;
+    }
+    /* Fades in only once the poster or video is actually ready. */
+    .hero-media.is-ready { opacity: 1; }
+
+    .hero-media video,
+    .hero-media iframe {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 0;
+        pointer-events: none;
+    }
+    .hero-media video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    /* A 16:9 iframe has to be over-sized in both axes to cover the box. */
+    .hero-media iframe {
+        width: 100vw;
+        height: 56.25vw;
+        min-height: 100%;
+        min-width: 177.78vh;
+    }
+
+    /* Keeps headline contrast well clear of AA regardless of the footage. */
+    .hero-scrim {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(100deg, rgba(4, 33, 42, 0.94) 0%, rgba(4, 33, 42, 0.82) 42%, rgba(5, 32, 47, 0.62) 100%),
+            linear-gradient(to top, rgba(4, 33, 42, 0.75), transparent 55%);
+        pointer-events: none;
+    }
+
     /* Subtle Polynesian tapa-style lattice */
     .hero-weave {
         position: absolute;
@@ -370,7 +416,11 @@
         padding: 4rem 1.5rem;
         background: #fff;
     }
-    .company--alt { background: #f7fafb; }
+    /* Alternating bands pick up a whisper of the company's own accent rather
+       than a flat neutral, so each section reads as its own space. */
+    .company--alt { background: #f8fafb; }
+    .company--alt { background: color-mix(in srgb, var(--accent, #0e7c86) 4%, #fbfcfc); }
+    .company + .company { border-top: 1px solid #f1f5f9; }
     @media (min-width: 1024px) { .company { padding: 5.5rem 2rem; } }
 
     /* Accent wash bleeding in from the visual side */
@@ -383,7 +433,7 @@
         transform: translateY(-50%);
         border-radius: 50%;
         background: var(--accent, #0e7c86);
-        opacity: 0.07;
+        opacity: 0.09;
         filter: blur(70px);
         pointer-events: none;
     }
@@ -436,6 +486,7 @@
         border-radius: 1.5rem;
         background: #fff;
         border: 1px solid #eef2f5;
+        border-color: color-mix(in srgb, var(--accent, #0e7c86) 14%, #eef2f5);
         box-shadow: 0 24px 60px rgba(4, 33, 42, 0.13);
         display: flex;
         flex-direction: column;
@@ -550,8 +601,13 @@
         color: #04212a;
         background: #fff;
         border: 1px solid #e2e8f0;
+        transition: border-color 0.2s ease, transform 0.2s ease;
     }
-    .company--alt .company-chip { background: #fff; }
+    .company-chip {
+        border-color: color-mix(in srgb, var(--accent, #0e7c86) 26%, #e2e8f0);
+        color: color-mix(in srgb, var(--accent, #0e7c86) 72%, #04212a);
+    }
+    .company-chip:hover { transform: translateY(-2px); }
 
     .company-actions {
         display: flex;
@@ -615,6 +671,16 @@
 <!-- ================= HERO ================= -->
 <section class="hero-v2">
     <div class="hero-bg" aria-hidden="true">
+        {% if hero_video_file or hero_video_youtube_id %}
+            {# The poster (or the gradient below it) paints immediately; the
+               video is injected by script only on capable connections. #}
+            <div class="hero-media"
+                 data-hero-video
+                 {% if hero_video_file %}data-video-src="{{ hero_video_file }}"{% endif %}
+                 {% if hero_video_youtube_id %}data-youtube-id="{{ hero_video_youtube_id }}"{% endif %}
+                 {% if hero_video_poster %}style="background-image: url('{{ hero_video_poster }}');"{% endif %}></div>
+            <div class="hero-scrim"></div>
+        {% endif %}
         <div class="hero-glow hero-glow-a"></div>
         <div class="hero-glow hero-glow-b"></div>
         <div class="hero-weave"></div>
@@ -867,6 +933,95 @@
             },
         }));
     });
+
+    // ---- Hero background video (deferred, guarded) ----
+    // The hero paints from CSS alone. The video is an enhancement that is only
+    // fetched once the page has finished loading AND the device looks capable of
+    // absorbing the cost, so it never competes with first paint.
+    (function () {
+        const host = document.querySelector('[data-hero-video]');
+        if (!host) return;
+
+        function shouldLoad() {
+            // Never override a stated motion preference.
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+            // A background video is decoration; not worth it on small screens
+            // where it is mostly hidden behind the scrim and costs the most.
+            if (window.innerWidth < 1024) return false;
+
+            const net = navigator.connection;
+            if (net) {
+                if (net.saveData) return false;
+                if (/(^|-)2g$/.test(net.effectiveType || '')) return false;
+                if (net.effectiveType === '3g') return false;
+            }
+            return true;
+        }
+
+        function mount() {
+            if (!shouldLoad()) return;
+
+            const fileSrc = host.dataset.videoSrc;
+            const ytId = host.dataset.youtubeId;
+            let media;
+
+            if (fileSrc) {
+                media = document.createElement('video');
+                media.src = fileSrc;
+                media.muted = true;
+                media.loop = true;
+                media.autoplay = true;
+                media.playsInline = true;
+                media.setAttribute('muted', '');
+                media.setAttribute('playsinline', '');
+                media.preload = 'auto';
+                media.addEventListener('loadeddata', () => host.classList.add('is-ready'), { once: true });
+                media.play().catch(() => { /* autoplay refused; poster remains */ });
+            } else if (ytId) {
+                const params = new URLSearchParams({
+                    autoplay: '1', mute: '1', loop: '1', playlist: ytId,
+                    controls: '0', modestbranding: '1', playsinline: '1',
+                    rel: '0', disablekb: '1', fs: '0', iv_load_policy: '3',
+                });
+                media = document.createElement('iframe');
+                // -nocookie avoids setting tracking cookies for visitors who
+                // never interact with the player.
+                media.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?' + params.toString();
+                media.allow = 'autoplay; encrypted-media';
+                media.setAttribute('tabindex', '-1');
+                media.setAttribute('aria-hidden', 'true');
+                media.setAttribute('title', 'Background video');
+                media.addEventListener('load', () => host.classList.add('is-ready'), { once: true });
+            } else {
+                return;
+            }
+
+            host.appendChild(media);
+
+            // Stop paying for decode/playback once the hero is off screen.
+            if (media.tagName === 'VIDEO') {
+                const vis = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            media.play().catch(() => {});
+                        } else {
+                            media.pause();
+                        }
+                    });
+                }, { threshold: 0.01 });
+                vis.observe(host);
+            }
+        }
+
+        // Wait for load, then for an idle moment, so the video never delays
+        // first paint or competes with the critical rendering path.
+        const schedule = () => (window.requestIdleCallback || ((fn) => setTimeout(fn, 400)))(mount);
+        if (document.readyState === 'complete') {
+            schedule();
+        } else {
+            window.addEventListener('load', schedule, { once: true });
+        }
+    })();
 
     // ---- Group company sections: scroll reveal + pointer tilt ----
     document.addEventListener('DOMContentLoaded', function () {

@@ -214,3 +214,15 @@ SOCIAL_LINKS = {
     'tiktok': os.getenv('SOCIAL_TIKTOK', ''),
     'linkedin': os.getenv('SOCIAL_LINKEDIN', ''),
 }
+
+# --- Hero background video -------------------------------------------------
+# A self-hosted file is strongly preferred: a YouTube iframe pulls roughly a
+# megabyte of third-party JavaScript and is the single heaviest thing that can
+# be put on a landing page. If HERO_VIDEO_FILE is set it always wins; the
+# YouTube ID is only used as a fallback.
+#
+# Either way the video is deferred — the poster image paints first and the
+# video is only fetched after load on a wide screen with a fast connection.
+HERO_VIDEO_FILE = os.getenv('HERO_VIDEO_FILE', '')
+HERO_VIDEO_POSTER = os.getenv('HERO_VIDEO_POSTER', '')
+HERO_VIDEO_YOUTUBE_ID = os.getenv('HERO_VIDEO_YOUTUBE_ID', 'qTc19B9_7iQ')

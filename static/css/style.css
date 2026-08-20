@@ -7,6 +7,8 @@
 }
 
 /* Typography */
+/* Base typography also set inline in base.html; kept here so the stylesheet
+   stands alone if the inline block is ever extracted. */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: #1f2937;
@@ -140,21 +142,24 @@ body {
     color: #1e3a5f;
 }
 
-/* Navigation */
-nav {
+/* Navigation
+   Scoped to .legacy-nav on purpose: a bare `nav` selector also matched the
+   <nav> inside the site header, adding a stray white background, a second
+   box-shadow and 16px of padding to it. */
+.legacy-nav {
     background: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 16px 0;
 }
 
-nav a {
+.legacy-nav a {
     color: #1e3a5f;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
 }
 
-nav a:hover {
+.legacy-nav a:hover {
     color: #0e7c86;
 }
 

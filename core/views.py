@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, DetailView
 from django.contrib import messages
@@ -22,6 +23,14 @@ class HomeView(TemplateView):
         context['brands'] = companies
         context['featured_products'] = cache.get_or_set('featured_products', lambda: Product.objects.filter(is_active=True, is_exclusive=True)[:6], 1800)
         context['locations_count'] = cache.get_or_set('locations_count', lambda: Location.objects.count(), 3600)
+
+        # Hero background video. A self-hosted file takes precedence over the
+        # YouTube fallback; both are loaded lazily by the template.
+        context['hero_video_file'] = settings.HERO_VIDEO_FILE
+        context['hero_video_poster'] = settings.HERO_VIDEO_POSTER
+        context['hero_video_youtube_id'] = (
+            '' if settings.HERO_VIDEO_FILE else settings.HERO_VIDEO_YOUTUBE_ID
+        )
         return context
 
 class AboutView(TemplateView):

@@ -2,12 +2,16 @@ from django.core.management.base import BaseCommand
 
 from products.models import Brand
 
-# Sector labels and capability statements for each operating company.
+# Sector labels, capability statements and accent colours for each company.
+# Accent colours are sampled from each company's logo where one exists, then
+# darkened until they meet WCAG AA (4.5:1) against white, since they are used
+# as heading and tagline text on light backgrounds.
 # Sourced from the company overview supplied for the project — adjust in the
 # Django admin (Products → Brands) rather than editing this file for one-offs.
 PROFILES = {
     'ahliki-wholesale': {
         'sector': 'Wholesale Distribution',
+        'accent_color': '#2278ac',
         'tagline': 'Bulk food and non-food distribution across Samoa',
         'description': (
             'The distribution backbone of the group, supplying bulk food, foodstuff and '
@@ -24,6 +28,7 @@ PROFILES = {
     },
     'farmer-joe': {
         'sector': 'Supermarket Retail',
+        'accent_color': '#0b818b',
         'tagline': 'Samoa’s trusted supermarket chain',
         'description': (
             'A supermarket chain serving families across Upolu with everyday groceries, '
@@ -39,6 +44,7 @@ PROFILES = {
     },
     'taula-beverage': {
         'sector': 'Brewing & Beverages',
+        'accent_color': '#007830',
         'tagline': '100% Samoan-owned brewery',
         'description': (
             'A wholly Samoan-owned brewery and beverage producer. Taula produces beers, '
@@ -54,6 +60,7 @@ PROFILES = {
     },
     'burger-bills': {
         'sector': 'Restaurants & Quick Service',
+        'accent_color': '#d80000',
         'tagline': 'Quick-service dining done properly',
         'description': (
             'The group’s restaurant and fast-food venture, serving freshly prepared meals '
@@ -68,6 +75,7 @@ PROFILES = {
     },
     'tanumapua-farm': {
         'sector': 'Sustainable Agriculture',
+        'accent_color': '#5c7b20',
         'tagline': 'Locally grown, sustainably farmed',
         'description': (
             'Our agricultural operation, producing eggs, fresh produce and local chicken '
@@ -107,6 +115,7 @@ class Command(BaseCommand):
 
             brand.sector = profile['sector']
             brand.highlights = profile['highlights']
+            brand.accent_color = profile['accent_color']
             if not options['keep_copy']:
                 brand.tagline = profile['tagline']
                 brand.description = profile['description']
