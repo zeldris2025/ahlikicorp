@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Create Account | Ah Liki{% endblock %}
+{% block content %}
+<section class="max-w-xl mx-auto px-4 py-16">
+    <h1 class="section-heading">Create your account</h1>
+    <form method="post" class="bg-gray-50 border rounded-lg p-7 space-y-5">
+        {% csrf_token %}
+        {% for field in form %}<div><label class="block font-semibold mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="text-xs text-gray-500 mt-1">{{ field.help_text|safe }}</div>{% endif %}{% for error in field.errors %}<p class="text-red-700 text-sm">{{ error }}</p>{% endfor %}</div>{% endfor %}
+        <button class="btn-primary" type="submit">Create account</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Login | Ah Liki{% endblock %}
+{% block content %}
+<section class="max-w-md mx-auto px-4 py-16">
+    <h1 class="section-heading">Welcome back</h1>
+    <form method="post" class="bg-gray-50 border rounded-lg p-7 space-y-5">
+        {% csrf_token %}
+        <div><label for="email" class="block font-semibold mb-2">Email</label><input id="email" name="email" type="email" required class="w-full px-4 py-3 border rounded-lg"></div>
+        <div><label for="password" class="block font-semibold mb-2">Password</label><input id="password" name="password" type="password" required class="w-full px-4 py-3 border rounded-lg"></div>
+        <button class="btn-primary w-full" type="submit">Login</button>
+    </form>
+    <p class="text-center text-gray-600 mt-5">New here? <a class="text-teal-700 font-semibold" href="{% url 'accounts:register' %}">Create an account</a></p>
+</section>
+{% endblock %}

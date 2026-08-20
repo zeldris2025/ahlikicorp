@@ -3,15 +3,320 @@
 
 {% block title %}Home - Ah Liki Investment Corporation{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Hero: Woolworths-inspired clean, professional layout */
+    .hero-pattern {
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(30, 58, 95, 0.06) 1px, transparent 0);
+        background-size: 28px 28px;
+        mask-image: linear-gradient(to bottom, black, transparent 85%);
+        -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    .hero-eyebrow {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        background-color: #fef3c7;
+        color: #92400e;
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 2.5rem;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.25rem;
+    }
+    @media (min-width: 768px) {
+        .hero-title { font-size: 3.5rem; }
+    }
+
+    .hero-subtitle {
+        font-size: 1.125rem;
+        line-height: 1.7;
+        color: #475569;
+        max-width: 34rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Search bar */
+    .hero-search {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 0.5rem 0.5rem 0.5rem 1rem;
+        max-width: 34rem;
+        margin-bottom: 1.75rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hero-search:focus-within {
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+    }
+    .hero-search-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        color: #94a3b8;
+    }
+    .hero-search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 0.95rem;
+        color: #0f172a;
+        min-width: 0;
+        background: transparent;
+    }
+    .hero-search-input::placeholder { color: #94a3b8; }
+    .hero-search-btn {
+        flex-shrink: 0;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .hero-search-btn:hover { background-color: #1e40af; }
+
+    .hero-cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+    }
+
+    /* Trust stats */
+    .hero-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.75rem;
+    }
+    .hero-stat {
+        display: flex;
+        flex-direction: column;
+        padding-right: 1.75rem;
+        border-right: 1px solid #e2e8f0;
+    }
+    .hero-stat:last-child { border-right: none; padding-right: 0; }
+    .hero-stat-number {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e3a8a;
+        line-height: 1.2;
+    }
+    .hero-stat-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* Right-side brand tile mosaic */
+    .hero-visual {
+        position: relative;
+    }
+    .hero-tile-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    .hero-tile {
+        background: #f8fafc;
+        background: linear-gradient(160deg, color-mix(in srgb, var(--tile-accent) 12%, white), color-mix(in srgb, var(--tile-accent) 4%, white));
+        border: 1px solid #e2e8f0;
+        border: 1px solid color-mix(in srgb, var(--tile-accent) 20%, white);
+        border-radius: 1rem;
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hero-tile:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+    }
+    .hero-tile-1 { margin-top: 1.5rem; }
+    .hero-tile-3 { margin-top: -1.5rem; }
+    .hero-tile-icon { font-size: 2.25rem; line-height: 1; }
+    .hero-tile-name {
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: #0f172a;
+    }
+
+    .hero-badge {
+        position: absolute;
+        bottom: -1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 0.6rem 1.1rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #0f172a;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+        white-space: nowrap;
+    }
+    .hero-badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #16a34a;
+        flex-shrink: 0;
+    }
+
+    /* Quick links row */
+    .hero-quicklinks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 3.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid #f1f5f9;
+    }
+    .hero-quicklink {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 0.6rem 1.1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1e293b;
+        text-decoration: none;
+        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+    .hero-quicklink:hover {
+        background-color: white;
+        border-color: #1e3a8a;
+        transform: translateY(-2px);
+    }
+    .hero-quicklink-icon { font-size: 1rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-tile, .hero-quicklink, .animate-fade-in-up { transition: none !important; animation: none !important; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-r from-blue-900 via-teal-700 to-orange-600 text-white py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-5xl md:text-6xl font-bold brand-font mb-4 animate-fade-in-up">Welcome to Ah Liki</h1>
-        <p class="text-xl md:text-2xl mb-8 text-gray-100">Samoan-owned excellence in wholesale, retail, beverages, and dining</p>
-        <div class="space-x-4">
-            <a href="{% url 'products:list' %}" class="inline-block bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-bold hover:bg-yellow-300 transition">Shop Products</a>
-            <a href="{% url 'quotes:create' %}" class="inline-block bg-white text-blue-900 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition">Request Quote</a>
+<section class="hero-section relative bg-white overflow-hidden border-b border-gray-100">
+    <div class="hero-pattern absolute inset-0 pointer-events-none"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+            <!-- Left: Copy, search, CTAs, trust stats -->
+            <div class="animate-fade-in-up">
+                <span class="hero-eyebrow">Proudly Samoan-Owned Since 2000</span>
+                <h1 class="hero-title">
+                    Quality you can trust,<br>delivered across Samoa.
+                </h1>
+                <p class="hero-subtitle">
+                    From wholesale distribution to your local supermarket shelf — Ah Liki Investment Corporation brings five trusted brands together under one commitment to quality and community.
+                </p>
+
+                <!-- Product Search Bar -->
+                <form method="get" action="{% url 'products:list' %}" class="hero-search" role="search">
+                    <svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="query" placeholder="Search products, e.g. Samoa Lager, Taro..." class="hero-search-input" aria-label="Search products">
+                    <button type="submit" class="hero-search-btn">Search</button>
+                </form>
+
+                <div class="hero-cta-row">
+                    <a href="{% url 'products:list' %}" class="btn-primary">Shop Products</a>
+                    <a href="{% url 'quotes:create' %}" class="btn-outline">Request a Quote</a>
+                </div>
+
+                <!-- Trust Stats -->
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">20+</span>
+                        <span class="hero-stat-label">Years Trading</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">5</span>
+                        <span class="hero-stat-label">Trusted Brands</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">{{ locations_count|default:"10+" }}</span>
+                        <span class="hero-stat-label">Locations</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-number">100%</span>
+                        <span class="hero-stat-label">Samoan-Owned</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Brand tile mosaic -->
+            <div class="hero-visual">
+                <div class="hero-tile-grid">
+                    {% for brand in brands %}
+                        <div class="hero-tile hero-tile-{{ forloop.counter }}" style="--tile-accent: {{ brand.accent_color }};">
+                            <div class="hero-tile-icon">
+                                {% if 'Taula' in brand.name %}🍺
+                                {% elif 'Farmer' in brand.name %}🛒
+                                {% elif 'Burger' in brand.name %}🍔
+                                {% elif 'Tanumapua' in brand.name %}🌾
+                                {% else %}📦{% endif %}
+                            </div>
+                            <span class="hero-tile-name">{{ brand.name }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    Trusted by families across Samoa
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Category Pills (Woolworths-style department nav) -->
+        <div class="hero-quicklinks">
+            <a href="{% url 'products:list' %}?is_exclusive=1" class="hero-quicklink">
+                <span class="hero-quicklink-icon">⭐</span> Exclusive Products
+            </a>
+            <a href="{% url 'core:brands' %}" class="hero-quicklink">
+                <span class="hero-quicklink-icon">🏢</span> Our Brands
+            </a>
+            <a href="{% url 'core:locations' %}" class="hero-quicklink">
+                <span class="hero-quicklink-icon">📍</span> Find a Location
+            </a>
+            <a href="{% url 'quotes:create' %}" class="hero-quicklink">
+                <span class="hero-quicklink-icon">📋</span> Bulk Quote Request
+            </a>
         </div>
     </div>
 </section>
@@ -207,7 +512,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-4xl font-bold brand-font mb-4">Need a Quote?</h2>
         <p class="text-xl mb-8 text-gray-100">Request competitive pricing on bulk orders. Our finance team will respond within 24 hours.</p>
-        <a href="{% url 'quotes:create' %}" class="btn-outline">Start Your Quote</a>
+        <a href="{% url 'quotes:create' %}" class="inline-block px-6 py-3 bg-white text-blue-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Start Your Quote</a>
     </div>
 </section>
 {% endblock %}

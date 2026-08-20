@@ -21,7 +21,7 @@ class QuoteCreateView(CreateView):
     def form_valid(self, form):
         quote = form.save(commit=False)
         quote.customer = self.request.user if self.request.user.is_authenticated else None
-        quote = form.save()
+        quote.save()
         send_quote_confirmation_email(quote)
         notify_finance_team(quote)
         messages.success(self.request, f'Quote {quote.reference} submitted successfully!')

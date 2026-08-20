@@ -14,6 +14,7 @@ class HomeView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['brands'] = cache.get_or_set('brands', lambda: Brand.objects.all()[:5], 3600)
         context['featured_products'] = cache.get_or_set('featured_products', lambda: Product.objects.filter(is_active=True, is_exclusive=True)[:6], 1800)
+        context['locations_count'] = cache.get_or_set('locations_count', lambda: Location.objects.count(), 3600)
         return context
 
 class AboutView(TemplateView):

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Brands | Ah Liki{% endblock %}
+
+{% block content %}
+<section class="bg-teal-900 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <h1 class="brand-font text-4xl md:text-5xl font-bold">Our brands</h1>
+        <p class="mt-4 text-teal-100 text-lg">A diverse family of businesses serving everyday needs.</p>
+    </div>
+</section>
+<section class="max-w-7xl mx-auto px-4 py-14">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for brand in brands %}
+        <article class="card border-t-4" style="border-color: {{ brand.accent_color }}">
+            {% if brand.logo %}<img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="h-20 w-full object-contain mb-5">{% endif %}
+            <h2 class="brand-font text-2xl text-blue-950">{{ brand.name }}</h2>
+            <p class="font-semibold text-teal-700 mt-2">{{ brand.tagline }}</p>
+            <p class="text-gray-600 mt-4">{{ brand.description }}</p>
+        </article>
+        {% empty %}
+        <p class="text-gray-600">Brand information is being updated.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
