@@ -10,7 +10,6 @@
     <meta name="og:image" content="{% block og_image %}{% static 'images/og-image.png' %}{% endblock %}">
     <title>{% block title %}Ah Liki Investment Corporation{% endblock %}</title>
     <link href="https://cdn.tailwindcss.com" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
         :root {
@@ -47,6 +46,84 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+
+        /* Enhanced Styling */
+        .perspective {
+            perspective: 1000px;
+        }
+
+        .brand-card-3d {
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+            transform-style: preserve-3d;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-showcase:nth-child(even) .brand-card-3d {
+            transform: rotateY(-8deg) rotateX(5deg);
+        }
+
+        .brand-showcase:nth-child(odd) .brand-card-3d {
+            transform: rotateY(8deg) rotateX(5deg);
+        }
+
+        .brand-showcase:hover .brand-card-3d {
+            transform: rotateY(0deg) rotateX(0deg) translateY(-10px) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .brand-logo-container {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .brand-showcase:nth-child(even) .brand-logo-container {
+            animation-delay: 0.5s;
+        }
+
+        .brand-info h3 {
+            transition: all 0.3s ease;
+        }
+
+        .brand-showcase:hover .brand-info h3 {
+            transform: translateX(10px);
+        }
+
+        /* Hero Section Enhanced */
+        section:first-of-type {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0e7c86 50%, #d4af37 100%);
+            color: white;
+        }
+
+        section:first-of-type h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+        }
+
+        section:first-of-type p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+        }
+
+        /* Button Enhancements */
+        .btn-primary:active { transform: translateY(2px); }
+        .btn-secondary:active { transform: translateY(2px); }
+        .btn-outline:active { transform: translateY(2px); }
+
+        /* Card Shadows */
+        .card-hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-hover:hover {
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
