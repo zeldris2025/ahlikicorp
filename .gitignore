@@ -43,3 +43,6 @@ staticfiles/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Original uncompressed source media (kept locally, never served)
+assets_src/

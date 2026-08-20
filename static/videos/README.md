@@ -11,6 +11,18 @@ automatically — no settings change, no code change.
 Discovery is cached for 5 minutes, so allow a moment (or restart the dev
 server) after adding a file.
 
+## The current file
+
+`hero_video.mp4` is an 18-second, silent, 1280x720 cut taken from 1:32 of
+the full company video — the run of logistics footage covering loading,
+the Ah Liki truck on the road, the branding on the truck door, and the
+warehouse forklifts. It stops before the interview segment at 1:52, since
+talking heads and caption overlays do not work behind a hero.
+
+It was cut from 60 MB down to 1.9 MB. The uncompressed original is kept
+in `assets_src/` at the project root, which is git-ignored and never
+served — recut from there if you want a different section.
+
 ## Getting the file
 
 The hero video is your own upload, so download the original from
