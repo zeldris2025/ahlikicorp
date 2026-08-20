@@ -246,7 +246,7 @@
         .toasts {
             position: fixed;
             /* Clears the sticky header rather than sitting underneath it. */
-            top: 5.75rem;
+            top: 6.5rem;
             right: 1.25rem;
             z-index: 55;
             display: flex;
@@ -516,7 +516,7 @@
             max-width: 80rem;
             margin: 0 auto;
             padding: 0 1.5rem;
-            height: 4.5rem;
+            height: 5.25rem;
             display: flex;
             align-items: center;
             gap: 2rem;
@@ -531,8 +531,8 @@
             flex-shrink: 0;
         }
         .site-brand-mark {
-            width: 40px;
-            height: 40px;
+            width: 56px;
+            height: 56px;
             object-fit: contain;
             flex-shrink: 0;
         }
@@ -544,12 +544,12 @@
         .site-brand-name {
             font-family: 'Poppins', sans-serif;
             font-weight: 800;
-            font-size: 1.15rem;
+            font-size: 1.32rem;
             color: #04212a;
             letter-spacing: -0.02em;
         }
         .site-brand-sub {
-            font-size: 0.6875rem;
+            font-size: 0.72rem;
             font-weight: 600;
             letter-spacing: 0.06em;
             text-transform: uppercase;
@@ -923,9 +923,11 @@
                     this.suggestions = this.starters;
                     this.messages = [{
                         role: 'bot',
-                        text: 'Talofa. I can answer questions about Ah Liki Investment Corporation, our companies, our wholesale catalogue and how quotes work. What would you like to know?',
+                        text: 'Talofa! How can I help you today?',
                         links: [],
                     }];
+
+                    this.maybeAutoOpen();
                 },
 
                 readJSON(id) {
@@ -935,7 +937,36 @@
                 },
 
                 toggle() { this.open ? this.close() : (this.open = true, this.scrollLog()); },
-                close()  { this.open = false; },
+
+                close() {
+                    this.open = false;
+                    // Once dismissed, stop reopening for the rest of the visit.
+                    this.remember();
+                },
+
+                /* Greets the visitor on arrival, but only once per visit:
+                   reopening on every page they click through to would be
+                   irritating rather than helpful. Skipped on small screens,
+                   where the panel would cover the page they came to read. */
+                maybeAutoOpen() {
+                    try {
+                        if (sessionStorage.getItem('ahliki-assistant-seen')) return;
+                    } catch (e) {
+                        return; // storage blocked; stay closed rather than nag
+                    }
+                    if (window.innerWidth < 640) return;
+                    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+                    const self = this;
+                    setTimeout(function () {
+                        if (!self.open) { self.open = true; self.scrollLog(); }
+                        self.remember();
+                    }, 1200);
+                },
+
+                remember() {
+                    try { sessionStorage.setItem('ahliki-assistant-seen', '1'); } catch (e) { /* ignore */ }
+                },
 
                 submit() {
                     const text = this.draft.trim();
