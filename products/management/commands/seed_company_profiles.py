@@ -31,7 +31,7 @@ PROFILES = {
     'farmer-joe': {
         'sort_order': 2,
         'sector': 'Supermarket Retail',
-        'accent_color': '#0b818b',
+        'accent_color': '#a01722',
         'tagline': 'Samoa’s trusted supermarket chain',
         'description': (
             'A supermarket chain serving families across Upolu with everyday groceries, '

@@ -11,6 +11,7 @@ LOGO_MAP = {
     'ahliki-wholesale': 'ahliki_logo.png',
     'burger-bills': 'burgerbills_logo.png',
     'taula-beverage': 'taula_logo.png',
+    'farmer-joe': 'farmerjoe_logo.png',
 }
 
 
