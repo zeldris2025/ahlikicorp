@@ -11,4 +11,5 @@ pillow==10.0.0
 python-dotenv==1.0.0
 django-cors-headers==4.0.0
 django-filter==23.2
+django-cors-headers==4.0.0
 weasyprint==58.0
