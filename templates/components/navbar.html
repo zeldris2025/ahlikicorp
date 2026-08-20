@@ -53,7 +53,7 @@
                     <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
                 My Quote
-                {% if quote_basket_count %}<span class="site-cta-count">{{ quote_basket_count }}</span>{% endif %}
+                <span class="site-cta-count" data-basket-count {% if not quote_basket_count %}hidden{% endif %}>{{ quote_basket_count }}</span>
             </a>
 
             {% if user.is_authenticated %}

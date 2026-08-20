@@ -44,13 +44,23 @@
                     <p class="text-xs text-gray-500 mb-1">{{ product.category.name }}</p>
                     <p class="text-xs text-gray-400 mb-4">SKU {{ product.sku }}</p>
 
-                    <form method="post" action="{% url 'quotes:basket_add' product.pk %}" class="mt-auto flex gap-2">
+                    <form method="post" action="{% url 'quotes:basket_add' product.pk %}"
+                          class="mt-auto flex gap-2"
+                          x-data="addToQuote({{ product.pk }}, {% if product.pk in quote_basket_ids %}true{% else %}false{% endif %})"
+                          @submit.prevent="send($event.target)">
                         {% csrf_token %}
                         <input type="number" name="quantity" value="1" min="1"
                                class="w-16 px-2 py-2 border border-gray-300 rounded text-sm"
                                aria-label="Quantity of {{ product.name }}">
-                        <button type="submit" class="flex-1 bg-[#04212a] text-white text-sm font-semibold py-2 rounded hover:bg-[#073236] transition">
-                            Add to quote
+                        <button type="submit" class="add-quote-btn" :class="added ? 'is-added' : ''" :disabled="busy">
+                            <span x-show="!added && !busy">Add to quote</span>
+                            <span x-show="busy">Adding&hellip;</span>
+                            <span x-show="added && !busy" class="add-quote-done">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Added
+                            </span>
                         </button>
                     </form>
                 </div>

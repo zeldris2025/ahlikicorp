@@ -67,11 +67,21 @@ def social_links(request):
 
 
 def quote_basket(request):
-    """Item count for the quote basket indicator in the header."""
+    """Basket state for the header indicator and the catalogue buttons.
+
+    ``quote_basket_ids`` lets a product already in the basket render in its
+    added state on first paint, rather than flashing 'Add to quote' and then
+    correcting itself.
+    """
     if not hasattr(request, 'session'):
-        return {'quote_basket_count': 0}
+        return {'quote_basket_count': 0, 'quote_basket_ids': []}
+
     from quotes.basket import QuoteBasket
-    return {'quote_basket_count': len(QuoteBasket(request))}
+    basket = QuoteBasket(request)
+    return {
+        'quote_basket_count': len(basket),
+        'quote_basket_ids': [int(pk) for pk in basket.basket.keys()],
+    }
 
 
 def site_assistant(request):
