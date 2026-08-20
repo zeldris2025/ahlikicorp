@@ -2,7 +2,8 @@ from django.core.management.base import BaseCommand
 
 from products.models import Brand
 
-# Sector labels, capability statements and accent colours for each company.
+# Display order, sector labels, capability statements and accent colours for
+# each operating company.
 # Accent colours are sampled from each company's logo where one exists, then
 # darkened until they meet WCAG AA (4.5:1) against white, since they are used
 # as heading and tagline text on light backgrounds.
@@ -10,6 +11,7 @@ from products.models import Brand
 # Django admin (Products → Brands) rather than editing this file for one-offs.
 PROFILES = {
     'ahliki-wholesale': {
+        'sort_order': 1,
         'sector': 'Wholesale Distribution',
         'accent_color': '#2278ac',
         'tagline': 'Bulk food and non-food distribution across Samoa',
@@ -27,6 +29,7 @@ PROFILES = {
         ],
     },
     'farmer-joe': {
+        'sort_order': 2,
         'sector': 'Supermarket Retail',
         'accent_color': '#0b818b',
         'tagline': 'Samoa’s trusted supermarket chain',
@@ -43,6 +46,7 @@ PROFILES = {
         ],
     },
     'taula-beverage': {
+        'sort_order': 3,
         'sector': 'Brewing & Beverages',
         'accent_color': '#007830',
         'tagline': '100% Samoan-owned brewery',
@@ -59,6 +63,7 @@ PROFILES = {
         ],
     },
     'burger-bills': {
+        'sort_order': 4,
         'sector': 'Restaurants & Quick Service',
         'accent_color': '#d80000',
         'tagline': 'Quick-service dining done properly',
@@ -74,6 +79,7 @@ PROFILES = {
         ],
     },
     'tanumapua-farm': {
+        'sort_order': 5,
         'sector': 'Sustainable Agriculture',
         'accent_color': '#5c7b20',
         'tagline': 'Locally grown, sustainably farmed',
@@ -116,6 +122,7 @@ class Command(BaseCommand):
             brand.sector = profile['sector']
             brand.highlights = profile['highlights']
             brand.accent_color = profile['accent_color']
+            brand.sort_order = profile['sort_order']
             if not options['keep_copy']:
                 brand.tagline = profile['tagline']
                 brand.description = profile['description']

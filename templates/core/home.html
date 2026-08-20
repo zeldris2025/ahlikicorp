@@ -56,6 +56,12 @@
     /* Fades in only once the poster or video is actually ready. */
     .hero-media.is-ready { opacity: 1; }
 
+    /* Once footage is playing, pull back the decorative layers that would
+       otherwise sit on top of it as noise. */
+    .hero-v2.has-video .hero-weave { opacity: 0; }
+    .hero-v2.has-video .hero-glow { opacity: 0.22; }
+    .hero-weave, .hero-glow { transition: opacity 0.9s ease; }
+
     .hero-media video,
     .hero-media iframe {
         position: absolute;
@@ -82,9 +88,12 @@
     .hero-scrim {
         position: absolute;
         inset: 0;
+        /* Heavy on the left where the headline sits, light on the right so the
+           footage is actually visible. White text over the left end stays far
+           above the AA threshold. */
         background:
-            linear-gradient(100deg, rgba(4, 33, 42, 0.94) 0%, rgba(4, 33, 42, 0.82) 42%, rgba(5, 32, 47, 0.62) 100%),
-            linear-gradient(to top, rgba(4, 33, 42, 0.75), transparent 55%);
+            linear-gradient(100deg, rgba(4, 33, 42, 0.92) 0%, rgba(4, 33, 42, 0.72) 40%, rgba(5, 32, 47, 0.34) 100%),
+            linear-gradient(to top, rgba(4, 33, 42, 0.78), transparent 48%);
         pointer-events: none;
     }
 
@@ -935,31 +944,42 @@
     });
 
     // ---- Hero background video (deferred, guarded) ----
-    // The hero paints from CSS alone. The video is an enhancement that is only
-    // fetched once the page has finished loading AND the device looks capable of
-    // absorbing the cost, so it never competes with first paint.
+    // The hero paints from CSS alone. The video is an enhancement fetched only
+    // after load, and only when the device looks able to absorb the cost, so it
+    // never competes with first paint.
     (function () {
         const host = document.querySelector('[data-hero-video]');
         if (!host) return;
+        const hero = host.closest('.hero-v2');
 
-        function shouldLoad() {
-            // Never override a stated motion preference.
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-            // A background video is decoration; not worth it on small screens
-            // where it is mostly hidden behind the scrim and costs the most.
-            if (window.innerWidth < 1024) return false;
-
+        function skipReason() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                return 'the visitor prefers reduced motion';
+            }
+            // Below this width the footage is mostly hidden behind the scrim
+            // while costing the most to fetch.
+            if (window.innerWidth < 768) {
+                return 'the viewport is narrower than 768px';
+            }
             const net = navigator.connection;
             if (net) {
-                if (net.saveData) return false;
-                if (/(^|-)2g$/.test(net.effectiveType || '')) return false;
-                if (net.effectiveType === '3g') return false;
+                if (net.saveData) return 'Save-Data is enabled';
+                if (/2g/.test(net.effectiveType || '')) return 'the connection reports ' + net.effectiveType;
             }
-            return true;
+            return null;
+        }
+
+        function reveal() {
+            host.classList.add('is-ready');
+            if (hero) hero.classList.add('has-video');
         }
 
         function mount() {
-            if (!shouldLoad()) return;
+            const skip = skipReason();
+            if (skip) {
+                console.info('[hero] Background video skipped because ' + skip + '.');
+                return;
+            }
 
             const fileSrc = host.dataset.videoSrc;
             const ytId = host.dataset.youtubeId;
@@ -967,16 +987,21 @@
 
             if (fileSrc) {
                 media = document.createElement('video');
-                media.src = fileSrc;
                 media.muted = true;
+                media.defaultMuted = true;
                 media.loop = true;
                 media.autoplay = true;
                 media.playsInline = true;
+                media.preload = 'auto';
+                // Attribute forms matter for some mobile browsers.
                 media.setAttribute('muted', '');
                 media.setAttribute('playsinline', '');
-                media.preload = 'auto';
-                media.addEventListener('loadeddata', () => host.classList.add('is-ready'), { once: true });
-                media.play().catch(() => { /* autoplay refused; poster remains */ });
+                media.setAttribute('aria-hidden', 'true');
+                media.addEventListener('loadeddata', reveal, { once: true });
+                media.addEventListener('error', function () {
+                    console.warn('[hero] Video file failed to load:', fileSrc);
+                });
+                media.src = fileSrc;
             } else if (ytId) {
                 const params = new URLSearchParams({
                     autoplay: '1', mute: '1', loop: '1', playlist: ytId,
@@ -984,38 +1009,59 @@
                     rel: '0', disablekb: '1', fs: '0', iv_load_policy: '3',
                 });
                 media = document.createElement('iframe');
-                // -nocookie avoids setting tracking cookies for visitors who
-                // never interact with the player.
+                // -nocookie avoids tracking cookies for visitors who never
+                // interact with the player.
                 media.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?' + params.toString();
-                media.allow = 'autoplay; encrypted-media';
+                media.allow = 'autoplay; encrypted-media; picture-in-picture';
+                media.setAttribute('frameborder', '0');
                 media.setAttribute('tabindex', '-1');
                 media.setAttribute('aria-hidden', 'true');
                 media.setAttribute('title', 'Background video');
-                media.addEventListener('load', () => host.classList.add('is-ready'), { once: true });
+                media.addEventListener('load', reveal, { once: true });
             } else {
                 return;
             }
 
+            // Append BEFORE calling play(); a detached element will not start.
             host.appendChild(media);
 
-            // Stop paying for decode/playback once the hero is off screen.
             if (media.tagName === 'VIDEO') {
-                const vis = new IntersectionObserver((entries) => {
-                    entries.forEach((entry) => {
+                const attempt = media.play();
+                if (attempt && attempt.catch) {
+                    attempt.catch(function () {
+                        console.info('[hero] Autoplay was refused; showing the still frame.');
+                        reveal();
+                    });
+                }
+
+                // Stop paying for decode once the hero scrolls away.
+                new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
                         if (entry.isIntersecting) {
-                            media.play().catch(() => {});
+                            const r = media.play();
+                            if (r && r.catch) r.catch(function () {});
                         } else {
                             media.pause();
                         }
                     });
-                }, { threshold: 0.01 });
-                vis.observe(host);
+                }, { threshold: 0.01 }).observe(host);
+            }
+
+            // A cross-origin iframe can be slow or silent about its load event;
+            // reveal anyway rather than leaving the layer stuck at opacity 0.
+            setTimeout(reveal, 2500);
+        }
+
+        // Wait for load, then an idle moment, so the video never delays first
+        // paint or competes with the critical rendering path.
+        function schedule() {
+            if (window.requestIdleCallback) {
+                window.requestIdleCallback(mount, { timeout: 2000 });
+            } else {
+                setTimeout(mount, 400);
             }
         }
 
-        // Wait for load, then for an idle moment, so the video never delays
-        // first paint or competes with the critical rendering path.
-        const schedule = () => (window.requestIdleCallback || ((fn) => setTimeout(fn, 400)))(mount);
         if (document.readyState === 'complete') {
             schedule();
         } else {
