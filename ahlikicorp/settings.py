@@ -83,6 +83,7 @@ TEMPLATES = [
                 'core.context_processors.social_links',
                 'core.context_processors.quote_basket',
                 'core.context_processors.site_assistant',
+                'core.context_processors.current_view',
             ],
         },
     },
@@ -210,14 +211,15 @@ LOGGING = {
 # Social media profiles shown in the site header and footer.
 # Set these to the real profile URLs via environment variables; any entry left
 # empty is simply not rendered.
-# Facebook, LinkedIn and YouTube were each confirmed by fetching the page and
-# checking it returns an Ah Liki-titled profile. Instagram and TikTok are left
-# blank because neither could be verified — they render as inactive until real
-# URLs are supplied, rather than risking a link to the wrong account.
+# Facebook, Instagram, LinkedIn and YouTube were each confirmed by fetching the
+# page and checking it returns an Ah Liki-titled profile.
 SOCIAL_LINKS = {
     'facebook': os.getenv('SOCIAL_FACEBOOK', 'https://www.facebook.com/AhLikiWholesale'),
-    'instagram': os.getenv('SOCIAL_INSTAGRAM', ''),
-    'tiktok': os.getenv('SOCIAL_TIKTOK', ''),
+    'instagram': os.getenv('SOCIAL_INSTAGRAM', 'https://www.instagram.com/ahlikiwholesalesamoa/'),
+    # Supplied by the client. The handle does not carry the Ah Liki name, and
+    # the link given pointed at a single video rather than the profile — worth
+    # confirming this is the right account before launch.
+    'tiktok': os.getenv('SOCIAL_TIKTOK', 'https://www.tiktok.com/@samoamarket_official'),
     'linkedin': os.getenv('SOCIAL_LINKEDIN', 'https://www.linkedin.com/company/ah-liki-wholesale'),
     'youtube': os.getenv('SOCIAL_YOUTUBE', 'https://www.youtube.com/@AhLikiSamoa'),
 }

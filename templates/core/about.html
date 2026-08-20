@@ -1,25 +1,296 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}About Us | Ah Liki{% endblock %}
+{% block title %}About Us | Ah Liki Investment Corporation{% endblock %}
+{% block meta_description %}Ah Liki Investment Corporation Limited is a Samoan-owned, multi-venture group operating across wholesale distribution, supermarket retail, brewing, restaurants and sustainable agriculture.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ab-hero {
+        position: relative;
+        overflow: hidden;
+        color: #fff;
+        padding: 4.5rem 1.5rem;
+        background: #04212a;
+    }
+    .ab-hero-img {
+        position: absolute; inset: 0;
+        background-size: cover; background-position: center;
+        opacity: 0.4;
+    }
+    .ab-hero-scrim {
+        position: absolute; inset: 0;
+        background: linear-gradient(100deg, rgba(4,33,42,.94) 0%, rgba(4,33,42,.78) 45%, rgba(5,32,47,.5) 100%);
+    }
+    .ab-hero-inner { position: relative; max-width: 76rem; margin: 0 auto; }
+    .ab-kicker {
+        display: inline-block; font-size: .75rem; font-weight: 700;
+        letter-spacing: .14em; text-transform: uppercase; color: #e8c96a; margin-bottom: .85rem;
+    }
+    .ab-title {
+        font-family: 'Poppins', sans-serif; font-weight: 800;
+        font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.1;
+        letter-spacing: -.03em; margin-bottom: 1rem;
+    }
+    .ab-lede { font-size: 1.1rem; line-height: 1.75; color: rgba(226,240,240,.8); max-width: 44rem; }
+
+    .ab-wrap { max-width: 76rem; margin: 0 auto; padding: 0 1.5rem; }
+    .ab-section { padding: 4rem 0; }
+    .ab-section + .ab-section { border-top: 1px solid #eef2f5; }
+
+    .ab-split { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; }
+    @media (min-width: 900px) {
+        .ab-split { grid-template-columns: 1fr 1fr; gap: 3.5rem; }
+        .ab-split--flip .ab-split-media { order: 2; }
+    }
+    .ab-split-media img {
+        width: 100%; border-radius: 1rem; display: block;
+        box-shadow: 0 18px 44px rgba(4,33,42,.16);
+    }
+    .ab-h2 {
+        font-family: 'Poppins', sans-serif; font-weight: 800;
+        font-size: clamp(1.6rem, 3vw, 2.1rem); letter-spacing: -.025em;
+        color: #04212a; margin-bottom: 1rem;
+    }
+    .ab-p { font-size: 1rem; line-height: 1.8; color: #475569; margin-bottom: 1rem; }
+    .ab-eyebrow {
+        display: inline-flex; align-items: center; gap: .6rem;
+        font-size: .75rem; font-weight: 700; letter-spacing: .12em;
+        text-transform: uppercase; color: #0b818b; margin-bottom: .85rem;
+    }
+    .ab-eyebrow::before { content:''; width: 28px; height: 2px; border-radius: 999px; background: #0b818b; }
+
+    /* Values */
+    .ab-values { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+    @media (min-width: 700px)  { .ab-values { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1050px) { .ab-values { grid-template-columns: repeat(4, 1fr); } }
+    .ab-value {
+        background: #fff; border: 1px solid #e6edf0; border-top: 3px solid var(--vc, #0b818b);
+        border-radius: .9rem; padding: 1.5rem;
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .ab-value:hover { transform: translateY(-5px); box-shadow: 0 18px 38px rgba(4,33,42,.1); }
+    .ab-value-icon { font-size: 1.7rem; line-height: 1; margin-bottom: .8rem; display: block; }
+    .ab-value h3 { font-family:'Poppins',sans-serif; font-weight:700; font-size:1.05rem; color:#04212a; margin-bottom:.4rem; }
+    .ab-value p { font-size:.875rem; line-height:1.65; color:#64748b; }
+
+    /* Reach figures */
+    .ab-figures {
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;
+        background: linear-gradient(150deg, #04212a, #073236);
+        border-radius: 1.1rem; padding: 2.25rem; color: #fff;
+    }
+    @media (min-width: 850px) { .ab-figures { grid-template-columns: repeat(4, 1fr); } }
+    .ab-figure-n {
+        display:block; font-family:'Poppins',sans-serif; font-weight:800;
+        font-size:2.1rem; line-height:1.1; color:#e8c96a; margin-bottom:.25rem;
+    }
+    .ab-figure-l { font-size:.82rem; color:rgba(226,240,240,.7); }
+
+    /* Photo strip */
+    .ab-strip { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    @media (min-width: 800px) { .ab-strip { grid-template-columns: repeat(4, 1fr); } }
+    .ab-strip figure { margin: 0; }
+    .ab-strip img {
+        width: 100%; aspect-ratio: 4/3; object-fit: cover;
+        border-radius: .8rem; display: block;
+        transition: transform .35s ease;
+    }
+    .ab-strip figure:hover img { transform: scale(1.03); }
+    .ab-strip figcaption { font-size:.78rem; color:#64748b; margin-top:.5rem; }
+
+    .ab-cta {
+        background: #f4f8f9; border: 1px solid #e6edf0; border-radius: 1.1rem;
+        padding: 2.5rem; text-align: center;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ab-value, .ab-strip img { transition: none !important; }
+        .ab-value:hover, .ab-strip figure:hover img { transform: none !important; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="bg-blue-950 text-white py-20">
-    <div class="max-w-5xl mx-auto px-4">
-        <p class="text-amber-300 font-semibold uppercase tracking-widest mb-3">Our story</p>
-        <h1 class="brand-font text-4xl md:text-6xl font-bold mb-6">Serving Samoa through trusted brands</h1>
-        <p class="text-xl text-blue-100 max-w-3xl">Ah Liki Investment Corporation connects families and businesses with quality wholesale, retail, beverage, and hospitality services.</p>
+<section class="ab-hero">
+    <div class="ab-hero-img" style="background-image:url('{% static 'images/about/port.jpg' %}');" aria-hidden="true"></div>
+    <div class="ab-hero-scrim" aria-hidden="true"></div>
+    <div class="ab-hero-inner">
+        <span class="ab-kicker">About Us</span>
+        <h1 class="ab-title">More than a business.<br>A Samoan supply chain.</h1>
+        <p class="ab-lede">
+            Ah Liki Investment Corporation Limited is a Samoan-owned, multi-ventured company built over
+            more than two decades. What began in the fields and markets of Samoa now moves goods from
+            the wharf to the shelf, and from our own farms to family tables, across the whole country.
+        </p>
     </div>
 </section>
-<section class="py-16">
-    <div class="max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-start">
-        <div>
-            <h2 class="section-heading">Built on service</h2>
-            <p class="text-gray-600 leading-8">Our businesses share one purpose: dependable products, welcoming service, and long-term value for the communities we serve.</p>
+
+<div class="ab-wrap">
+
+    <!-- Story -->
+    <section class="ab-section">
+        <div class="ab-split">
+            <div class="ab-split-media">
+                <img src="{% static 'images/about/farm.jpg' %}" alt="Early days of the business in the plantations of Samoa" loading="lazy">
+            </div>
+            <div>
+                <span class="ab-eyebrow">Our roots</span>
+                <h2 class="ab-h2">Built from the ground up</h2>
+                <p class="ab-p">
+                    Ah Liki began the way many Samoan businesses do — with hard work on the land and a
+                    determination to serve the community around it. That beginning still shapes how the
+                    group operates: close to the customer, careful with quality, and invested in Samoa
+                    rather than extracting from it.
+                </p>
+                <p class="ab-p">
+                    Over two decades that single enterprise grew into five companies spanning wholesale
+                    distribution, supermarket retail, brewing, restaurants and agriculture — each run to
+                    the same standard, and each strengthening the others.
+                </p>
+            </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-teal-50 p-6 rounded-lg"><strong class="block text-3xl text-teal-800">Local</strong><span class="text-gray-600">Samoan roots</span></div>
-            <div class="bg-amber-50 p-6 rounded-lg"><strong class="block text-3xl text-amber-700">Trusted</strong><span class="text-gray-600">Quality partners</span></div>
+    </section>
+
+    <!-- Supply chain -->
+    <section class="ab-section">
+        <div class="ab-split ab-split--flip">
+            <div class="ab-split-media">
+                <img src="{% static 'images/about/fleet.jpg' %}" alt="An Ah Liki delivery truck on the road in Samoa" loading="lazy">
+            </div>
+            <div>
+                <span class="ab-eyebrow">What we do</span>
+                <h2 class="ab-h2">From the wharf to your shelf</h2>
+                <p class="ab-p">
+                    We run one of the largest supply-chain networks in Samoa. Containers land at the port,
+                    move through our warehousing, and go out on our own fleet to retailers, hotels,
+                    restaurants, schools and government customers nationwide.
+                </p>
+                <p class="ab-p">
+                    Owning the chain end to end is what lets us hold prices steady, keep stock available
+                    and get goods to Savai&rsquo;i and rural Upolu as reliably as to Apia. It is also why
+                    our supermarkets, restaurants and brewery can depend on supply that others cannot.
+                </p>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+
+    <!-- Figures -->
+    <section class="ab-section">
+        <div class="ab-figures">
+            <div>
+                <span class="ab-figure-n">20+</span>
+                <span class="ab-figure-l">Years of trading</span>
+            </div>
+            <div>
+                <span class="ab-figure-n">{{ footer_brands|length }}</span>
+                <span class="ab-figure-l">Companies in the group</span>
+            </div>
+            <div>
+                <span class="ab-figure-n">{{ locations_count|default:"10" }}</span>
+                <span class="ab-figure-l">Locations nationwide</span>
+            </div>
+            <div>
+                <span class="ab-figure-n">100%</span>
+                <span class="ab-figure-l">Samoan owned</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values -->
+    <section class="ab-section">
+        <span class="ab-eyebrow">What we stand for</span>
+        <h2 class="ab-h2">Our values</h2>
+        <p class="ab-p" style="max-width:44rem;margin-bottom:2rem;">
+            The group has grown into very different industries, but the same four commitments run through
+            all of them.
+        </p>
+        <div class="ab-values">
+            <article class="ab-value" style="--vc:#2278ac;">
+                <span class="ab-value-icon" aria-hidden="true">🤝</span>
+                <h3>Reliability</h3>
+                <p>Customers plan their business around us. Stock arrives, orders are filled and quotes are honoured.</p>
+            </article>
+            <article class="ab-value" style="--vc:#5c7b20;">
+                <span class="ab-value-icon" aria-hidden="true">🌱</span>
+                <h3>Sustainability</h3>
+                <p>Growing and sourcing locally where we can, shortening the chain and keeping value in Samoa.</p>
+            </article>
+            <article class="ab-value" style="--vc:#d4af37;">
+                <span class="ab-value-icon" aria-hidden="true">💡</span>
+                <h3>Innovation</h3>
+                <p>Investing in facilities, systems and people so the group keeps improving rather than standing still.</p>
+            </article>
+            <article class="ab-value" style="--vc:#a01722;">
+                <span class="ab-value-icon" aria-hidden="true">🇼🇸</span>
+                <h3>Community</h3>
+                <p>Samoan owned and Samoan staffed, serving families here and the Samoan community abroad.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- Photo strip -->
+    <section class="ab-section">
+        <span class="ab-eyebrow">Inside the group</span>
+        <h2 class="ab-h2">Our operations</h2>
+        <p class="ab-p" style="max-width:44rem;margin-bottom:2rem;">
+            A look at the network that keeps Samoa supplied.
+        </p>
+        <div class="ab-strip">
+            <figure>
+                <img src="{% static 'images/about/port.jpg' %}" alt="Shipping containers being handled at the port" loading="lazy">
+                <figcaption>Containers landing at the wharf</figcaption>
+            </figure>
+            <figure>
+                <img src="{% static 'images/about/loading.jpg' %}" alt="Team members loading cartons into a delivery truck" loading="lazy">
+                <figcaption>Loading for delivery</figcaption>
+            </figure>
+            <figure>
+                <img src="{% static 'images/about/warehouse.jpg' %}" alt="Forklift moving stock inside the warehouse" loading="lazy">
+                <figcaption>Warehousing and distribution</figcaption>
+            </figure>
+            <figure>
+                <img src="{% static 'images/about/air.jpg' %}" alt="Aircraft overhead, representing freight into Samoa" loading="lazy">
+                <figcaption>Freight in and out of Samoa</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- Companies -->
+    <section class="ab-section">
+        <div class="ab-split">
+            <div class="ab-split-media">
+                <img src="{% static 'images/about/facility.jpg' %}" alt="An Ah Liki facility in Samoa" loading="lazy">
+            </div>
+            <div>
+                <span class="ab-eyebrow">The group</span>
+                <h2 class="ab-h2">Five companies, one standard</h2>
+                <p class="ab-p">
+                    Ah Liki Samoa Wholesale supplies the trade. Farmer Joe Supermarket serves families at
+                    Fugalei, Vaitele, Ululoloa and Saleimoa. Taula Beverage Limited brews locally as a 100%
+                    Samoan-owned brewery. Burger Bills feeds the lunch rush. Tanumapua Farm grows produce,
+                    eggs and local chicken.
+                </p>
+                <p class="ab-p">
+                    Different industries, one company behind them.
+                </p>
+                <a href="{% url 'core:companies' %}" class="btn-primary" style="margin-top:.5rem;">Meet our companies</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="ab-section">
+        <div class="ab-cta">
+            <h2 class="ab-h2" style="margin-bottom:.6rem;">Work with us</h2>
+            <p class="ab-p" style="max-width:36rem;margin:0 auto 1.5rem;">
+                Retailer, hotel, restaurant or institution — tell us what you need and we will price it.
+            </p>
+            <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+                <a href="{% url 'products:list' %}" class="btn-primary">Browse the catalogue</a>
+                <a href="{% url 'core:contact' %}" class="btn-outline">Contact our team</a>
+            </div>
+        </div>
+    </section>
+</div>
 {% endblock %}

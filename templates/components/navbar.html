@@ -36,12 +36,12 @@
 
         <!-- Desktop navigation -->
         <nav class="site-nav" aria-label="Primary">
-            <a href="{% url 'core:home' %}" class="site-nav-link">Home</a>
-            <a href="{% url 'core:about' %}" class="site-nav-link">About</a>
-            <a href="{% url 'core:companies' %}" class="site-nav-link">Our Companies</a>
-            <a href="{% url 'products:list' %}" class="site-nav-link">Products</a>
-            <a href="{% url 'core:locations' %}" class="site-nav-link">Locations</a>
-            <a href="{% url 'core:contact' %}" class="site-nav-link">Contact</a>
+            <a href="{% url 'core:home' %}" class="site-nav-link{% if view_name == 'core:home' %} is-active{% endif %}"{% if view_name == 'core:home' %} aria-current="page"{% endif %}>Home</a>
+            <a href="{% url 'core:about' %}" class="site-nav-link{% if view_name == 'core:about' %} is-active{% endif %}"{% if view_name == 'core:about' %} aria-current="page"{% endif %}>About</a>
+            <a href="{% url 'core:companies' %}" class="site-nav-link{% if view_name == 'core:companies' %} is-active{% endif %}"{% if view_name == 'core:companies' %} aria-current="page"{% endif %}>Our Companies</a>
+            <a href="{% url 'products:list' %}" class="site-nav-link{% if view_namespace == 'products' %} is-active{% endif %}"{% if view_namespace == 'products' %} aria-current="page"{% endif %}>Products</a>
+            <a href="{% url 'core:locations' %}" class="site-nav-link{% if view_name == 'core:locations' %} is-active{% endif %}"{% if view_name == 'core:locations' %} aria-current="page"{% endif %}>Locations</a>
+            <a href="{% url 'core:contact' %}" class="site-nav-link{% if view_name == 'core:contact' %} is-active{% endif %}"{% if view_name == 'core:contact' %} aria-current="page"{% endif %}>Contact</a>
         </nav>
 
         <!-- Actions -->
@@ -99,12 +99,12 @@
 
     <!-- Mobile drawer -->
     <div class="site-drawer" x-show="mobileMenuOpen" x-transition x-cloak>
-        <a href="{% url 'core:home' %}" class="site-drawer-link">Home</a>
-        <a href="{% url 'core:about' %}" class="site-drawer-link">About</a>
-        <a href="{% url 'core:companies' %}" class="site-drawer-link">Our Companies</a>
-        <a href="{% url 'products:list' %}" class="site-drawer-link">Products</a>
-        <a href="{% url 'core:locations' %}" class="site-drawer-link">Locations</a>
-        <a href="{% url 'core:contact' %}" class="site-drawer-link">Contact</a>
+        <a href="{% url 'core:home' %}" class="site-drawer-link{% if view_name == 'core:home' %} is-active{% endif %}">Home</a>
+        <a href="{% url 'core:about' %}" class="site-drawer-link{% if view_name == 'core:about' %} is-active{% endif %}">About</a>
+        <a href="{% url 'core:companies' %}" class="site-drawer-link{% if view_name == 'core:companies' %} is-active{% endif %}">Our Companies</a>
+        <a href="{% url 'products:list' %}" class="site-drawer-link{% if view_namespace == 'products' %} is-active{% endif %}">Products</a>
+        <a href="{% url 'core:locations' %}" class="site-drawer-link{% if view_name == 'core:locations' %} is-active{% endif %}">Locations</a>
+        <a href="{% url 'core:contact' %}" class="site-drawer-link{% if view_name == 'core:contact' %} is-active{% endif %}">Contact</a>
 
         <a href="{% url 'quotes:basket' %}" class="site-drawer-cta">
             My Quote Request{% if quote_basket_count %} ({{ quote_basket_count }}){% endif %}

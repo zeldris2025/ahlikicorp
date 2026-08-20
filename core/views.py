@@ -74,6 +74,13 @@ class HomeView(TemplateView):
 class AboutView(TemplateView):
     template_name = 'core/about.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['locations_count'] = cache.get_or_set(
+            'locations_count', lambda: Location.objects.count(), 3600
+        )
+        return context
+
 class CompaniesView(TemplateView):
     """Detail page for the operating companies within the group."""
 
@@ -88,11 +95,38 @@ class LocationsView(ListView):
     model = Location
     template_name = 'core/locations.html'
     context_object_name = 'locations'
-    paginate_by = 12
+
+    def get_queryset(self):
+        # Not paginated: the map plots every site, so a partial page would
+        # leave pins without matching cards.
+        return Location.objects.select_related('company').order_by('sort_order', 'name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['headquarters'] = Location.objects.filter(is_headquarters=True).first()
+        locations = context['locations']
+
+        context['headquarters'] = next((l for l in locations if l.is_headquarters), None)
+        context['companies'] = Brand.objects.all().order_by('sort_order', 'name')
+
+        # Only sites with coordinates can be plotted; the rest still list.
+        context['map_points'] = [
+            {
+                'id': l.pk,
+                'name': l.name,
+                'address': l.address,
+                'island': l.island,
+                'hours': l.opening_hours,
+                'phone': l.phone,
+                'lat': float(l.latitude),
+                'lng': float(l.longitude),
+                'company': l.company.name if l.company else '',
+                'slug': l.company.slug if l.company else '',
+                'colour': l.company.accent_color if l.company else '#04212a',
+                'hq': l.is_headquarters,
+            }
+            for l in locations
+            if l.latitude is not None and l.longitude is not None
+        ]
         return context
 
 def contact_view(request):

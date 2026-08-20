@@ -594,6 +594,18 @@
         }
         .site-nav-link:hover::after { transform: scaleX(1); }
 
+        .site-nav-link.is-active {
+            color: #04212a;
+            background: #f1f6f7;
+        }
+        .site-nav-link.is-active::after { transform: scaleX(1); }
+
+        .site-drawer-link.is-active {
+            background: #f1f6f7;
+            color: #04212a;
+            box-shadow: inset 3px 0 0 #d4af37;
+        }
+
         /* Actions */
         .site-actions {
             display: flex;

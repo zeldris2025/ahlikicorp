@@ -3,12 +3,19 @@ from .models import Location, ContactMessage, NewsletterSubscriber
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'island', 'phone', 'is_headquarters', 'sort_order')
-    list_filter = ('island', 'is_headquarters')
+    list_display = ('name', 'company', 'island', 'phone', 'is_headquarters', 'sort_order')
+    list_filter = ('company', 'island', 'is_headquarters')
     search_fields = ('name', 'address', 'phone', 'email')
+    list_select_related = ('company',)
     fieldsets = (
-        ('Basic Info', {'fields': ('name', 'island', 'is_headquarters', 'sort_order')}),
-        ('Address', {'fields': ('address', 'latitude', 'longitude')}),
+        ('Basic Info', {'fields': ('name', 'company', 'island', 'is_headquarters', 'sort_order')}),
+        ('Address', {
+            'fields': ('address', 'latitude', 'longitude'),
+            'description': (
+                'Seeded coordinates are town-level approximations. Correct them here so '
+                'map pins point at the actual site.'
+            ),
+        }),
         ('Contact', {'fields': ('phone', 'email', 'opening_hours')}),
     )
 

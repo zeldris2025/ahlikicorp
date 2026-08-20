@@ -108,3 +108,11 @@ def site_assistant(request):
         })
 
     return {'assistant_topics': topics, 'assistant_starters': STARTER_IDS}
+
+
+def current_view(request):
+    """Resolved route name, so navigation can mark the active page."""
+    match = getattr(request, 'resolver_match', None)
+    if match is None:
+        return {'view_name': '', 'view_namespace': ''}
+    return {'view_name': match.view_name or '', 'view_namespace': match.namespace or ''}
