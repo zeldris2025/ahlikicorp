@@ -1,0 +1,97 @@
+{% extends 'manage/base.html' %}
+{% block title %}{{ heading }}{% endblock %}
+{% block heading %}{{ heading }}{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="max-w-4xl">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="msg msg--error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="card p-5 mb-4">
+        <h2 class="pf font-bold text-[#04212a] text-sm mb-4">Identity</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+                <label class="f-label" for="{{ form.name.id_for_label }}">Product name</label>
+                {{ form.name }}
+                {% for e in form.name.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+            </div>
+            <div>
+                <label class="f-label" for="{{ form.sku.id_for_label }}">SKU</label>
+                {{ form.sku }}
+                {% for e in form.sku.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+            </div>
+            <div>
+                <label class="f-label" for="{{ form.brand.id_for_label }}">Company</label>
+                {{ form.brand }}
+                <p class="f-help">Only Ah Liki Samoa Wholesale products appear on the public catalogue.</p>
+                {% for e in form.brand.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+            </div>
+            <div>
+                <label class="f-label" for="{{ form.category.id_for_label }}">Category</label>
+                {{ form.category }}
+                <p class="f-help"><a href="{% url 'manage:category_list' %}" class="text-[#04212a] hover:underline">Manage categories</a></p>
+                {% for e in form.category.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-5 mb-4">
+        <h2 class="pf font-bold text-[#04212a] text-sm mb-4">Details</h2>
+        <div class="mb-4">
+            <label class="f-label" for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% for e in form.description.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="mb-4">
+            <label class="f-label" for="{{ form.image.id_for_label }}">Image</label>
+            {% if form.instance.image %}
+                <img src="{{ form.instance.image.url }}" alt="" class="w-24 h-24 object-cover rounded mb-2 border border-[#e6edf0]">
+            {% endif %}
+            {{ form.image }}
+            {% for e in form.image.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+        </div>
+        <div>
+            <label class="f-label" for="{{ form.specifications.id_for_label }}">Specifications</label>
+            {{ form.specifications }}
+            <p class="f-help">{{ form.specifications.help_text }}</p>
+            {% for e in form.specifications.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+        </div>
+    </div>
+
+    <div class="card p-5 mb-4">
+        <h2 class="pf font-bold text-[#04212a] text-sm mb-4">Pricing &amp; availability</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="f-label" for="{{ form.cost_price.id_for_label }}">Cost price</label>
+                {{ form.cost_price }}
+                <p class="f-help">{{ form.cost_price.help_text }}</p>
+                {% for e in form.cost_price.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+            </div>
+            <div>
+                <label class="f-label" for="{{ form.stock_quantity.id_for_label }}">Stock quantity</label>
+                {{ form.stock_quantity }}
+                {% for e in form.stock_quantity.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+            </div>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 mb-2">
+            {{ form.is_active }} Live in the catalogue
+        </label>
+        <p class="f-help mb-3" style="margin-left:1.6rem">{{ form.is_active.help_text }}</p>
+        <label class="flex items-center gap-2 text-sm text-slate-700 mb-2">
+            {{ form.is_exclusive }} Exclusive line
+        </label>
+        <p class="f-help" style="margin-left:1.6rem">{{ form.is_exclusive.help_text }}</p>
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit" class="btn btn-p">{{ submit_label }}</button>
+        <a href="{% url 'manage:product_list' %}" class="btn btn-o">Cancel</a>
+        {% if form.instance.pk %}
+            <a href="{% url 'manage:product_delete' form.instance.pk %}" class="btn btn-d ml-auto">Delete</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

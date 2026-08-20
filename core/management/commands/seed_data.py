@@ -77,7 +77,8 @@ class Command(BaseCommand):
     def create_demo_users(self):
         demo_users = [
             {'username': 'admin@example.com', 'email': 'admin@example.com', 'password': 'AdminPass123!', 'groups': ['Admin'], 'is_staff': True, 'is_superuser': True},
-            {'username': 'finance@example.com', 'email': 'finance@example.com', 'password': 'FinancePass123!', 'groups': ['Finance'], 'is_staff': True},
+            # Finance works in the staff portal at /manage/, not Django Admin, so no is_staff.
+            {'username': 'finance@example.com', 'email': 'finance@example.com', 'password': 'FinancePass123!', 'groups': ['Finance']},
             {'username': 'customer@example.com', 'email': 'customer@example.com', 'password': 'CustomerPass123!', 'groups': ['Customer']},
         ]
         for user_data in demo_users:

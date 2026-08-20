@@ -1,0 +1,44 @@
+{% extends 'manage/base.html' %}
+{% block title %}Categories{% endblock %}
+{% block heading %}Categories{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="lg:col-span-2 card overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                    <th class="text-left px-4 py-2.5">Category</th>
+                    <th class="text-left px-4 py-2.5">Slug</th>
+                    <th class="text-right px-4 py-2.5">Products</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for category in categories %}
+                    <tr>
+                        <td class="px-4 py-3 font-semibold text-[#04212a]">{{ category.name }}</td>
+                        <td class="px-4 py-3 text-slate-500">{{ category.slug }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <a href="{% url 'manage:product_list' %}?q=" class="text-slate-600">{{ category.product_count }}</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="3" class="px-4 py-10 text-center text-slate-500">No categories yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card p-5 h-fit">
+        <h2 class="pf font-bold text-[#04212a] text-sm mb-3">Add a category</h2>
+        <form method="post">
+            {% csrf_token %}
+            <label class="f-label" for="{{ form.name.id_for_label }}">Name</label>
+            {{ form.name }}
+            {% for e in form.name.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+            <button type="submit" class="btn btn-p mt-3 w-full justify-center">Add category</button>
+        </form>
+        <p class="f-help mt-3">Categories group products on the catalogue's filter menu.</p>
+    </div>
+</div>
+{% endblock %}

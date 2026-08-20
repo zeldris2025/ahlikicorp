@@ -70,10 +70,11 @@
                     <div class="site-menu" x-show="open" x-transition.opacity @click.outside="open = false" x-cloak>
                         <a href="{% url 'accounts:profile' %}" class="site-menu-link">My Profile</a>
                         {% if can_manage_quotes %}
-                            <a href="{% url 'quotes:finance_dashboard' %}" class="site-menu-link">Finance Dashboard</a>
+                            <a href="{% url 'manage:dashboard' %}" class="site-menu-link">Staff Portal</a>
+                            <a href="{% url 'quotes:finance_dashboard' %}" class="site-menu-link">Quote Requests</a>
                         {% endif %}
                         {% if user.is_staff %}
-                            <a href="/admin/" class="site-menu-link">Admin Panel</a>
+                            <a href="/admin/" class="site-menu-link">Django Admin</a>
                         {% endif %}
                         <a href="{% url 'accounts:logout' %}" class="site-menu-link site-menu-link-divider">Sign Out</a>
                     </div>
@@ -113,7 +114,8 @@
         {% if user.is_authenticated %}
             <a href="{% url 'accounts:profile' %}" class="site-drawer-link">My Profile</a>
             {% if can_manage_quotes %}
-                <a href="{% url 'quotes:finance_dashboard' %}" class="site-drawer-link">Finance Dashboard</a>
+                <a href="{% url 'manage:dashboard' %}" class="site-drawer-link">Staff Portal</a>
+                <a href="{% url 'quotes:finance_dashboard' %}" class="site-drawer-link">Quote Requests</a>
             {% endif %}
             <a href="{% url 'accounts:logout' %}" class="site-drawer-link">Sign Out</a>
         {% else %}

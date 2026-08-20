@@ -1,0 +1,104 @@
+{% extends 'manage/base.html' %}
+{% block title %}Products{% endblock %}
+{% block heading %}Products{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-3 items-center mb-4">
+    <form method="get" class="flex flex-wrap gap-2 items-center flex-1">
+        <input type="search" name="q" value="{{ search }}" placeholder="Search name or SKU…"
+               class="f-input" style="max-width:17rem" aria-label="Search products">
+        <select name="brand" class="f-input" style="max-width:14rem" aria-label="Filter by company">
+            <option value="">All companies</option>
+            {% for b in brands %}
+                <option value="{{ b.pk }}" {% if brand_filter == b.pk|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" class="f-input" style="max-width:12rem" aria-label="Filter by status">
+            <option value="">Any status</option>
+            <option value="active"    {% if status_filter == 'active' %}selected{% endif %}>Live</option>
+            <option value="inactive"  {% if status_filter == 'inactive' %}selected{% endif %}>Withdrawn</option>
+            <option value="exclusive" {% if status_filter == 'exclusive' %}selected{% endif %}>Exclusive</option>
+            <option value="nostock"   {% if status_filter == 'nostock' %}selected{% endif %}>Out of stock</option>
+        </select>
+        <button type="submit" class="btn btn-o">Filter</button>
+        {% if search or brand_filter or status_filter %}
+            <a href="{% url 'manage:product_list' %}" class="text-xs text-slate-500 hover:underline">Clear</a>
+        {% endif %}
+    </form>
+    <a href="{% url 'manage:product_create' %}" class="btn btn-p">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add product
+    </a>
+</div>
+
+<div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                    <th class="text-left px-4 py-2.5">Product</th>
+                    <th class="text-left px-4 py-2.5">SKU</th>
+                    <th class="text-left px-4 py-2.5">Company</th>
+                    <th class="text-left px-4 py-2.5">Category</th>
+                    <th class="text-right px-4 py-2.5">Cost</th>
+                    <th class="text-right px-4 py-2.5">Stock</th>
+                    <th class="text-left px-4 py-2.5">Status</th>
+                    <th class="px-4 py-2.5"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for product in products %}
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-4 py-3">
+                            <span class="font-semibold text-[#04212a]">{{ product.name }}</span>
+                            {% if product.is_exclusive %}
+                                <span class="ml-1 text-[10px] font-bold uppercase bg-[#e8c96a] text-[#04212a] px-1.5 py-0.5 rounded">Excl</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-slate-500">{{ product.sku }}</td>
+                        <td class="px-4 py-3 text-slate-500">{{ product.brand.name }}</td>
+                        <td class="px-4 py-3 text-slate-500">{{ product.category.name }}</td>
+                        <td class="px-4 py-3 text-right text-slate-600">${{ product.cost_price }}</td>
+                        <td class="px-4 py-3 text-right {% if product.stock_quantity == 0 %}text-[#b91c1c] font-semibold{% else %}text-slate-600{% endif %}">{{ product.stock_quantity }}</td>
+                        <td class="px-4 py-3">
+                            {% if product.is_active %}
+                                <span class="text-xs font-bold text-[#15803d]">Live</span>
+                            {% else %}
+                                <span class="text-xs font-bold text-slate-400">Withdrawn</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-2 justify-end items-center">
+                                <form method="post" action="{% url 'manage:product_toggle' product.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-xs font-semibold text-slate-500 hover:text-[#04212a]">
+                                        {% if product.is_active %}Withdraw{% else %}Publish{% endif %}
+                                    </button>
+                                </form>
+                                <a href="{% url 'manage:product_edit' product.pk %}" class="text-xs font-semibold text-[#04212a] hover:underline">Edit</a>
+                                <a href="{% url 'manage:product_delete' product.pk %}" class="text-xs font-semibold text-[#b91c1c] hover:underline">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8" class="px-4 py-10 text-center text-slate-500">
+                        No products match. <a href="{% url 'manage:product_create' %}" class="text-[#04212a] font-semibold hover:underline">Add one</a>.
+                    </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if is_paginated %}
+    <nav class="mt-4 flex justify-center gap-2 text-sm" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&q={{ search }}{% endif %}" class="btn btn-o">Previous</a>
+        {% endif %}
+        <span class="px-3 py-2 text-slate-500">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&q={{ search }}{% endif %}" class="btn btn-o">Next</a>
+        {% endif %}
+    </nav>
+{% endif %}
+{% endblock %}

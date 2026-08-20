@@ -1,0 +1,28 @@
+{% extends 'manage/base.html' %}
+{% block title %}Delete product{% endblock %}
+{% block heading %}Delete product{% endblock %}
+
+{% block content %}
+<div class="card p-6 max-w-xl">
+    <h2 class="pf font-bold text-[#04212a] text-lg mb-2">Delete “{{ object.name }}”?</h2>
+    <p class="text-sm text-slate-600 mb-4">SKU {{ object.sku }} &middot; {{ object.brand.name }}</p>
+
+    {% if quote_uses %}
+        <div class="msg msg--warning mb-4">
+            This product appears on {{ quote_uses }} existing quote{{ quote_uses|pluralize }}.
+            To keep that history intact it will be <strong>withdrawn from the catalogue</strong>
+            rather than deleted — it stops appearing to customers but stays on past quotes.
+        </div>
+    {% else %}
+        <p class="text-sm text-slate-600 mb-4">This cannot be undone.</p>
+    {% endif %}
+
+    <form method="post" class="flex gap-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-d">
+            {% if quote_uses %}Withdraw product{% else %}Delete permanently{% endif %}
+        </button>
+        <a href="{% url 'manage:product_list' %}" class="btn btn-o">Cancel</a>
+    </form>
+</div>
+{% endblock %}

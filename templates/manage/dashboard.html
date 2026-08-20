@@ -1,0 +1,81 @@
+{% extends 'manage/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+    <div class="card p-4">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Products</p>
+        <p class="pf text-3xl font-extrabold text-[#04212a]">{{ product_total }}</p>
+        <p class="text-xs text-slate-400 mt-1">{{ product_active }} live</p>
+    </div>
+    <div class="card p-4">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Exclusive</p>
+        <p class="pf text-3xl font-extrabold text-[#b8912a]">{{ product_exclusive }}</p>
+        <p class="text-xs text-slate-400 mt-1">badged lines</p>
+    </div>
+    <div class="card p-4">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Out of stock</p>
+        <p class="pf text-3xl font-extrabold {% if out_of_stock %}text-[#b91c1c]{% else %}text-[#15803d]{% endif %}">{{ out_of_stock }}</p>
+        <p class="text-xs text-slate-400 mt-1">live but zero qty</p>
+    </div>
+    <div class="card p-4">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Categories</p>
+        <p class="pf text-3xl font-extrabold text-[#04212a]">{{ category_total }}</p>
+    </div>
+    <div class="card p-4">
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Quotes pending</p>
+        <p class="pf text-3xl font-extrabold {% if quotes_pending %}text-[#b45309]{% else %}text-[#15803d]{% endif %}">{{ quotes_pending }}</p>
+        <p class="text-xs text-slate-400 mt-1">of {{ quotes_total }} total</p>
+    </div>
+</div>
+
+<div class="flex flex-wrap gap-2 mb-6">
+    <a href="{% url 'manage:product_create' %}" class="btn btn-p">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add product
+    </a>
+    <a href="{% url 'manage:product_list' %}" class="btn btn-o">All products</a>
+    <a href="{% url 'manage:product_list' %}?status=nostock" class="btn btn-o">Out of stock</a>
+    <a href="{% url 'quotes:finance_dashboard' %}" class="btn btn-o">Quote requests</a>
+</div>
+
+<div class="card overflow-hidden">
+    <div class="px-4 py-3 border-b border-[#e6edf0] flex items-center">
+        <h2 class="pf font-bold text-[#04212a] text-sm">Recently updated</h2>
+        <a href="{% url 'manage:product_list' %}" class="ml-auto text-xs font-semibold text-[#04212a] hover:underline">View all</a>
+    </div>
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <tr>
+                <th class="text-left px-4 py-2">Product</th>
+                <th class="text-left px-4 py-2">SKU</th>
+                <th class="text-left px-4 py-2">Company</th>
+                <th class="text-left px-4 py-2">Status</th>
+                <th class="px-4 py-2"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+            {% for product in recent_products %}
+                <tr>
+                    <td class="px-4 py-3 font-semibold text-[#04212a]">{{ product.name }}</td>
+                    <td class="px-4 py-3 text-slate-500">{{ product.sku }}</td>
+                    <td class="px-4 py-3 text-slate-500">{{ product.brand.name }}</td>
+                    <td class="px-4 py-3">
+                        {% if product.is_active %}
+                            <span class="text-xs font-bold text-[#15803d]">Live</span>
+                        {% else %}
+                            <span class="text-xs font-bold text-slate-400">Withdrawn</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <a href="{% url 'manage:product_edit' product.pk %}" class="text-xs font-semibold text-[#04212a] hover:underline">Edit</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">No products yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
