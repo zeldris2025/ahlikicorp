@@ -3,31 +3,68 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.utils.http import url_has_allowed_host_and_scheme
 from .forms import CustomUserCreationForm, UserProfileForm, UserUpdateForm
 from .models import UserProfile
+
+def _resolve_login(identifier, password, request):
+    """Authenticate against a username or an email address.
+
+    Accounts are normally created with the email as the username, but the two
+    can be edited apart. Matching on either avoids the trap where someone
+    changes their username and can no longer sign in with it.
+    """
+    identifier = (identifier or '').strip()
+    if not identifier or not password:
+        return None
+
+    # Username first: it is unique, so there is never any ambiguity.
+    user = authenticate(request, username=identifier, password=password)
+    if user is not None:
+        return user
+
+    # Django does not enforce unique emails, so more than one account can
+    # share one. Try each rather than raising MultipleObjectsReturned.
+    for candidate in User.objects.filter(email__iexact=identifier):
+        user = authenticate(request, username=candidate.username, password=password)
+        if user is not None:
+            return user
+
+    return None
+
+
+def _safe_redirect_target(request, fallback='core:home'):
+    """Return ``next`` only when it points back at this site.
+
+    Redirecting to an unchecked ``next`` lets a crafted link bounce someone to
+    another domain immediately after they sign in.
+    """
+    target = request.POST.get('next') or request.GET.get('next')
+    if target and url_has_allowed_host_and_scheme(
+        target, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return target
+    return fallback
+
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:home')
 
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        try:
-            user = User.objects.get(email=email)
-            user = authenticate(request, username=user.username, password=password)
-        except User.DoesNotExist:
-            user = None
+        user = _resolve_login(
+            request.POST.get('email'),
+            request.POST.get('password'),
+            request,
+        )
 
         if user is not None:
             login(request, user)
-            next_url = request.GET.get('next', 'core:home')
-            return redirect(next_url)
-        else:
-            messages.error(request, 'Invalid email or password.')
+            return redirect(_safe_redirect_target(request))
 
-    return render(request, 'accounts/login.html')
+        messages.error(request, 'Those details did not match an account. Check your email or username and try again.')
+
+    return render(request, 'accounts/login.html', {'next': request.GET.get('next', '')})
 
 def register_view(request):
     if request.user.is_authenticated:
