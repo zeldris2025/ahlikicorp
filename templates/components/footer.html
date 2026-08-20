@@ -1,11 +1,25 @@
+{% load static %}
 <footer class="bg-blue-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Brand logo strip -->
+        <div class="flex flex-wrap items-center justify-center gap-4 pb-10 mb-10 border-b border-blue-800">
+            {% for brand in footer_brands %}
+                <div class="bg-white/95 rounded-xl px-5 py-3 h-16 flex items-center justify-center" title="{{ brand.name }}">
+                    {% if brand.logo %}
+                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }} logo" loading="lazy" class="max-h-10 max-w-[130px] object-contain">
+                    {% else %}
+                        <span class="text-blue-900 font-bold text-sm whitespace-nowrap">{{ brand.name }}</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <!-- About -->
             <div>
                 <h4 class="text-xl font-bold brand-font mb-4">Ah Liki</h4>
                 <p class="text-gray-300 text-sm mb-4">
-                    Samoan-owned multi-venture company serving the Pacific with quality products and services since 1990.
+                    A Samoan-owned multi-venture company serving the Pacific with quality products and services for more than two decades.
                 </p>
                 <div class="space-y-2">
                     <p class="text-sm"><strong>Email:</strong> <a href="mailto:info@ahliki.com" class="text-yellow-300 hover:underline">info@ahliki.com</a></p>
@@ -17,11 +31,9 @@
             <div>
                 <h4 class="text-lg font-bold brand-font mb-4">Our Brands</h4>
                 <ul class="space-y-2 text-sm text-gray-300">
-                    <li><a href="#" class="hover:text-yellow-300">Ah Liki Samoa Wholesale</a></li>
-                    <li><a href="#" class="hover:text-yellow-300">Farmer Joe Supermarket</a></li>
-                    <li><a href="#" class="hover:text-yellow-300">Taula Beverage Limited</a></li>
-                    <li><a href="#" class="hover:text-yellow-300">Burger Bills</a></li>
-                    <li><a href="#" class="hover:text-yellow-300">Tanumapua Farm</a></li>
+                    {% for brand in footer_brands %}
+                        <li><a href="{% url 'core:brands' %}" class="hover:text-yellow-300">{{ brand.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
 

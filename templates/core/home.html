@@ -57,20 +57,20 @@
         position: relative;
         max-width: 80rem;
         margin: 0 auto;
-        padding: 4.5rem 1.5rem 3rem;
+        padding: 2.5rem 1.5rem 2rem;
     }
     @media (min-width: 1024px) {
-        .hero-inner { padding: 6.5rem 2rem 3.5rem; }
+        .hero-inner { padding: 3.25rem 2rem 2.5rem; }
     }
 
     .hero-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 3.5rem;
+        gap: 2.25rem;
         align-items: center;
     }
     @media (min-width: 1024px) {
-        .hero-grid { grid-template-columns: 1.05fr 0.95fr; gap: 4.5rem; }
+        .hero-grid { grid-template-columns: 1.05fr 0.9fr; gap: 3rem; }
     }
 
     /* ---------- Left column ---------- */
@@ -99,7 +99,7 @@
     .hero-title {
         font-family: 'Poppins', sans-serif;
         font-weight: 800;
-        font-size: clamp(2.25rem, 5.2vw, 4rem);
+        font-size: clamp(1.95rem, 4vw, 2.9rem);
         line-height: 1.08;
         letter-spacing: -0.03em;
         margin-bottom: 1.5rem;
@@ -116,8 +116,8 @@
         font-size: 1.0625rem;
         line-height: 1.75;
         color: rgba(226, 240, 240, 0.72);
-        max-width: 33rem;
-        margin-bottom: 2.25rem;
+        max-width: 32rem;
+        margin-bottom: 1.5rem;
     }
     @media (min-width: 768px) { .hero-lede { font-size: 1.125rem; } }
 
@@ -174,7 +174,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.75rem;
-        margin-bottom: 3rem;
+        margin-bottom: 0;
     }
     .hero-btn {
         display: inline-flex;
@@ -205,16 +205,16 @@
     /* ---------- Right column: brand spotlight deck ---------- */
     .hero-stage {
         position: relative;
-        height: 22rem;
+        height: 17.5rem;
         perspective: 1400px;
     }
-    @media (min-width: 640px) { .hero-stage { height: 24rem; } }
+    @media (min-width: 640px) { .hero-stage { height: 18.5rem; } }
 
     .hero-card {
         position: absolute;
         inset: 0 0 auto 0;
-        padding: 2rem;
-        border-radius: 1.25rem;
+        padding: 1.5rem;
+        border-radius: 1.1rem;
         border: 1px solid rgba(255, 255, 255, 0.14);
         background: rgba(255, 255, 255, 0.06);
         backdrop-filter: blur(16px);
@@ -222,39 +222,50 @@
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
         transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
         will-change: transform, opacity;
+        border-top: 3px solid var(--brand-accent, #d4af37);
     }
-    .hero-card-rule {
-        width: 44px;
-        height: 3px;
-        border-radius: 999px;
-        background: var(--brand-accent, #d4af37);
-        margin-bottom: 1.5rem;
+    .hero-card-head {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        margin-bottom: 0.9rem;
     }
-    .hero-card-icon {
-        font-size: 2.75rem;
-        line-height: 1;
-        margin-bottom: 1.25rem;
-        display: block;
+    .hero-card-badge {
+        width: 54px;
+        height: 54px;
+        flex-shrink: 0;
+        border-radius: 0.7rem;
+        background: rgba(255, 255, 255, 0.94);
+        display: grid;
+        place-items: center;
+        padding: 0.35rem;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
     }
+    .hero-card-badge img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .hero-card-badge span { font-size: 1.6rem; line-height: 1; }
     .hero-card-name {
         font-family: 'Poppins', sans-serif;
-        font-size: 1.5rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: #fff;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.15rem;
         letter-spacing: -0.01em;
+        line-height: 1.25;
     }
     .hero-card-tagline {
-        font-size: 0.95rem;
+        font-size: 0.8125rem;
         font-weight: 600;
         color: var(--brand-accent, #d4af37);
-        margin-bottom: 0.85rem;
     }
     .hero-card-desc {
-        font-size: 0.9rem;
-        line-height: 1.65;
+        font-size: 0.875rem;
+        line-height: 1.6;
         color: rgba(226, 240, 240, 0.65);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
     .hero-card-link {
         display: inline-flex;
@@ -293,9 +304,9 @@
     .hero-metrics {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.75rem 1rem;
-        margin-top: 5rem;
-        padding-top: 2.25rem;
+        gap: 1.1rem 1rem;
+        margin-top: 2.75rem;
+        padding-top: 1.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
     @media (min-width: 768px) {
@@ -381,11 +392,20 @@
                              style="--brand-accent: {{ brand.accent_color }};"
                              :style="cardStyle({{ forloop.counter0 }})"
                              :aria-hidden="active !== {{ forloop.counter0 }}">
-                        <div class="hero-card-rule"></div>
-                        <span class="hero-card-icon" aria-hidden="true">{% if 'Taula' in brand.name %}🍺{% elif 'Farmer' in brand.name %}🛒{% elif 'Burger' in brand.name %}🍔{% elif 'Tanumapua' in brand.name %}🌾{% else %}📦{% endif %}</span>
-                        <h2 class="hero-card-name">{{ brand.name }}</h2>
-                        <p class="hero-card-tagline">{{ brand.tagline }}</p>
-                        <p class="hero-card-desc">{{ brand.description|truncatewords:22 }}</p>
+                        <div class="hero-card-head">
+                            <div class="hero-card-badge">
+                                {% if brand.logo %}
+                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }} logo" loading="lazy">
+                                {% else %}
+                                    <span aria-hidden="true">{% if 'Farmer' in brand.name %}🛒{% elif 'Tanumapua' in brand.name %}🌾{% else %}📦{% endif %}</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h2 class="hero-card-name">{{ brand.name }}</h2>
+                                <p class="hero-card-tagline">{{ brand.tagline }}</p>
+                            </div>
+                        </div>
+                        <p class="hero-card-desc">{{ brand.description|truncatewords:16 }}</p>
                         <a href="{% url 'core:brands' %}" class="hero-card-link">
                             Learn more <span aria-hidden="true">&rarr;</span>
                         </a>
@@ -444,7 +464,9 @@
                                 <div class="relative w-full h-full flex items-center justify-center p-8">
                                     <div class="brand-logo-container text-center">
                                         {% if brand.logo %}
-                                            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="max-h-64 max-w-full mx-auto drop-shadow-lg">
+                                            <div class="bg-white rounded-2xl p-6 shadow-xl inline-flex items-center justify-center">
+                                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }} logo" loading="lazy" class="max-h-48 max-w-full object-contain">
+                                            </div>
                                         {% else %}
                                             <div class="text-8xl font-bold" style="color: {{ brand.accent_color }}">
                                                 {% if 'Taula' in brand.name %}🍺
