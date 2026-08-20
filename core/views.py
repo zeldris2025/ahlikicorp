@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, DetailView
@@ -24,18 +26,50 @@ class HomeView(TemplateView):
         context['featured_products'] = cache.get_or_set('featured_products', lambda: Product.objects.filter(is_active=True, is_exclusive=True)[:6], 1800)
         context['locations_count'] = cache.get_or_set('locations_count', lambda: Location.objects.count(), 3600)
 
-        # Hero background video. A self-hosted file takes precedence over the
-        # YouTube fallback; both are loaded lazily by the template.
-        context['hero_video_file'] = settings.HERO_VIDEO_FILE
+        # Hero background video. Resolution order:
+        #   1. HERO_VIDEO_FILE if set explicitly
+        #   2. any video dropped into static/videos/ (zero config)
+        #   3. the YouTube fallback
+        # A self-hosted file always wins: it needs no third-party script and
+        # cannot be stripped by a content blocker the way an embed can.
+        video_file = settings.HERO_VIDEO_FILE or self._discover_hero_video()
+        context['hero_video_file'] = video_file
         poster = settings.HERO_VIDEO_POSTER
         if poster and not poster.startswith(('http://', 'https://', '/')):
             from django.templatetags.static import static as static_url
             poster = static_url(poster)
         context['hero_video_poster'] = poster
         context['hero_video_youtube_id'] = (
-            '' if settings.HERO_VIDEO_FILE else settings.HERO_VIDEO_YOUTUBE_ID
+            '' if video_file else settings.HERO_VIDEO_YOUTUBE_ID
         )
         return context
+
+    @staticmethod
+    def _discover_hero_video():
+        """Return the URL of a video dropped into static/videos/, if any.
+
+        Lets someone add a hero video by copying a file into the folder, with
+        no settings change. The result is cached so this does not touch the
+        filesystem on every request.
+        """
+        cached = cache.get('hero_video_discovered')
+        if cached is not None:
+            return cached
+
+        from django.templatetags.static import static as static_url
+
+        folder = Path(settings.BASE_DIR) / 'static' / 'videos'
+        found = ''
+        if folder.is_dir():
+            # mp4 first: the widest browser support of the three.
+            for pattern in ('*.mp4', '*.webm', '*.mov'):
+                matches = sorted(folder.glob(pattern))
+                if matches:
+                    found = static_url(f'videos/{matches[0].name}')
+                    break
+
+        cache.set('hero_video_discovered', found, 300)
+        return found
 
 class AboutView(TemplateView):
     template_name = 'core/about.html'
