@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Ah Liki Investment Corporation{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-r from-blue-900 via-teal-700 to-orange-600 text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-5xl md:text-6xl font-bold brand-font mb-4 animate-fade-in-up">Welcome to Ah Liki</h1>
+        <p class="text-xl md:text-2xl mb-8 text-gray-100">Samoan-owned excellence in wholesale, retail, beverages, and dining</p>
+        <div class="space-x-4">
+            <a href="{% url 'products:list' %}" class="inline-block bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-bold hover:bg-yellow-300 transition">Shop Products</a>
+            <a href="{% url 'quotes:create' %}" class="inline-block bg-white text-blue-900 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition">Request Quote</a>
+        </div>
+    </div>
+</section>
+
+<!-- Brands Showcase -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="section-heading text-center mb-12">Our Brands</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {% for brand in brands %}
+                <div class="bg-gray-50 rounded-lg p-6 text-center card-hover">
+                    <div class="h-20 flex items-center justify-center mb-4">
+                        {% if brand.logo %}
+                            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="max-h-full max-w-full">
+                        {% else %}
+                            <div class="text-4xl font-bold" style="color: {{ brand.accent_color }}">🏢</div>
+                        {% endif %}
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">{{ brand.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-3">{{ brand.tagline }}</p>
+                    <a href="{% url 'core:brands' %}" class="text-sm font-semibold text-blue-900 hover:underline">Learn More →</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="section-heading text-center mb-12">Exclusive Products</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in featured_products %}
+                <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-4xl">📦</div>
+                    {% endif %}
+                    <div class="p-4">
+                        <span class="inline-block bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold mb-2">Exclusive</span>
+                        <h3 class="font-bold text-lg mb-1">{{ product.name }}</h3>
+                        <p class="text-sm text-gray-600 mb-3">SKU: {{ product.sku }}</p>
+                        <a href="{{ product.get_absolute_url }}" class="text-blue-900 font-semibold hover:underline">View Details →</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8">
+            <a href="{% url 'products:list' %}" class="btn-primary">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-blue-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl font-bold brand-font mb-4">Need a Quote?</h2>
+        <p class="text-xl mb-8 text-gray-100">Request competitive pricing on bulk orders. Our finance team will respond within 24 hours.</p>
+        <a href="{% url 'quotes:create' %}" class="btn-outline">Start Your Quote</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Products - Ah Liki{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <h1 class="section-heading mb-8">Products Catalogue</h1>
+
+    <!-- Search Form -->
+    <form method="get" class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {{ form.query }} {{ form.brand }} {{ form.category }}
+            <div><label><input type="checkbox" name="is_exclusive"> Exclusive only</label></div>
+            <button type="submit" class="btn-primary">Search</button>
+        </div>
+    </form>
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for product in products %}
+            <div class="bg-white rounded-lg shadow-md card-hover overflow-hidden">
+                {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-40 object-cover">
+                {% else %}<div class="w-full h-40 bg-gray-200 flex items-center justify-center">📦</div>{% endif %}
+                <div class="p-4">
+                    {% if product.is_exclusive %}<span class="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Exclusive</span>{% endif %}
+                    <h3 class="font-bold mt-2">{{ product.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ product.brand.name }}</p>
+                    <p class="text-sm text-gray-600 mb-3">SKU: {{ product.sku }}</p>
+                    <a href="{{ product.get_absolute_url }}" class="text-blue-900 font-semibold text-sm">View Details →</a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-span-full text-center py-12">No products found.</div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}<div class="mt-8 text-center">
+        {% if page_obj.has_previous %}<a href="?page=1" class="px-3 py-1">« First</a> <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1">‹ Prev</a>{% endif %}
+        <span class="px-3 py-1">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1">Next ›</a> <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1">Last »</a>{% endif %}
+    </div>{% endif %}
+</div>
+{% endblock %}

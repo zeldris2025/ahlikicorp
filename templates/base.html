@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Ah Liki Investment Corporation - Samoan wholesale, supermarket, beverage, and restaurant brands.{% endblock %}">
+    <meta name="og:title" content="{% block og_title %}Ah Liki Investment Corporation{% endblock %}">
+    <meta name="og:description" content="{% block og_description %}Ah Liki Investment Corporation - Samoan wholesale, supermarket, beverage, and restaurant brands.{% endblock %}">
+    <meta name="og:image" content="{% block og_image %}{% static 'images/og-image.png' %}{% endblock %}">
+    <title>{% block title %}Ah Liki Investment Corporation{% endblock %}</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <link defer="defer" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></link>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+        :root {
+            --primary: #1e3a5f;
+            --accent: #d4af37;
+            --ocean: #0e7c86;
+            --earth: #8b6f47;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply text-gray-900 bg-white;
+        }
+        .brand-font { font-family: 'Poppins', sans-serif; }
+        .btn-primary {
+            @apply px-6 py-3 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors;
+        }
+        .btn-secondary {
+            @apply px-6 py-3 bg-teal-700 text-white rounded-lg font-semibold hover:bg-teal-600 transition-colors;
+        }
+        .btn-outline {
+            @apply px-6 py-3 border-2 border-blue-900 text-blue-900 rounded-lg font-semibold hover:bg-blue-50 transition-colors;
+        }
+        .section-heading {
+            @apply text-3xl md:text-4xl font-bold brand-font text-blue-900 mb-4;
+        }
+        .gradient-text {
+            @apply bg-gradient-to-r from-blue-900 via-teal-700 to-orange-600 bg-clip-text text-transparent;
+        }
+        .card-hover {
+            @apply transition-all duration-300 hover:shadow-xl hover:scale-105;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body x-data="{ mobileMenuOpen: false }">
+    {% include 'components/navbar.html' %}
+
+    {% if messages %}
+        <div class="fixed top-0 right-0 mt-4 mr-4 z-50 space-y-2">
+            {% for message in messages %}
+                <div class="{% if message.tags %}{{ message.tags }}{% else %}bg-blue-100 text-blue-800{% endif %} px-4 py-3 rounded-lg shadow-lg animate-fade-in-up">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'components/footer.html' %}
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

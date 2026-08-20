@@ -1,0 +1,65 @@
+<nav class="bg-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex-shrink-0">
+                <a href="{% url 'core:home' %}" class="text-2xl brand-font font-bold text-blue-900">
+                    🏪 Ah Liki
+                </a>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="{% url 'core:home' %}" class="text-gray-700 hover:text-blue-900 font-medium">Home</a>
+                <a href="{% url 'core:about' %}" class="text-gray-700 hover:text-blue-900 font-medium">About</a>
+                <a href="{% url 'core:brands' %}" class="text-gray-700 hover:text-blue-900 font-medium">Brands</a>
+                <a href="{% url 'products:list' %}" class="text-gray-700 hover:text-blue-900 font-medium">Products</a>
+                <a href="{% url 'core:locations' %}" class="text-gray-700 hover:text-blue-900 font-medium">Locations</a>
+
+                {% if user.is_authenticated %}
+                    <div class="relative" x-data="{ dropdownOpen: false }">
+                        <button @click="dropdownOpen = !dropdownOpen" class="text-gray-700 hover:text-blue-900 font-medium">
+                            {{ user.username }} ▼
+                        </button>
+                        <div x-show="dropdownOpen" @click.outside="dropdownOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg">
+                            <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+                            {% if user.groups.all|length > 0 %}
+                                {% if 'Finance' in user.groups.values_list__0 or 'Admin' in user.groups.values_list__0 %}
+                                    <a href="{% url 'quotes:finance_dashboard' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Finance Dashboard</a>
+                                {% endif %}
+                            {% endif %}
+                            <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 border-t">Logout</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="btn-primary">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="btn-outline">Sign Up</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-700 hover:text-blue-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenuOpen" class="md:hidden pb-4 space-y-2">
+            <a href="{% url 'core:home' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Home</a>
+            <a href="{% url 'core:about' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">About</a>
+            <a href="{% url 'core:brands' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Brands</a>
+            <a href="{% url 'products:list' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Products</a>
+            <a href="{% url 'core:locations' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Locations</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Profile</a>
+                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Logout</a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="block px-4 py-2 text-blue-900 bg-blue-50 rounded">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

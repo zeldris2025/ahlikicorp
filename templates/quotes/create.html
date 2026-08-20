@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Request Quote - Ah Liki{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="section-heading">Request a Quote</h1>
+        <p class="text-gray-600 mb-8">Fill out this form to request a competitive quote from our sales team.</p>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block font-semibold mb-2">{{ form.customer_name.label }}</label>
+                    {{ form.customer_name }}
+                    {% if form.customer_name.errors %}<span class="text-red-600">{{ form.customer_name.errors }}</span>{% endif %}
+                </div>
+                <div>
+                    <label class="block font-semibold mb-2">{{ form.company.label }}</label>
+                    {{ form.company }}
+                    {% if form.company.errors %}<span class="text-red-600">{{ form.company.errors }}</span>{% endif %}
+                </div>
+                <div>
+                    <label class="block font-semibold mb-2">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<span class="text-red-600">{{ form.email.errors }}</span>{% endif %}
+                </div>
+                <div>
+                    <label class="block font-semibold mb-2">{{ form.phone.label }}</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}<span class="text-red-600">{{ form.phone.errors }}</span>{% endif %}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block font-semibold mb-2">{{ form.delivery_location.label }}</label>
+                    {{ form.delivery_location }}
+                    {% if form.delivery_location.errors %}<span class="text-red-600">{{ form.delivery_location.errors }}</span>{% endif %}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block font-semibold mb-2">{{ form.delivery_address.label }}</label>
+                    {{ form.delivery_address }}
+                    {% if form.delivery_address.errors %}<span class="text-red-600">{{ form.delivery_address.errors }}</span>{% endif %}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block font-semibold mb-2">{{ form.notes.label }}</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}<span class="text-red-600">{{ form.notes.errors }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="border-t pt-6 flex gap-4">
+                <button type="submit" class="btn-primary">Submit Quote Request</button>
+                <a href="{% url 'core:home' %}" class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-8 bg-blue-50 rounded-lg p-6">
+        <h3 class="font-bold mb-2">ℹ️ How it works:</h3>
+        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+            <li>Fill out this form with your details and delivery location</li>
+            <li>You'll receive a confirmation email immediately</li>
+            <li>Our finance team will review and generate a detailed quote</li>
+            <li>We'll send the quote PDF within 24 hours</li>
+            <li>Accept or negotiate terms directly via email</li>
+        </ol>
+    </div>
+</div>
+{% endblock %}
