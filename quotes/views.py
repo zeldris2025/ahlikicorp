@@ -11,6 +11,7 @@ from .models import Quote, QuoteItem
 from .forms import QuoteRequestForm, QuoteItemFormSet, QuoteStatusForm
 from .email import send_quote_confirmation_email, send_quote_to_customer, notify_finance_team
 from .pdf import generate_quote_pdf
+from .signals import quote_pdf_cache_key
 from products.models import Product
 
 class QuoteCreateView(CreateView):
@@ -88,10 +89,13 @@ def quote_pdf_view(request, pk):
             quote.customer == request.user):
         raise Http404('Access denied.')
 
-    pdf_bytes = cache.get(f'quote_pdf_{quote.pk}')
+    # Key helper is shared with the invalidation receivers in signals.py so the
+    # two cannot drift apart.
+    cache_key = quote_pdf_cache_key(quote.pk)
+    pdf_bytes = cache.get(cache_key)
     if not pdf_bytes:
         pdf_bytes = generate_quote_pdf(quote)
-        cache.set(f'quote_pdf_{quote.pk}', pdf_bytes, 86400)
+        cache.set(cache_key, pdf_bytes, 86400)
 
     response = HttpResponse(pdf_bytes, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{quote.reference}.pdf"'
