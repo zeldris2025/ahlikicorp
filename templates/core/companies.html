@@ -58,6 +58,7 @@
 
     .co-card {
         position: relative;
+        scroll-margin-top: 7rem;
         display: flex;
         flex-direction: column;
         background: #fff;
@@ -162,7 +163,7 @@
 <div class="co-grid-wrap">
     <div class="co-grid">
         {% for company in companies %}
-            <article class="co-card" style="--accent: {{ company.accent_color }};">
+            <article class="co-card" id="company-{{ company.slug }}" style="--accent: {{ company.accent_color }};">
                 <div class="co-card-mark">
                     {% if company.logo %}
                         <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy">
@@ -184,7 +185,7 @@
                     </ul>
                 {% endif %}
 
-                <a href="{% url 'core:locations' %}#company-{{ company.slug }}" class="co-cta">
+                <a href="{% url 'core:locations' %}?company={{ company.slug }}" class="co-cta">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:15px;height:15px;">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>

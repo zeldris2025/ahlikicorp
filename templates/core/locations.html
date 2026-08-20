@@ -177,6 +177,12 @@ document.addEventListener('alpine:init', function () {
             init() {
                 const el = document.getElementById('loc-points');
                 try { this.points = el ? JSON.parse(el.textContent) : []; } catch (e) { this.points = []; }
+
+                // Arriving from a company's "Find us" link pre-selects that filter.
+                const wanted = new URLSearchParams(window.location.search).get('company');
+                if (wanted && this.points.some((p) => p.slug === wanted)) {
+                    this.active = wanted;
+                }
                 // Leaflet is deferred, so wait for it rather than racing it.
                 this.waitForLeaflet(0);
             },
@@ -215,7 +221,10 @@ document.addEventListener('alpine:init', function () {
                         bounds.push([p.lat, p.lng]);
                     });
 
-                    this.map.fitBounds(bounds, { padding: [40, 40] });
+                    const initial = this.active
+                        ? this.points.filter((p) => p.slug === this.active).map((p) => [p.lat, p.lng])
+                        : bounds;
+                    this.map.fitBounds(initial.length ? initial : bounds, { padding: [40, 40], maxZoom: 14 });
                     this.ready = true;
                     // Container was hidden behind the placeholder while sizing.
                     setTimeout(function () { self.map.invalidateSize(); }, 60);

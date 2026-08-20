@@ -679,6 +679,9 @@
     .company-cta:hover { filter: brightness(1.1); }
     .company-cta:active { transform: translateY(1px); }
     .company-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         font-size: 0.9rem;
         font-weight: 600;
         color: #475569;
@@ -688,6 +691,7 @@
         transition: color 0.2s ease, border-color 0.2s ease;
     }
     .company-link:hover { color: #04212a; border-color: #04212a; }
+    .company-link svg { width: 15px; height: 15px; flex-shrink: 0; }
 
     /* ---------- Scroll reveal ---------- */
     .company-visual,
@@ -1272,8 +1276,8 @@
                 </span>
 
                 <h1 class="hero-title">
-                    Five trusted brands.<br>
-                    <span class="hero-title-accent">One standard of quality.</span>
+                    One Standard Of Quality<br>
+                    {% comment %} <span class="hero-title-accent">One standard of quality.</span> {% endcomment %}
                 </h1>
 
                 <p class="hero-lede">
@@ -1344,12 +1348,12 @@
         <!-- Metrics -->
         <div class="hero-metrics">
             <div>
-                <span class="hero-metric-value">20+</span>
+                <span class="hero-metric-value">50+</span>
                 <span class="hero-metric-label">Years of trading</span>
             </div>
             <div>
                 <span class="hero-metric-value">{{ brands|length }}</span>
-                <span class="hero-metric-label">Brands under one roof</span>
+                <span class="hero-metric-label">Companies under one roof</span>
             </div>
             <div>
                 <span class="hero-metric-value">{{ locations_count|default:"10" }}</span>
@@ -1428,11 +1432,17 @@
                 {% endif %}
 
                 <div class="company-actions">
-                    <a href="{% url 'products:list' %}?brand={{ company.pk }}" class="company-cta">
-                        View products
+                    <a href="{% url 'core:companies' %}#company-{{ company.slug }}" class="company-cta">
+                        About this company
                         <span aria-hidden="true">&rarr;</span>
                     </a>
-                    <a href="{% url 'core:companies' %}" class="company-link">About this company</a>
+                    <a href="{% url 'core:locations' %}?company={{ company.slug }}" class="company-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Find us
+                    </a>
                 </div>
             </div>
         </div>
