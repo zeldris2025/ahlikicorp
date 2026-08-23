@@ -1,0 +1,11 @@
+{% comment %}
+The visual mark for a group company: its logo where one is uploaded, and a
+sector emoji where one is not, so a company without artwork still looks
+deliberate. Usage:
+    {% include 'components/company_mark.html' with company=company %}
+{% endcomment %}
+{% if company.logo %}
+    <img src="{{ company.logo.url }}" alt="" loading="lazy" decoding="async">
+{% else %}
+    <span aria-hidden="true">{% if company.slug == 'ahliki-wholesale' %}🚚{% elif company.slug == 'farmer-joe' %}🛒{% elif company.slug == 'taula-beverage' %}🍺{% elif company.slug == 'burger-bills' %}🍔{% elif company.slug == 'tanumapua-farm' %}🌾{% else %}🏢{% endif %}</span>
+{% endif %}

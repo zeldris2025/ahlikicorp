@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import socket
 from pathlib import Path
 
 import dj_database_url
@@ -31,6 +32,37 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-only-change-me')
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = [host for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host]
+
+# During development, also answer to this machine's own network addresses so
+# phones, tablets and other computers on the same Wi-Fi can open the site
+# (run it with: python manage.py runserver 0.0.0.0:8000).
+if DEBUG:
+    _lan_hosts = {'localhost', '127.0.0.1', '0.0.0.0', '[::1]'}
+    _hostname = socket.gethostname()
+    _lan_hosts.add(_hostname)
+    _lan_hosts.add(_hostname if '.' in _hostname else f'{_hostname}.local')
+    try:
+        for _family, _, _, _, _sockaddr in socket.getaddrinfo(_hostname, None):
+            _lan_hosts.add(f'[{_sockaddr[0]}]' if _family == socket.AF_INET6 else _sockaddr[0])
+    except OSError:
+        pass
+    try:
+        # Nothing is sent; connecting a UDP socket just reveals the address the
+        # default route would use, i.e. our address on the local network.
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as _probe:
+            _probe.connect(('8.8.8.8', 80))
+            _lan_hosts.add(_probe.getsockname()[0])
+    except OSError:
+        pass
+
+    ALLOWED_HOSTS = sorted(_lan_hosts.union(ALLOWED_HOSTS))
+
+    # Browsers on other devices send an Origin header with the port, so trust
+    # the dev server port explicitly for form posts.
+    _dev_port = os.getenv('DJANGO_DEV_PORT', '8000')
+    CSRF_TRUSTED_ORIGINS = [
+        f'http://{_host}:{_dev_port}' for _host in ALLOWED_HOSTS if _host != '0.0.0.0'
+    ]
 
 
 # Application definition

@@ -11,75 +11,129 @@
     </div>
 </section>
 
-<div class="max-w-7xl mx-auto px-4 py-10">
-    <form method="get" class="mb-8 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 py-10"
+     x-data="productSearch({
+        url: '{% url 'products:list' %}',
+        query: '{{ search_query|escapejs }}',
+        category: '{{ request.GET.category|default:''|escapejs }}',
+        exclusive: {% if request.GET.is_exclusive %}true{% else %}false{% endif %}
+     })">
+
+    {# Still a plain GET form: without JavaScript the Search button works as before. #}
+    <form method="get" class="mb-8 p-5 bg-white rounded-xl border border-gray-200 shadow-sm"
+          @submit.prevent="load()">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-            {{ form.query }}
-            {{ form.category }}
+            <div class="relative">
+                <input type="search" name="query" x-model="query" value="{{ search_query }}"
+                       @input.debounce.200ms="load()" @search="load()"
+                       autocomplete="off" aria-label="Search products"
+                       placeholder="Search products..."
+                       class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" x-show="!busy" x-cloak aria-hidden="true">🔍</span>
+                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-900 animate-spin"
+                     x-show="busy" x-cloak viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"></circle>
+                    <path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                </svg>
+            </div>
+
+            <select name="category" x-model="category" @change="load()"
+                    aria-label="Category"
+                    class="px-4 py-2 border border-gray-300 rounded-lg">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.pk }}" {% if request.GET.category == category.pk|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
-                {{ form.is_exclusive }} Exclusive lines only
+                <input type="checkbox" name="is_exclusive" x-model="exclusive"
+                       {% if request.GET.is_exclusive %}checked{% endif %} @change="load()"> Exclusive lines only
             </label>
+
             <button type="submit" class="btn-primary">Search</button>
         </div>
     </form>
 
-    <p class="text-sm text-gray-500 mb-5">{{ page_obj.paginator.count|default:products|length }} product{{ page_obj.paginator.count|pluralize }} available</p>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {% for product in products %}
-            <article class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="w-full h-40 object-cover">
-                {% else %}
-                    <div class="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 grid place-items-center text-4xl">📦</div>
-                {% endif %}
-
-                <div class="p-4 flex flex-col flex-1">
-                    {% if product.is_exclusive %}
-                        <span class="self-start text-[10px] font-bold uppercase tracking-wide bg-[#e8c96a] text-[#04212a] px-2 py-1 rounded mb-2">Exclusive</span>
-                    {% endif %}
-                    <h2 class="font-bold text-[15px] leading-snug mb-1">
-                        <a href="{{ product.get_absolute_url }}" class="text-blue-900 hover:underline">{{ product.name }}</a>
-                    </h2>
-                    <p class="text-xs text-gray-500 mb-1">{{ product.category.name }}</p>
-                    <p class="text-xs text-gray-400 mb-4">SKU {{ product.sku }}</p>
-
-                    <form method="post" action="{% url 'quotes:basket_add' product.pk %}"
-                          class="mt-auto flex gap-2"
-                          x-data="addToQuote({{ product.pk }}, {% if product.pk in quote_basket_ids %}true{% else %}false{% endif %})"
-                          @submit.prevent="send($event.target)">
-                        {% csrf_token %}
-                        <input type="number" name="quantity" value="1" min="1"
-                               class="w-16 px-2 py-2 border border-gray-300 rounded text-sm"
-                               aria-label="Quantity of {{ product.name }}">
-                        <button type="submit" class="add-quote-btn" :class="added ? 'is-added' : ''" :disabled="busy">
-                            <span x-show="!added && !busy">Add to quote</span>
-                            <span x-show="busy">Adding&hellip;</span>
-                            <span x-show="added && !busy" class="add-quote-done">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                                Added
-                            </span>
-                        </button>
-                    </form>
-                </div>
-            </article>
-        {% empty %}
-            <p class="col-span-full text-center py-16 text-gray-500">No products match your search.</p>
-        {% endfor %}
+    {# Swapped in place as the visitor types. #}
+    <div id="product-results" :class="busy ? 'opacity-60 transition-opacity' : 'transition-opacity'"
+         @click="onResultsClick($event)">
+        {% include 'products/_results.html' %}
     </div>
-
-    {% if is_paginated %}
-        <nav class="mt-10 flex justify-center gap-2 text-sm" aria-label="Pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50">Previous</a>
-            {% endif %}
-            <span class="px-3 py-2 text-gray-600">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50">Next</a>
-            {% endif %}
-        </nav>
-    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ---- Live catalogue search ----
+// Each keystroke asks the server for a fresh results block (the same view, so
+// filtering and pagination stay in one place) and swaps it in. Requests are
+// debounced and the previous one is aborted, so slow replies cannot land out of
+// order and overwrite newer results.
+document.addEventListener('alpine:init', function () {
+    Alpine.data('productSearch', function (config) {
+        return {
+            url: config.url,
+            query: config.query,
+            category: config.category,
+            exclusive: config.exclusive,
+            page: 1,
+            busy: false,
+            controller: null,
+
+            params() {
+                const params = new URLSearchParams();
+                if (this.query) params.set('query', this.query);
+                if (this.category) params.set('category', this.category);
+                if (this.exclusive) params.set('is_exclusive', 'on');
+                if (this.page > 1) params.set('page', this.page);
+                return params;
+            },
+
+            load(page) {
+                this.page = page || 1;
+                const params = this.params();
+                const self = this;
+
+                if (this.controller) this.controller.abort();
+                this.controller = new AbortController();
+                this.busy = true;
+
+                fetch(this.url + '?' + params.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                    signal: this.controller.signal,
+                })
+                    .then(function (res) {
+                        if (!res.ok) throw new Error(res.status);
+                        return res.text();
+                    })
+                    .then(function (html) {
+                        self.busy = false;
+                        document.getElementById('product-results').innerHTML = html;
+                        // Keep the address bar shareable and the back button useful.
+                        const qs = params.toString();
+                        history.replaceState({}, '', qs ? self.url + '?' + qs : self.url);
+                    })
+                    .catch(function (err) {
+                        if (err.name === 'AbortError') return;
+                        self.busy = false;
+                        // Fall back to a normal page load so the visitor still
+                        // gets their results.
+                        window.location = self.url + '?' + params.toString();
+                    });
+            },
+
+            // Pagination lives inside the swapped block, so handle it here.
+            onResultsClick(event) {
+                const link = event.target.closest('a[data-page]');
+                if (!link) return;
+                event.preventDefault();
+                this.load(parseInt(link.dataset.page, 10));
+                document.getElementById('product-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            },
+        };
+    });
+});
+</script>
 {% endblock %}

@@ -2,13 +2,28 @@ from django.core.cache import cache
 
 
 def site_brands(request):
-    """Brand list for the site-wide footer strip and brand links."""
+    """Company list for the footer strip and the header mega menu.
+
+    Both are on every page, so the list and the site count are cached rather
+    than queried per request.
+    """
     brands = cache.get('footer_brands')
     if brands is None:
         from products.models import Brand
         brands = list(Brand.objects.all().order_by('sort_order', 'name'))
         cache.set('footer_brands', brands, 3600)
-    return {'footer_brands': brands}
+
+    locations_count = cache.get('locations_count')
+    if locations_count is None:
+        from .models import Location
+        locations_count = Location.objects.count()
+        cache.set('locations_count', locations_count, 3600)
+
+    return {
+        'footer_brands': brands,
+        'nav_companies': brands,
+        'nav_locations_count': locations_count,
+    }
 
 
 def user_roles(request):

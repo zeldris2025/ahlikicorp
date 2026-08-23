@@ -38,7 +38,77 @@
         <nav class="site-nav" aria-label="Primary">
             <a href="{% url 'core:home' %}" class="site-nav-link{% if view_name == 'core:home' %} is-active{% endif %}"{% if view_name == 'core:home' %} aria-current="page"{% endif %}>Home</a>
             <a href="{% url 'core:about' %}" class="site-nav-link{% if view_name == 'core:about' %} is-active{% endif %}"{% if view_name == 'core:about' %} aria-current="page"{% endif %}>About</a>
-            <a href="{% url 'core:companies' %}" class="site-nav-link{% if view_name == 'core:companies' %} is-active{% endif %}"{% if view_name == 'core:companies' %} aria-current="page"{% endif %}>Our Companies</a>
+            {# Mega menu: every operating company, one click from anywhere on the site. #}
+            <div class="site-nav-item"
+                 x-data="{ open: false }"
+                 @mouseenter="open = true"
+                 @mouseleave="open = false"
+                 @keydown.escape="open = false"
+                 @focusout="if (!$el.contains($event.relatedTarget)) open = false">
+                <button type="button" id="companies-trigger"
+                        class="site-nav-link site-nav-trigger{% if view_name == 'core:companies' or view_name == 'core:company_detail' %} is-active{% endif %}"
+                        @click="open = !open"
+                        :aria-expanded="open ? 'true' : 'false'"
+                        aria-haspopup="true" aria-controls="companies-mega">
+                    Our Companies
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"
+                         class="site-nav-caret" :class="open ? 'is-open' : ''">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+
+                <div class="mega" id="companies-mega" role="group" aria-labelledby="companies-trigger"
+                     x-show="open" x-transition.opacity.duration.150ms @click.outside="open = false" x-cloak>
+                    <div class="mega-inner">
+                        <div class="mega-head">
+                            <div>
+                                <p class="mega-kicker">The Group</p>
+                                <h2 class="mega-title">Five companies, one Samoan group</h2>
+                            </div>
+                            <a href="{% url 'core:companies' %}" class="mega-all">
+                                View all companies
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                    <line x1="4" y1="12" x2="19" y2="12"></line><polyline points="13 6 19 12 13 18"></polyline>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div class="mega-body">
+                            <div class="mega-grid">
+                                {% for company in nav_companies %}
+                                    <a href="{{ company.get_absolute_url }}" class="mega-card" style="--accent: {{ company.accent_color }};">
+                                        <span class="mega-card-mark">
+                                            {% include 'components/company_mark.html' with company=company %}
+                                        </span>
+                                        <span class="mega-card-text">
+                                            <span class="mega-card-sector">{{ company.sector|default:"Group Company" }}</span>
+                                            <span class="mega-card-name">{{ company.name }}</span>
+                                            <span class="mega-card-tagline">{{ company.tagline }}</span>
+                                        </span>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" class="mega-card-arrow">
+                                            <line x1="4" y1="12" x2="19" y2="12"></line><polyline points="13 6 19 12 13 18"></polyline>
+                                        </svg>
+                                    </a>
+                                {% endfor %}
+                            </div>
+
+                            <aside class="mega-rail">
+                                <p class="mega-rail-kicker">At a glance</p>
+                                <ul class="mega-stats">
+                                    <li><strong>{{ nav_companies|length }}</strong><span>Operating companies</span></li>
+                                    <li><strong>{{ nav_locations_count }}</strong><span>Sites across Samoa</span></li>
+                                    <li><strong>2000</strong><span>Samoan owned since</span></li>
+                                </ul>
+                                <div class="mega-rail-links">
+                                    <a href="{% url 'products:list' %}">Wholesale catalogue</a>
+                                    <a href="{% url 'core:locations' %}">Find a location</a>
+                                    <a href="{% url 'core:contact' %}">Talk to the group</a>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <a href="{% url 'products:list' %}" class="site-nav-link{% if view_namespace == 'products' %} is-active{% endif %}"{% if view_namespace == 'products' %} aria-current="page"{% endif %}>Products</a>
             <a href="{% url 'core:locations' %}" class="site-nav-link{% if view_name == 'core:locations' %} is-active{% endif %}"{% if view_name == 'core:locations' %} aria-current="page"{% endif %}>Locations</a>
             <a href="{% url 'core:contact' %}" class="site-nav-link{% if view_name == 'core:contact' %} is-active{% endif %}"{% if view_name == 'core:contact' %} aria-current="page"{% endif %}>Contact</a>
@@ -102,7 +172,30 @@
     <div class="site-drawer" x-show="mobileMenuOpen" x-transition x-cloak>
         <a href="{% url 'core:home' %}" class="site-drawer-link{% if view_name == 'core:home' %} is-active{% endif %}">Home</a>
         <a href="{% url 'core:about' %}" class="site-drawer-link{% if view_name == 'core:about' %} is-active{% endif %}">About</a>
-        <a href="{% url 'core:companies' %}" class="site-drawer-link{% if view_name == 'core:companies' %} is-active{% endif %}">Our Companies</a>
+        {# Companies expand in place on mobile rather than opening a mega panel. #}
+        <div class="site-drawer-group"
+             x-data="{ open: {% if view_name == 'core:companies' or view_name == 'core:company_detail' %}true{% else %}false{% endif %} }">
+            <button type="button" class="site-drawer-link site-drawer-toggle{% if view_name == 'core:companies' or view_name == 'core:company_detail' %} is-active{% endif %}"
+                    @click="open = !open" :aria-expanded="open ? 'true' : 'false'">
+                Our Companies
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"
+                     class="site-nav-caret" :class="open ? 'is-open' : ''">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            <div class="site-drawer-sub" x-show="open" x-transition.opacity.duration.150ms x-cloak>
+                {% for company in nav_companies %}
+                    <a href="{{ company.get_absolute_url }}" class="site-drawer-sublink" style="--accent: {{ company.accent_color }};">
+                        <span class="site-drawer-dot" aria-hidden="true"></span>
+                        <span>
+                            {{ company.name }}
+                            <small>{{ company.sector|default:"Group Company" }}</small>
+                        </span>
+                    </a>
+                {% endfor %}
+                <a href="{% url 'core:companies' %}" class="site-drawer-sublink site-drawer-sublink-all">All companies</a>
+            </div>
+        </div>
         <a href="{% url 'products:list' %}" class="site-drawer-link{% if view_namespace == 'products' %} is-active{% endif %}">Products</a>
         <a href="{% url 'core:locations' %}" class="site-drawer-link{% if view_name == 'core:locations' %} is-active{% endif %}">Locations</a>
         <a href="{% url 'core:contact' %}" class="site-drawer-link{% if view_name == 'core:contact' %} is-active{% endif %}">Contact</a>

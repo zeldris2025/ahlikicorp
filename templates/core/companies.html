@@ -127,7 +127,6 @@
         border: 1px solid #e2e8f0;
     }
     .co-cta {
-        margin-top: auto;
         gap: 0.4rem;
         display: inline-flex;
         align-items: center;
@@ -138,6 +137,20 @@
         text-decoration: none;
     }
     .co-cta:hover { text-decoration: underline; }
+    .co-actions {
+        margin-top: auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 1.1rem;
+    }
+    .co-cta-primary {
+        padding: 0.55rem 1rem;
+        border-radius: 0.6rem;
+        color: #fff;
+        background: var(--accent, #0e7c86);
+    }
+    .co-cta-primary:hover { text-decoration: none; filter: brightness(1.08); }
 
     @media (prefers-reduced-motion: reduce) {
         .co-card { transition: none !important; }
@@ -185,13 +198,18 @@
                     </ul>
                 {% endif %}
 
-                <a href="{% url 'core:locations' %}?company={{ company.slug }}" class="co-cta">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:15px;height:15px;">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                    Find us <span aria-hidden="true">&rarr;</span>
-                </a>
+                <div class="co-actions">
+                    <a href="{{ company.get_absolute_url }}" class="co-cta co-cta-primary">
+                        Visit {{ company.name }} <span aria-hidden="true">&rarr;</span>
+                    </a>
+                    <a href="{% url 'core:locations' %}?company={{ company.slug }}" class="co-cta">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:15px;height:15px;">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Find us
+                    </a>
+                </div>
             </article>
         {% empty %}
             <p class="text-gray-600">Company information is being updated.</p>

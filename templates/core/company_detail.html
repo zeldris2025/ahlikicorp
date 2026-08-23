@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ company.name }} | Ah Liki Investment Corporation{% endblock %}
+{% block meta_description %}{{ company.name }} — {{ company.tagline }}. Part of Ah Liki Investment Corporation Limited, Samoa.{% endblock %}
+{% block og_title %}{{ company.name }} | Ah Liki Investment Corporation{% endblock %}
+{% block og_description %}{{ company.tagline }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cd { --accent: {{ company.accent_color }}; }
+
+    /* ---------- Hero ---------- */
+    .cd-hero {
+        position: relative;
+        overflow: hidden;
+        color: #fff;
+        background:
+            radial-gradient(120% 140% at 88% 12%, color-mix(in srgb, var(--accent) 55%, transparent) 0%, transparent 62%),
+            linear-gradient(155deg, #04212a 0%, #073236 55%, #05202f 100%);
+        padding: 2rem 1.5rem 3.75rem;
+    }
+    .cd-hero-weave {
+        position: absolute;
+        inset: 0;
+        background-image:
+            repeating-linear-gradient(45deg,  rgba(255,255,255,.06) 0 1px, transparent 1px 18px),
+            repeating-linear-gradient(-45deg, rgba(255,255,255,.06) 0 1px, transparent 1px 18px);
+        mask-image: radial-gradient(ellipse at 20% 40%, black 0%, transparent 75%);
+        -webkit-mask-image: radial-gradient(ellipse at 20% 40%, black 0%, transparent 75%);
+        pointer-events: none;
+    }
+    .cd-hero-inner {
+        position: relative;
+        max-width: 76rem;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        align-items: center;
+    }
+    @media (min-width: 940px) { .cd-hero-inner { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); } }
+
+    .cd-crumbs {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.78rem;
+        color: rgba(226, 240, 240, 0.55);
+        margin-bottom: 1.75rem;
+    }
+    .cd-crumbs a { color: rgba(226, 240, 240, 0.75); text-decoration: none; }
+    .cd-crumbs a:hover { color: #e8c96a; }
+
+    .cd-sector {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--accent) 28%, transparent);
+        border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+    .cd-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.05;
+        margin-bottom: 0.85rem;
+    }
+    .cd-tagline {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #e8c96a;
+        margin-bottom: 1rem;
+    }
+    .cd-lede {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: rgba(226, 240, 240, 0.74);
+        max-width: 38rem;
+        margin-bottom: 1.9rem;
+    }
+    .cd-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+    .cd-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.8rem 1.4rem;
+        border-radius: 0.65rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .cd-btn svg { width: 16px; height: 16px; }
+    .cd-btn-solid { background: var(--accent); color: #fff; }
+    .cd-btn-solid:hover { transform: translateY(-2px); }
+    .cd-btn-ghost {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        color: #fff;
+    }
+    .cd-btn-ghost:hover { background: rgba(255, 255, 255, 0.13); transform: translateY(-2px); }
+
+    /* Logo plate */
+    .cd-plate {
+        position: relative;
+        display: grid;
+        place-items: center;
+        aspect-ratio: 4 / 3;
+        border-radius: 1.5rem;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+        padding: 2.5rem;
+    }
+    .cd-plate::after {
+        content: '';
+        position: absolute;
+        inset: auto 1.25rem 1.25rem;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--accent);
+        opacity: 0.85;
+    }
+    .cd-plate img { max-width: 100%; max-height: 190px; object-fit: contain; }
+    .cd-plate span { font-size: 5rem; line-height: 1; }
+
+    /* ---------- Body ---------- */
+    .cd-wrap { max-width: 76rem; margin: 0 auto; padding: 3.5rem 1.5rem; }
+    .cd-section + .cd-section { margin-top: 3.5rem; }
+    .cd-eyebrow {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+    }
+    .cd-h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: #04212a;
+        margin-bottom: 1.5rem;
+    }
+    .cd-prose { font-size: 1rem; line-height: 1.85; color: #475569; max-width: 46rem; }
+
+    .cd-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; list-style: none; padding: 0; margin: 1.75rem 0 0; }
+    .cd-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #04212a;
+        background: color-mix(in srgb, var(--accent) 7%, #fff);
+        border: 1px solid color-mix(in srgb, var(--accent) 20%, #fff);
+    }
+    .cd-chip::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--accent);
+    }
+
+    /* Locations */
+    .cd-cards { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 700px)  { .cd-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1100px) { .cd-cards { grid-template-columns: repeat(3, 1fr); } }
+
+    .cd-card {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border: 1px solid #eef2f5;
+        border-radius: 1rem;
+        padding: 1.35rem;
+        box-shadow: 0 6px 20px rgba(4, 33, 42, 0.05);
+        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+    }
+    .cd-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(4, 33, 42, 0.12); }
+    .cd-card-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.02rem;
+        font-weight: 700;
+        color: #04212a;
+        margin-bottom: 0.35rem;
+    }
+    .cd-card-meta { font-size: 0.85rem; line-height: 1.6; color: #64748b; }
+    .cd-card-meta a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .cd-tag {
+        align-self: flex-start;
+        margin-bottom: 0.7rem;
+        padding: 0.22rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #04212a;
+        background: #e8c96a;
+    }
+
+    /* Product preview */
+    .cd-prod {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #eef2f5;
+        border-radius: 1rem;
+        text-decoration: none;
+        box-shadow: 0 6px 20px rgba(4, 33, 42, 0.05);
+        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+    }
+    .cd-prod:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(4, 33, 42, 0.12); }
+    .cd-prod img { width: 100%; height: 130px; object-fit: cover; }
+    .cd-prod-fallback {
+        height: 130px;
+        display: grid;
+        place-items: center;
+        font-size: 2rem;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    }
+    .cd-prod-body { padding: 0.9rem 1rem 1.1rem; }
+    .cd-prod-cat { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .cd-prod-name { font-size: 0.9rem; font-weight: 700; color: #04212a; line-height: 1.4; margin-top: 0.2rem; }
+
+    /* CTA band */
+    .cd-band {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-top: 3.5rem;
+        padding: 2rem;
+        border-radius: 1.25rem;
+        color: #fff;
+        background:
+            radial-gradient(90% 160% at 92% 0%, color-mix(in srgb, var(--accent) 45%, transparent) 0%, transparent 65%),
+            linear-gradient(150deg, #04212a, #073236);
+    }
+    .cd-band h2 { font-family: 'Poppins', sans-serif; font-size: 1.35rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .cd-band p { font-size: 0.92rem; color: rgba(226, 240, 240, 0.72); max-width: 34rem; }
+
+    /* Sibling companies */
+    .cd-siblings { border-top: 1px solid #eef2f5; margin-top: 3.5rem; padding-top: 2.25rem; }
+    .cd-sibling-grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+    @media (min-width: 700px)  { .cd-sibling-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1100px) { .cd-sibling-grid { grid-template-columns: repeat(4, 1fr); } }
+    .cd-sibling {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.9rem 1rem;
+        border: 1px solid #eef2f5;
+        border-radius: 0.9rem;
+        background: #fff;
+        text-decoration: none;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .cd-sibling:hover { border-color: color-mix(in srgb, var(--sib) 40%, #fff); transform: translateY(-3px); }
+    .cd-sibling-mark {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        border-radius: 0.6rem;
+        background: color-mix(in srgb, var(--sib) 8%, #fff);
+        border: 1px solid color-mix(in srgb, var(--sib) 18%, #fff);
+    }
+    .cd-sibling-mark img { max-width: 30px; max-height: 30px; object-fit: contain; }
+    .cd-sibling-mark span { font-size: 1.15rem; }
+    .cd-sibling-name { font-size: 0.9rem; font-weight: 700; color: #04212a; line-height: 1.3; }
+    .cd-sibling-sector { font-size: 0.7rem; color: #94a3b8; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cd-card, .cd-prod, .cd-sibling, .cd-btn { transition: none !important; }
+        .cd-card:hover, .cd-prod:hover, .cd-sibling:hover, .cd-btn:hover { transform: none !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cd">
+
+<section class="cd-hero">
+    <div class="cd-hero-weave" aria-hidden="true"></div>
+    <div class="cd-hero-inner">
+        <div>
+            <nav class="cd-crumbs" aria-label="Breadcrumb">
+                <a href="{% url 'core:home' %}">Home</a>
+                <span aria-hidden="true">/</span>
+                <a href="{% url 'core:companies' %}">Our Companies</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">{{ company.name }}</span>
+            </nav>
+
+            <p class="cd-sector">{{ company.sector|default:"Group Company" }}</p>
+            <h1 class="cd-name">{{ company.name }}</h1>
+            <p class="cd-tagline">{{ company.tagline }}</p>
+            <p class="cd-lede">{{ company.description|truncatewords:45 }}</p>
+
+            <div class="cd-actions">
+                {% if sells_online %}
+                    <a href="{% url 'products:list' %}" class="cd-btn cd-btn-solid">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        Browse the catalogue
+                    </a>
+                {% endif %}
+                {% if locations %}
+                    <a href="{% url 'core:locations' %}?company={{ company.slug }}" class="cd-btn {% if sells_online %}cd-btn-ghost{% else %}cd-btn-solid{% endif %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        {{ locations|length }} location{{ locations|length|pluralize }}
+                    </a>
+                {% endif %}
+                <a href="{% url 'core:contact' %}" class="cd-btn cd-btn-ghost">Get in touch</a>
+            </div>
+        </div>
+
+        <div class="cd-plate" aria-hidden="true">
+            {% include 'components/company_mark.html' with company=company %}
+        </div>
+    </div>
+</section>
+
+<div class="cd-wrap">
+
+    <section class="cd-section">
+        <p class="cd-eyebrow">What we do</p>
+        <h2 class="cd-h2">Inside {{ company.name }}</h2>
+        <p class="cd-prose">{{ company.description|linebreaksbr }}</p>
+
+        {% if company.highlights %}
+            <ul class="cd-chips">
+                {% for item in company.highlights %}
+                    <li class="cd-chip">{{ item }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+
+    {% if products %}
+        <section class="cd-section">
+            <p class="cd-eyebrow">From the catalogue</p>
+            <h2 class="cd-h2">{{ product_count }} line{{ product_count|pluralize }} available to trade customers</h2>
+            <div class="cd-cards">
+                {% for product in products %}
+                    <a href="{{ product.get_absolute_url }}" class="cd-prod">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                            <div class="cd-prod-fallback" aria-hidden="true">📦</div>
+                        {% endif %}
+                        <div class="cd-prod-body">
+                            <p class="cd-prod-cat">{{ product.category.name }}</p>
+                            <p class="cd-prod-name">{{ product.name }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+            <p style="margin-top:1.25rem;">
+                <a href="{% url 'products:list' %}" class="cd-btn cd-btn-solid">See the full catalogue</a>
+            </p>
+        </section>
+    {% endif %}
+
+    {% if locations %}
+        <section class="cd-section">
+            <p class="cd-eyebrow">Where to find us</p>
+            <h2 class="cd-h2">{{ company.name }} sites</h2>
+            <div class="cd-cards">
+                {% for location in locations %}
+                    <article class="cd-card">
+                        {% if location.is_headquarters %}<span class="cd-tag">Head office</span>{% endif %}
+                        <h3 class="cd-card-title">{{ location.name }}</h3>
+                        <p class="cd-card-meta">
+                            {{ location.address }}<br>
+                            {{ location.island }}
+                            {% if location.opening_hours %}<br>{{ location.opening_hours }}{% endif %}
+                            {% if location.phone %}<br><a href="tel:{{ location.phone }}">{{ location.phone }}</a>{% endif %}
+                        </p>
+                    </article>
+                {% endfor %}
+            </div>
+            <p style="margin-top:1.25rem;">
+                <a href="{% url 'core:locations' %}?company={{ company.slug }}" class="cd-btn cd-btn-ghost" style="background:#04212a;border-color:#04212a;">See them on the map</a>
+            </p>
+        </section>
+    {% endif %}
+
+    <section class="cd-band">
+        <div>
+            <h2>Working with {{ company.name }}</h2>
+            <p>Tell us what you need and the right team within the group will come back to you — usually within one business day.</p>
+        </div>
+        <div class="cd-actions">
+            <a href="{% url 'core:contact' %}" class="cd-btn cd-btn-solid">Contact the group</a>
+            {% if sells_online %}
+                <a href="{% url 'quotes:basket' %}" class="cd-btn cd-btn-ghost">My quote request</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="cd-siblings">
+        <p class="cd-eyebrow">Also in the group</p>
+        <h2 class="cd-h2">Our other companies</h2>
+        <div class="cd-sibling-grid">
+            {% for other in other_companies %}
+                <a href="{{ other.get_absolute_url }}" class="cd-sibling" style="--sib: {{ other.accent_color }};">
+                    <span class="cd-sibling-mark">
+                        {% include 'components/company_mark.html' with company=other %}
+                    </span>
+                    <span>
+                        <span class="cd-sibling-name">{{ other.name }}</span><br>
+                        <span class="cd-sibling-sector">{{ other.sector|default:"Group Company" }}</span>
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+</div>
+{% endblock %}

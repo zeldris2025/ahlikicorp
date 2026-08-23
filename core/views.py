@@ -91,6 +91,44 @@ class CompaniesView(TemplateView):
         context['companies'] = Brand.objects.all().order_by('sort_order', 'name')
         return context
 
+class CompanyDetailView(DetailView):
+    """A page of its own for one operating company.
+
+    Reached from the mega menu and from the companies index. Products are only
+    offered where the company actually sells from the public catalogue — the
+    others are retail or hospitality operations, so their page points at their
+    sites and the contact form instead.
+    """
+
+    model = Brand
+    template_name = 'core/company_detail.html'
+    context_object_name = 'company'
+    slug_field = 'slug'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        company = self.object
+
+        context['locations'] = company.locations.all().order_by('sort_order', 'name')
+        context['other_companies'] = (
+            Brand.objects.exclude(pk=company.pk).order_by('sort_order', 'name')
+        )
+
+        # Only the wholesale catalogue is public, so only that company links
+        # through to product pages (the others would land on a 404).
+        from products.views import ProductListView
+
+        context['sells_online'] = company.slug == ProductListView.CATALOGUE_BRAND_SLUG
+        context['products'] = (
+            list(company.products.filter(is_active=True).select_related('category')[:8])
+            if context['sells_online'] else []
+        )
+        context['product_count'] = (
+            company.products.filter(is_active=True).count() if context['sells_online'] else 0
+        )
+        return context
+
+
 class LocationsView(ListView):
     model = Location
     template_name = 'core/locations.html'

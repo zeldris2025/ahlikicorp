@@ -1328,7 +1328,7 @@
                             </div>
                         </div>
                         <p class="hero-card-desc">{{ brand.description|truncatewords:16 }}</p>
-                        <a href="{% url 'core:companies' %}" class="hero-card-link">
+                        <a href="{{ brand.get_absolute_url }}" class="hero-card-link">
                             Learn more <span aria-hidden="true">&rarr;</span>
                         </a>
                     </article>
@@ -1432,7 +1432,7 @@
                 {% endif %}
 
                 <div class="company-actions">
-                    <a href="{% url 'core:companies' %}#company-{{ company.slug }}" class="company-cta">
+                    <a href="{{ company.get_absolute_url }}" class="company-cta">
                         About this company
                         <span aria-hidden="true">&rarr;</span>
                     </a>
@@ -1708,3 +1708,4 @@
     });
 </script>
 {% endblock %}
+
