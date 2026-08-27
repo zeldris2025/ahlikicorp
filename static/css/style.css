@@ -1,9 +1,9 @@
 /* Ah Liki Brand Colors */
 :root {
-    --primary: #1e3a5f;
-    --accent: #d4af37;
-    --ocean: #0e7c86;
-    --earth: #8b6f47;
+    --primary: #1E88E5;
+    --accent: #7CB342;
+    --ocean: #00BCD4;
+    --earth: #333333;
 }
 
 /* Typography */
@@ -22,7 +22,7 @@ body {
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #1e3a5f 0%, #0e7c86 50%, #d4af37 100%);
+    background: linear-gradient(135deg, #1E88E5 0%, #00BCD4 50%, #7CB342 100%);
     color: white;
     padding: 80px 20px;
     text-align: center;
@@ -54,33 +54,33 @@ body {
 }
 
 .btn-primary {
-    background: #1e3a5f;
+    background: #1E88E5;
     color: white;
 }
 
 .btn-primary:hover {
-    background: #152a45;
+    background: #1565C0;
     transform: translateY(-2px);
 }
 
 .btn-secondary {
-    background: #0e7c86;
+    background: #7CB342;
     color: white;
 }
 
 .btn-secondary:hover {
-    background: #0a5a61;
+    background: #689F38;
     transform: translateY(-2px);
 }
 
 .btn-outline {
-    border: 2px solid #1e3a5f;
-    color: #1e3a5f;
+    border: 2px solid #1E88E5;
+    color: #1E88E5;
     background: transparent;
 }
 
 .btn-outline:hover {
-    background: #f3f4f6;
+    background: #E3F2FD;
 }
 
 /* Section Styling */
@@ -91,7 +91,7 @@ body {
 .section-heading {
     font-size: 2.25rem;
     font-weight: 800;
-    color: #1e3a5f;
+    color: #1E88E5;
     margin-bottom: 20px;
     text-align: center;
 }
@@ -128,18 +128,18 @@ body {
 }
 
 .badge-primary {
-    background: #1e3a5f;
+    background: #1E88E5;
     color: white;
 }
 
 .badge-secondary {
-    background: #0e7c86;
+    background: #7CB342;
     color: white;
 }
 
 .badge-accent {
-    background: #d4af37;
-    color: #1e3a5f;
+    background: #00BCD4;
+    color: white;
 }
 
 /* Navigation
@@ -153,14 +153,14 @@ body {
 }
 
 .legacy-nav a {
-    color: #1e3a5f;
+    color: #1E88E5;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
 }
 
 .legacy-nav a:hover {
-    color: #0e7c86;
+    color: #7CB342;
 }
 
 /* 3D Brand Cards */

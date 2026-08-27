@@ -1,5 +1,10 @@
-from django.contrib import admin
-from .models import Brand, Category, Product, ProductImage
+from django.contrib import admin, messages
+from django.shortcuts import redirect, render
+from django.urls import path, reverse
+
+from .csv_import import CSV_COLUMNS, CsvImportError, import_products, template_response
+from .forms import ProductBulkUploadForm
+from .models import Brand, Category, ExclusiveBrand, Product, ProductImage
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -45,6 +50,71 @@ class ProductAdmin(admin.ModelAdmin):
         ('Status', {'fields': ('is_exclusive', 'is_active')}),
         ('Metadata', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
     )
+
+    # Bulk import lives here as well as in the staff portal, so whoever is
+    # already in Admin does not have to change screens to load a price list.
+    change_list_template = 'admin/products/product/change_list.html'
+
+    def get_urls(self):
+        custom = [
+            path(
+                'import-csv/',
+                self.admin_site.admin_view(self.import_csv_view),
+                name='products_product_import_csv',
+            ),
+            path(
+                'import-csv/template/',
+                self.admin_site.admin_view(self.csv_template_view),
+                name='products_product_csv_template',
+            ),
+        ]
+        return custom + super().get_urls()
+
+    def csv_template_view(self, request):
+        return template_response()
+
+    def import_csv_view(self, request):
+        form = ProductBulkUploadForm()
+
+        if request.method == 'POST':
+            form = ProductBulkUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                try:
+                    result = import_products(form.cleaned_data['csv_file'])
+                except CsvImportError as exc:
+                    self.message_user(request, str(exc), level=messages.ERROR)
+                else:
+                    if result.created:
+                        self.message_user(request, result.success_summary(), level=messages.SUCCESS)
+                    if result.has_skipped:
+                        self.message_user(request, result.skipped_summary(), level=messages.INFO)
+                    if result.has_errors:
+                        self.message_user(request, result.error_summary(), level=messages.WARNING)
+                    if not result.created and not result.has_errors and not result.has_skipped:
+                        self.message_user(request, 'No rows found in the CSV file.', level=messages.WARNING)
+                    if result.created:
+                        return redirect(reverse('admin:products_product_changelist'))
+
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'title': 'Import products from CSV',
+            'form': form,
+            'columns': CSV_COLUMNS,
+            'template_url': reverse('admin:products_product_csv_template'),
+        }
+        return render(request, 'admin/products/product/import_csv.html', context)
+
+@admin.register(ExclusiveBrand)
+class ExclusiveBrandAdmin(admin.ModelAdmin):
+    """Supplier labels we distribute exclusively — the home page logo marquee."""
+
+    list_display = ('name', 'note', 'sort_order', 'is_active')
+    list_filter = ('is_active',)
+    list_editable = ('sort_order', 'is_active')
+    search_fields = ('name', 'note')
+    fields = ('name', 'logo', 'website', 'note', 'sort_order', 'is_active')
+
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):

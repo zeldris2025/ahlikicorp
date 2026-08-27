@@ -1,0 +1,22 @@
+{% comment %}
+One marquee track's worth of exclusive-distribution logo cards.
+
+Rendered twice per marquee — the second copy is the clone that makes the
+scroll loop seamlessly — so it takes `clone` to hide the duplicate from
+screen readers and from the tab order.
+{% endcomment %}
+{% for brand in exclusive_marquee %}
+    {% if brand.website and not clone %}
+        <a class="xlogo-card" href="{{ brand.website }}" target="_blank" rel="noopener noreferrer">
+            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" loading="lazy" decoding="async">
+            {% if brand.note %}<span class="xlogo-card-note">{{ brand.note }}</span>{% endif %}
+        </a>
+    {% else %}
+        <div class="xlogo-card">
+            <img src="{{ brand.logo.url }}"
+                 alt="{% if clone %}{% else %}{{ brand.name }}{% endif %}"
+                 loading="lazy" decoding="async">
+            {% if brand.note %}<span class="xlogo-card-note">{{ brand.note }}</span>{% endif %}
+        </div>
+    {% endif %}
+{% endfor %}

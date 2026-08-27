@@ -8,10 +8,13 @@ from django.db.models import Q
 from django.core.cache import cache
 from .models import Location, ContactMessage, NewsletterSubscriber
 from .forms import ContactForm, NewsletterForm
-from products.models import Brand, Product
+from products.models import Brand, ExclusiveBrand, Product
 
 class HomeView(TemplateView):
     template_name = 'core/home.html'
+
+    # Cards per marquee track, enough to span a wide desktop viewport.
+    MARQUEE_MIN_CARDS = 8
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -24,6 +27,23 @@ class HomeView(TemplateView):
         # Hero spotlight deck reuses the same records.
         context['brands'] = companies
         context['featured_products'] = cache.get_or_set('featured_products', lambda: Product.objects.filter(is_active=True, is_exclusive=True)[:6], 1800)
+        # Logo marquee of the supplier labels we distribute exclusively.
+        exclusive = cache.get_or_set(
+            'exclusive_brands',
+            lambda: list(ExclusiveBrand.objects.filter(is_active=True).exclude(logo='')),
+            3600,
+        )
+        context['exclusive_brands'] = exclusive
+        # A marquee track has to be at least as wide as the viewport or the
+        # loop shows a gap, so a short list is repeated until it fills one.
+        if exclusive:
+            repeats = max(1, -(-self.MARQUEE_MIN_CARDS // len(exclusive)))
+            context['exclusive_marquee'] = exclusive * repeats
+            # Keep the logos moving at a constant speed whatever the count.
+            context['exclusive_marquee_duration'] = len(exclusive) * repeats * 6
+        else:
+            context['exclusive_marquee'] = []
+            context['exclusive_marquee_duration'] = 0
         context['locations_count'] = cache.get_or_set('locations_count', lambda: Location.objects.count(), 3600)
 
         # Hero background video. Resolution order:

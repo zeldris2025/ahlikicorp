@@ -38,17 +38,25 @@ def _safe_redirect_target(request, fallback='core:home'):
 
     Redirecting to an unchecked ``next`` lets a crafted link bounce someone to
     another domain immediately after they sign in.
+
+    If user is in Finance or Admin group, redirect to finance dashboard instead.
     """
     target = request.POST.get('next') or request.GET.get('next')
     if target and url_has_allowed_host_and_scheme(
         target, allowed_hosts={request.get_host()}, require_https=request.is_secure()
     ):
         return target
+
+    if request.user.groups.filter(name__in=['Finance', 'Admin']).exists():
+        return 'quotes:finance_dashboard'
+
     return fallback
 
 
 def login_view(request):
     if request.user.is_authenticated:
+        if request.user.groups.filter(name__in=['Finance', 'Admin']).exists():
+            return redirect('quotes:finance_dashboard')
         return redirect('core:home')
 
     if request.method == 'POST':

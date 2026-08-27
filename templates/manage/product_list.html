@@ -25,10 +25,16 @@
             <a href="{% url 'manage:product_list' %}" class="text-xs text-slate-500 hover:underline">Clear</a>
         {% endif %}
     </form>
-    <a href="{% url 'manage:product_create' %}" class="btn btn-p">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add product
-    </a>
+    <div class="flex gap-2">
+        <a href="{% url 'manage:product_create' %}" class="btn btn-p">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add product
+        </a>
+        <a href="{% url 'manage:product_bulk_upload' %}" class="btn btn-o">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Bulk upload
+        </a>
+    </div>
 </div>
 
 <div class="card overflow-hidden">
@@ -50,9 +56,9 @@
                 {% for product in products %}
                     <tr class="hover:bg-slate-50">
                         <td class="px-4 py-3">
-                            <span class="font-semibold text-[#04212a]">{{ product.name }}</span>
+                            <span class="font-semibold text-[#1E88E5]">{{ product.name }}</span>
                             {% if product.is_exclusive %}
-                                <span class="ml-1 text-[10px] font-bold uppercase bg-[#e8c96a] text-[#04212a] px-1.5 py-0.5 rounded">Excl</span>
+                                <span class="ml-1 text-[10px] font-bold uppercase bg-[#7CB342] text-white px-1.5 py-0.5 rounded">Excl</span>
                             {% endif %}
                         </td>
                         <td class="px-4 py-3 text-slate-500">{{ product.sku }}</td>

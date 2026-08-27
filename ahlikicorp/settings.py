@@ -181,6 +181,16 @@ STORAGES = {
 }
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Image optimization settings
+IMAGE_OPTIMIZATION = {
+    'MAX_WIDTH': 1200,
+    'MAX_HEIGHT': 1200,
+    'QUALITY': 85,
+    'THUMBNAIL_SIZE': (300, 300),
+    'THUMBNAIL_QUALITY': 75,
+}
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'core:home'
@@ -267,3 +277,8 @@ SOCIAL_LINKS = {
 HERO_VIDEO_FILE = os.getenv('HERO_VIDEO_FILE', '')
 HERO_VIDEO_POSTER = os.getenv('HERO_VIDEO_POSTER', 'images/hero_poster.jpg')
 HERO_VIDEO_YOUTUBE_ID = os.getenv('HERO_VIDEO_YOUTUBE_ID', 'qTc19B9_7iQ')
+
+# --- Form/POST limits ------------------------------------------------------
+# The default of 1000 is easily exceeded by the bulk product screens, where a
+# single save posts several fields per row across hundreds of rows.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = int(os.getenv('DATA_UPLOAD_MAX_NUMBER_FIELDS', '10000'))

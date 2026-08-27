@@ -24,13 +24,13 @@
           @submit.prevent="load()">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
             <div class="relative">
-                <input type="search" name="query" x-model="query" value="{{ search_query }}"
-                       @input.debounce.200ms="load()" @search="load()"
+                <input type="search" name="query" id="search-input" x-model="query" value="{{ search_query }}"
+                       @input.debounce.300ms="load()" @search="load()" @keyup.enter="load()"
                        autocomplete="off" aria-label="Search products"
                        placeholder="Search products..."
-                       class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg">
+                       class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E88E5]">
                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" x-show="!busy" x-cloak aria-hidden="true">🔍</span>
-                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-900 animate-spin"
+                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1E88E5] animate-spin"
                      x-show="busy" x-cloak viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"></circle>
                     <path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
@@ -51,7 +51,7 @@
                        {% if request.GET.is_exclusive %}checked{% endif %} @change="load()"> Exclusive lines only
             </label>
 
-            <button type="submit" class="btn-primary">Search</button>
+            <button type="submit" class="px-4 py-2 bg-[#1E88E5] text-white rounded-lg font-semibold hover:bg-[#1565C0] transition">Search</button>
         </div>
     </form>
 
@@ -99,18 +99,26 @@ document.addEventListener('alpine:init', function () {
                 this.controller = new AbortController();
                 this.busy = true;
 
-                fetch(this.url + '?' + params.toString(), {
+                const fetchUrl = this.url + '?' + params.toString();
+
+                fetch(fetchUrl, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'same-origin',
                     signal: this.controller.signal,
                 })
                     .then(function (res) {
-                        if (!res.ok) throw new Error(res.status);
+                        if (!res.ok) {
+                            console.error('Search failed:', res.status);
+                            throw new Error(res.status);
+                        }
                         return res.text();
                     })
                     .then(function (html) {
                         self.busy = false;
-                        document.getElementById('product-results').innerHTML = html;
+                        const resultsDiv = document.getElementById('product-results');
+                        if (resultsDiv) {
+                            resultsDiv.innerHTML = html;
+                        }
                         // Keep the address bar shareable and the back button useful.
                         const qs = params.toString();
                         history.replaceState({}, '', qs ? self.url + '?' + qs : self.url);
@@ -118,6 +126,7 @@ document.addEventListener('alpine:init', function () {
                     .catch(function (err) {
                         if (err.name === 'AbortError') return;
                         self.busy = false;
+                        console.error('Search error:', err);
                         // Fall back to a normal page load so the visitor still
                         // gets their results.
                         window.location = self.url + '?' + params.toString();

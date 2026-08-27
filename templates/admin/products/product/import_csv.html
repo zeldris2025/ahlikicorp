@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url 'admin:products_product_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; Import CSV
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+  <div class="module aligned" style="padding:12px 14px;">
+    <h2>CSV format</h2>
+    <p>The header row must use these column names:</p>
+    <p><code>{{ columns|join:"," }}</code></p>
+    <ul>
+      <li><strong>name</strong> (required) — product name; SKU and slug are generated from it.</li>
+      <li><strong>category</strong> (required) — matched case-insensitively, and created if new.</li>
+      <li><strong>description</strong> — free text.</li>
+      <li><strong>cost_price</strong> — internal cost, e.g. <code>45.00</code>.</li>
+      <li><strong>stock_quantity</strong> — whole number.</li>
+      <li><strong>is_exclusive</strong> — <code>true</code>/<code>false</code>, <code>1</code>/<code>0</code>, or <code>yes</code>/<code>no</code>.</li>
+      <li><strong>specifications</strong> — JSON object, e.g. <code>{"Pack size": "25kg"}</code>.</li>
+    </ul>
+    <p>
+      <a href="{{ template_url }}" class="button">Download CSV template</a>
+    </p>
+    <p style="color:#666;">
+      Every product is filed under Ah Liki Wholesale and created active. Rows with
+      errors are skipped and listed back to you; the rest still import.
+    </p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <fieldset class="module aligned">
+      {% if form.non_field_errors %}
+        <p class="errornote">{{ form.non_field_errors }}</p>
+      {% endif %}
+      <div class="form-row">
+        <label for="{{ form.csv_file.id_for_label }}" class="required">{{ form.csv_file.label }}:</label>
+        {{ form.csv_file }}
+        {% for e in form.csv_file.errors %}<p class="errornote">{{ e }}</p>{% endfor %}
+        <div class="help">{{ form.csv_file.help_text }}</div>
+      </div>
+    </fieldset>
+    <div class="submit-row">
+      <input type="submit" value="Import products" class="default">
+      <a href="{% url 'admin:products_product_changelist' %}" class="closelink">Cancel</a>
+    </div>
+  </form>
+
+</div>
+{% endblock %}

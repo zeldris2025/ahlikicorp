@@ -11,7 +11,7 @@
     {% endif %}
 
     <div class="card p-5 mb-4">
-        <h2 class="pf font-bold text-[#04212a] text-sm mb-4">Identity</h2>
+        <h2 class="pf font-bold text-[#1E88E5] text-sm mb-4">Identity</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
                 <label class="f-label" for="{{ form.name.id_for_label }}">Product name</label>
@@ -19,27 +19,22 @@
                 {% for e in form.name.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
             </div>
             <div>
-                <label class="f-label" for="{{ form.sku.id_for_label }}">SKU</label>
-                {{ form.sku }}
-                {% for e in form.sku.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
-            </div>
-            <div>
                 <label class="f-label" for="{{ form.brand.id_for_label }}">Company</label>
                 {{ form.brand }}
-                <p class="f-help">Only Ah Liki Samoa Wholesale products appear on the public catalogue.</p>
+                <p class="f-help">SKU and slug are auto-generated from the product name.</p>
                 {% for e in form.brand.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
             </div>
             <div>
                 <label class="f-label" for="{{ form.category.id_for_label }}">Category</label>
                 {{ form.category }}
-                <p class="f-help"><a href="{% url 'manage:category_list' %}" class="text-[#04212a] hover:underline">Manage categories</a></p>
+                <p class="f-help"><a href="{% url 'manage:category_list' %}" class="text-[#1E88E5] hover:underline">Manage categories</a></p>
                 {% for e in form.category.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
             </div>
         </div>
     </div>
 
     <div class="card p-5 mb-4">
-        <h2 class="pf font-bold text-[#04212a] text-sm mb-4">Details</h2>
+        <h2 class="pf font-bold text-[#1E88E5] text-sm mb-4">Details</h2>
         <div class="mb-4">
             <label class="f-label" for="{{ form.description.id_for_label }}">Description</label>
             {{ form.description }}
@@ -62,7 +57,7 @@
     </div>
 
     <div class="card p-5 mb-4">
-        <h2 class="pf font-bold text-[#04212a] text-sm mb-4">Pricing &amp; availability</h2>
+        <h2 class="pf font-bold text-[#1E88E5] text-sm mb-4">Pricing &amp; availability</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="f-label" for="{{ form.cost_price.id_for_label }}">Cost price</label>

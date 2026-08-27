@@ -12,6 +12,7 @@ LOGO_MAP = {
     'burger-bills': 'burgerbills_logo.png',
     'taula-beverage': 'taula_logo.png',
     'farmer-joe': 'farmerjoe_logo.png',
+    'tanumapua-farm': 'tanumapua_logo.png',
 }
 
 

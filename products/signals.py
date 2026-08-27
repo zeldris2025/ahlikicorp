@@ -10,11 +10,12 @@ from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from .models import Brand, Product
+from .models import Brand, ExclusiveBrand, Product
 
 # Keys populated by core.views.HomeView and core.context_processors.
 COMPANY_CACHE_KEYS = ('group_companies', 'footer_brands', 'brands')
 PRODUCT_CACHE_KEYS = ('featured_products',)
+EXCLUSIVE_CACHE_KEYS = ('exclusive_brands',)
 
 
 @receiver(post_save, sender=Brand)
@@ -27,3 +28,9 @@ def clear_company_caches(sender, **kwargs):
 @receiver(post_delete, sender=Product)
 def clear_product_caches(sender, **kwargs):
     cache.delete_many(list(PRODUCT_CACHE_KEYS))
+
+
+@receiver(post_save, sender=ExclusiveBrand)
+@receiver(post_delete, sender=ExclusiveBrand)
+def clear_exclusive_caches(sender, **kwargs):
+    cache.delete_many(list(EXCLUSIVE_CACHE_KEYS))

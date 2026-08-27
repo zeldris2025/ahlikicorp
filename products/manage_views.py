@@ -13,8 +13,9 @@ from django.views.generic import CreateView, DeleteView, ListView, TemplateView,
 
 from accounts.permissions import StaffPortalMixin
 
-from .forms import CategoryForm, ProductForm
-from .models import Brand, Category, Product
+from .csv_import import CsvImportError, import_products, template_response
+from .forms import CategoryForm, ExclusiveBrandForm, ProductForm, ProductBulkUploadForm
+from .models import Brand, Category, ExclusiveBrand, Product
 
 
 class DashboardView(StaffPortalMixin, TemplateView):
@@ -85,7 +86,7 @@ class ProductCreateView(StaffPortalMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, f'“{self.object.name}” was created.')
+        messages.success(self.request, f'”{self.object.name}” was created.')
         return response
 
     def get_context_data(self, **kwargs):
@@ -93,6 +94,48 @@ class ProductCreateView(StaffPortalMixin, CreateView):
         context['heading'] = 'Add product'
         context['submit_label'] = 'Create product'
         return context
+
+
+class ProductBulkUploadView(StaffPortalMixin, TemplateView):
+    template_name = 'manage/product_bulk_upload.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.setdefault('form', ProductBulkUploadForm())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = ProductBulkUploadForm(request.POST, request.FILES)
+        if not form.is_valid():
+            return render(request, self.template_name, self.get_context_data(form=form))
+
+        try:
+            result = import_products(form.cleaned_data['csv_file'])
+        except CsvImportError as exc:
+            messages.error(request, str(exc))
+            return render(request, self.template_name, self.get_context_data(form=form))
+
+        if result.created:
+            messages.success(request, result.success_summary())
+        if result.has_skipped:
+            messages.info(request, result.skipped_summary())
+        if result.has_errors:
+            messages.warning(request, result.error_summary())
+        if not result.created and not result.has_errors and not result.has_skipped:
+            messages.warning(request, 'No rows found in the CSV file.')
+
+        return redirect('manage:product_list')
+
+
+def product_csv_template(request):
+    """Download a starter CSV with the expected header row."""
+    from accounts.permissions import is_finance
+    from django.core.exceptions import PermissionDenied
+
+    if not request.user.is_authenticated or not is_finance(request.user):
+        raise PermissionDenied('This area is restricted to authorised staff.')
+
+    return template_response()
 
 
 class ProductUpdateView(StaffPortalMixin, UpdateView):
@@ -166,6 +209,55 @@ class CategoryListView(StaffPortalMixin, ListView):
         context = self.get_context_data()
         context['form'] = form
         return render(request, self.template_name, context)
+
+
+class ExclusiveLogoListView(StaffPortalMixin, ListView):
+    """Logos of the brands we distribute exclusively, shown in the home marquee.
+
+    Add and list on one page, in the same shape as the category screen: adding
+    a logo is a two-field job and does not warrant its own step.
+    """
+
+    model = ExclusiveBrand
+    template_name = 'manage/exclusive_list.html'
+    context_object_name = 'logos'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.setdefault('form', ExclusiveBrandForm())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = ExclusiveBrandForm(request.POST, request.FILES)
+        if form.is_valid():
+            logo = form.save()
+            messages.success(request, f'“{logo.name}” was added to the home page marquee.')
+            return redirect('manage:exclusive_list')
+
+        self.object_list = self.get_queryset()
+        return render(request, self.template_name, self.get_context_data(form=form))
+
+
+class ExclusiveLogoUpdateView(StaffPortalMixin, UpdateView):
+    model = ExclusiveBrand
+    form_class = ExclusiveBrandForm
+    template_name = 'manage/exclusive_form.html'
+    success_url = reverse_lazy('manage:exclusive_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'“{self.object.name}” was updated.')
+        return response
+
+
+class ExclusiveLogoDeleteView(StaffPortalMixin, DeleteView):
+    model = ExclusiveBrand
+    template_name = 'manage/exclusive_confirm_delete.html'
+    success_url = reverse_lazy('manage:exclusive_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, f'“{self.object.name}” was removed from the marquee.')
+        return super().form_valid(form)
 
 
 def toggle_active(request, pk):

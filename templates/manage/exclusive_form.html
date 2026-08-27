@@ -1,0 +1,37 @@
+{% extends 'manage/base.html' %}
+{% block title %}Edit logo{% endblock %}
+{% block heading %}Edit logo{% endblock %}
+
+{% block content %}
+<div class="card p-6 max-w-xl">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if object.logo %}
+            <div class="mb-4">
+                <span class="f-label">Current logo</span>
+                <img src="{{ object.logo.url }}" alt="{{ object.name }}"
+                     style="max-height: 4.5rem; max-width: 100%; object-fit: contain;">
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            {% if field.name == 'is_active' %}
+                <label class="flex items-center gap-2 mt-3 text-sm">
+                    {{ field }} {{ field.label }}
+                </label>
+            {% else %}
+                <label class="f-label{% if not forloop.first %} mt-3{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+            {% endif %}
+            {% if field.help_text %}<p class="f-help">{{ field.help_text }}</p>{% endif %}
+            {% for e in field.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+        {% endfor %}
+
+        <div class="flex gap-2 mt-5">
+            <button type="submit" class="btn btn-p">Save changes</button>
+            <a href="{% url 'manage:exclusive_list' %}" class="btn btn-o">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

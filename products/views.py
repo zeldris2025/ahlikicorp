@@ -37,11 +37,24 @@ class ProductListView(ListView):
 
         return queryset
 
+    def get_template_names(self):
+        # Live search asks for the results block on its own; everything else
+        # gets the whole page.
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return ['products/_results.html']
+        return [self.template_name]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = ProductSearchForm(self.request.GET)
         context['categories'] = Category.objects.all()
         context['catalogue_brand'] = Brand.objects.filter(slug=self.CATALOGUE_BRAND_SLUG).first()
+        context['search_query'] = self.request.GET.get('query', '').strip()
+
+        # Pass basket IDs for quote tracking
+        basket = self.request.session.get('basket', {})
+        context['quote_basket_ids'] = list(basket.keys()) if basket else []
+
         return context
 
 class ProductDetailView(DetailView):

@@ -5,28 +5,46 @@ Rendered inside list.html on a normal page load, and on its own for the live
 search (see ProductListView.get_template_names), so typing in the search box
 swaps just this block instead of reloading the page.
 {% endcomment %}
-<p class="text-sm text-gray-500 mb-5" aria-live="polite">
-    {{ page_obj.paginator.count|default:products|length }} product{{ page_obj.paginator.count|pluralize }} available
-</p>
+{% if page_obj %}
+    <p class="text-sm text-gray-500 mb-5" aria-live="polite">
+        {{ page_obj.paginator.count }} product{% if page_obj.paginator.count != 1 %}s{% endif %} available
+    </p>
+{% else %}
+    <p class="text-sm text-gray-500 mb-5" aria-live="polite">
+        {{ products|length }} product{% if products|length != 1 %}s{% endif %} available
+    </p>
+{% endif %}
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
     {% for product in products %}
         <article class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition">
-            {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="w-full h-40 object-cover">
+            {% if product.list_image %}
+                <img src="{{ product.list_image.url }}" alt="{{ product.name }}" loading="lazy" decoding="async" class="w-full h-40 object-cover bg-gray-50" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw">
             {% else %}
                 <div class="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 grid place-items-center text-4xl">📦</div>
             {% endif %}
 
             <div class="p-4 flex flex-col flex-1">
                 {% if product.is_exclusive %}
-                    <span class="self-start text-[10px] font-bold uppercase tracking-wide bg-[#e8c96a] text-[#04212a] px-2 py-1 rounded mb-2">Exclusive</span>
+                    <span class="self-start text-[10px] font-bold uppercase tracking-wide bg-[#7CB342] text-white px-2 py-1 rounded mb-2">Exclusive</span>
                 {% endif %}
                 <h2 class="font-bold text-[15px] leading-snug mb-1">
-                    <a href="{{ product.get_absolute_url }}" class="text-blue-900 hover:underline">{{ product.name }}</a>
+                    <a href="{{ product.get_absolute_url }}" class="text-[#1E88E5] hover:underline">{{ product.name }}</a>
                 </h2>
                 <p class="text-xs text-gray-500 mb-1">{{ product.category.name }}</p>
-                <p class="text-xs text-gray-400 mb-4">SKU {{ product.sku }}</p>
+                {% if product.specifications %}
+                    {% comment %} {# Pack size and unit code are often the only thing separating two
+                       products with the same name, so they belong on the card. #} {% endcomment %}
+                    <dl class="flex flex-wrap gap-1 mb-2">
+                        {% for key, value in product.specifications.items %}
+                            <div class="flex items-baseline gap-1 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 text-[11px] leading-tight">
+                                <dt class="text-gray-500">{{ key }}</dt>
+                                <dd class="font-medium text-gray-700">{{ value }}</dd>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                {% endif %}
+                {% if product.description %}<p class="text-xs text-gray-500 leading-relaxed mb-4">{{ product.description|truncatewords:20 }}</p>{% else %}<div class="mb-4"></div>{% endif %}
 
                 <form method="post" action="{% url 'quotes:basket_add' product.pk %}"
                       class="mt-auto flex gap-2"

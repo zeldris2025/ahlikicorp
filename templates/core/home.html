@@ -163,7 +163,7 @@
         color: #fff;
     }
     .hero-title-accent {
-        background-image: linear-gradient(100deg, #f0d585, #d4af37 55%, #b8912a);
+        background-image: linear-gradient(100deg, #1E88E5, #00BCD4 55%, #7CB342);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
@@ -221,7 +221,7 @@
         font-weight: 700;
         font-size: 0.9rem;
         color: #052129;
-        background: linear-gradient(135deg, #f0d585, #d4af37);
+        background: linear-gradient(135deg, #1E88E5, #00BCD4);
         transition: filter 0.2s ease, transform 0.2s ease;
     }
     .hero-search-btn:hover { filter: brightness(1.08); }
@@ -279,7 +279,7 @@
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
         transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
         will-change: transform, opacity;
-        border-top: 3px solid var(--brand-accent, #d4af37);
+        border-top: 3px solid var(--brand-accent, #7CB342);
     }
     .hero-card-head {
         display: flex;
@@ -316,7 +316,7 @@
     .hero-card-tagline {
         font-size: 0.8125rem;
         font-weight: 600;
-        color: var(--brand-accent, #d4af37);
+        color: var(--brand-accent, #7CB342);
     }
     .hero-card-desc {
         font-size: 0.875rem;
@@ -355,7 +355,7 @@
         background: rgba(255, 255, 255, 0.22);
         transition: background-color 0.3s ease;
     }
-    .hero-dot.is-active { background: #d4af37; }
+    .hero-dot.is-active { background: #7CB342; }
 
     /* ---------- Metrics strip ---------- */
     .hero-metrics {
@@ -997,7 +997,7 @@
         width: 20px; height: 11px;
         margin-left: -10px;
         border-radius: 3px 3px 2px 2px;
-        background: linear-gradient(120deg, #e0b64e, #b8912a);
+        background: linear-gradient(120deg, #1E88E5, #7CB342);
     }
     .bottle-neck {
         position: absolute;
@@ -1243,6 +1243,197 @@
             transition: none !important;
         }
     }
+
+    /* ============================================
+       EXCLUSIVE DISTRIBUTION — logo marquee
+       ============================================ */
+    .exclusive {
+        position: relative;
+        overflow: hidden;
+        padding: 4.5rem 0 5rem;
+        background:
+            radial-gradient(120% 100% at 50% 0%, #0a2e38 0%, #04212a 55%, #041a24 100%);
+        color: #fff;
+        isolation: isolate;
+    }
+    /* Two soft glows so the band reads as the same material as the hero. */
+    .exclusive::before,
+    .exclusive::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: -1;
+        pointer-events: none;
+    }
+    .exclusive::before {
+        width: 34rem; height: 34rem;
+        top: -14rem; left: -8rem;
+        background: radial-gradient(circle, rgba(20, 184, 166, 0.32), transparent 70%);
+    }
+    .exclusive::after {
+        width: 30rem; height: 30rem;
+        bottom: -16rem; right: -6rem;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.22), transparent 70%);
+    }
+
+    .exclusive-head {
+        max-width: 46rem;
+        margin: 0 auto 2.75rem;
+        padding: 0 1.5rem;
+        text-align: center;
+    }
+    .exclusive-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.85rem;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        border-radius: 999px;
+        background: rgba(212, 175, 55, 0.08);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #e8c66a;
+        margin-bottom: 1rem;
+    }
+    .exclusive-kicker svg { width: 0.85rem; height: 0.85rem; }
+    .exclusive-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(1.75rem, 3.4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+        margin-bottom: 0.9rem;
+    }
+    .exclusive-title em {
+        font-style: normal;
+        background: linear-gradient(100deg, #d4af37, #f3dd97);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    .exclusive-lede {
+        font-size: 1.0625rem;
+        line-height: 1.75;
+        color: rgba(226, 240, 240, 0.72);
+    }
+
+    /* ---------- The marquee itself ---------- */
+    .xlogos {
+        position: relative;
+        display: flex;
+        overflow: hidden;
+        /* No gap here: the spacing between tracks is the trailing padding on
+           each track, so translating a track by exactly its own width loops
+           without a visible jump. */
+        /* Fade the logos out into the band at both edges. */
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    }
+    .xlogos-track {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 1.25rem;
+        padding-right: 1.25rem;
+        min-width: 100%;
+        animation: xlogos-scroll var(--xlogos-duration, 40s) linear infinite;
+        will-change: transform;
+    }
+    .xlogos:hover .xlogos-track,
+    .xlogos:focus-within .xlogos-track { animation-play-state: paused; }
+
+    @keyframes xlogos-scroll {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-100%); }
+    }
+
+    .xlogo-card {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        width: 12rem;
+        height: 7.5rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(240, 247, 248, 0.9));
+        box-shadow: 0 10px 30px rgba(2, 15, 20, 0.35);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        text-decoration: none;
+    }
+    .xlogo-card:hover,
+    .xlogo-card:focus-visible {
+        transform: translateY(-6px);
+        border-color: rgba(212, 175, 55, 0.55);
+        box-shadow: 0 18px 42px rgba(2, 15, 20, 0.5);
+    }
+    /* The logo fills the whole card rather than floating in the middle of it.
+       `contain` keeps the artwork uncropped whatever its aspect ratio, so a
+       wide wordmark and a square badge both sit edge to edge. */
+    .xlogo-card img {
+        flex: 1 1 auto;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        object-fit: contain;
+    }
+    .xlogo-card-note {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #5c7580;
+        text-align: center;
+    }
+
+    .exclusive-foot {
+        margin-top: 2.75rem;
+        text-align: center;
+        padding: 0 1.5rem;
+    }
+    .exclusive-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.6rem;
+        border-radius: 0.65rem;
+        background: linear-gradient(100deg, #d4af37, #c39a24);
+        color: #04212a;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .exclusive-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(212, 175, 55, 0.32);
+    }
+
+    @media (min-width: 1024px) {
+        .exclusive { padding: 5.5rem 0 6rem; }
+        .xlogo-card { width: 13.5rem; height: 8.5rem; padding: 0.65rem 0.75rem; }
+    }
+    @media (max-width: 640px) {
+        .xlogo-card { width: 9.75rem; height: 6.5rem; padding: 0.45rem 0.55rem; }
+        .xlogos-track { gap: 0.85rem; padding-right: 0.85rem; }
+    }
+
+    /* No motion: turn the marquee into a plain swipeable row. */
+    @media (prefers-reduced-motion: reduce) {
+        .xlogos {
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-mask-image: none;
+            mask-image: none;
+        }
+        .xlogos-track { animation: none !important; min-width: 0; }
+        .xlogos-clone { display: none; }
+        .xlogo-card { scroll-snap-align: center; transition: none !important; }
+    }
 </style>
 {% endblock %}
 
@@ -1450,6 +1641,44 @@
 </section>
 {% endfor %}
 
+<!-- ============ EXCLUSIVE DISTRIBUTION LOGO MARQUEE ============ -->
+{% if exclusive_brands %}
+<section class="exclusive" aria-labelledby="exclusive-title">
+    <div class="exclusive-head">
+        <span class="exclusive-kicker">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 2l2.6 5.6 6.4.8-4.7 4.3 1.2 6.3L12 16l-5.5 3 1.2-6.3L3 8.4l6.4-.8z"></path>
+            </svg>
+            Exclusive Distribution
+        </span>
+        <h2 class="exclusive-title" id="exclusive-title">
+            Brands only <em>WE</em> can bring you
+        </h2>
+        <p class="exclusive-lede">
+            Ah Liki holds the sole distribution rights in Samoa for the labels below &mdash;
+            landed, warehoused and delivered nationwide by our own network.
+        </p>
+    </div>
+
+    <div class="xlogos" style="--xlogos-duration: {{ exclusive_marquee_duration }}s;">
+        <div class="xlogos-track">
+            {% include 'components/exclusive_logos.html' %}
+        </div>
+        <div class="xlogos-track xlogos-clone" aria-hidden="true">
+            {% include 'components/exclusive_logos.html' with clone=True %}
+        </div>
+    </div>
+
+    <div class="exclusive-foot">
+        <a href="{% url 'products:list' %}?is_exclusive=on" class="exclusive-cta">
+            Browse exclusive lines
+            <span aria-hidden="true">&rarr;</span>
+        </a>
+    </div>
+</section>
+{% endif %}
+
 <!-- Featured Products -->
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1457,15 +1686,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for product in featured_products %}
                 <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="w-full h-48 object-cover">
+                    {% if product.list_image %}
+                        <img src="{{ product.list_image.url }}" alt="{{ product.name }}" loading="lazy" class="w-full h-48 object-cover">
                     {% else %}
                         <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-4xl">📦</div>
                     {% endif %}
                     <div class="p-4">
                         <span class="inline-block bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold mb-2">Exclusive</span>
                         <h3 class="font-bold text-lg mb-1">{{ product.name }}</h3>
-                        <p class="text-sm text-gray-600 mb-3">SKU: {{ product.sku }}</p>
+                        {% if product.description %}<p class="text-sm text-gray-600 mb-3">{{ product.description|truncatewords:20 }}</p>{% endif %}
                         <a href="{{ product.get_absolute_url }}" class="text-blue-900 font-semibold hover:underline">View Details →</a>
                     </div>
                 </div>

@@ -25,8 +25,8 @@
                             <tr>
                                 <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
-                                        {% if line.product.image %}
-                                            <img src="{{ line.product.image.url }}" alt="" loading="lazy" class="w-12 h-12 rounded object-cover flex-shrink-0">
+                                        {% if line.product.list_image %}
+                                            <img src="{{ line.product.list_image.url }}" alt="" loading="lazy" class="w-12 h-12 rounded object-cover flex-shrink-0">
                                         {% else %}
                                             <div class="w-12 h-12 rounded bg-gray-100 grid place-items-center flex-shrink-0">📦</div>
                                         {% endif %}

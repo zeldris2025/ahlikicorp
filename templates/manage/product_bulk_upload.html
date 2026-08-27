@@ -1,0 +1,71 @@
+{% extends 'manage/base.html' %}
+{% block title %}Bulk upload products{% endblock %}
+{% block heading %}Bulk upload products{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <div class="card p-5 mb-4">
+        <h2 class="pf font-bold text-[#1E88E5] text-sm mb-4">CSV File Format</h2>
+        <p class="text-sm text-slate-600 mb-4">Upload a CSV file with the following columns:</p>
+        <div class="bg-slate-50 p-4 rounded text-sm font-mono mb-4 overflow-x-auto">
+            name,category,description,cost_price,stock_quantity,is_exclusive,specifications
+        </div>
+        <ul class="text-sm text-slate-600 space-y-2">
+            <li><strong>name</strong> (required): Product name</li>
+            <li><strong>category</strong> (required): Category name (must exist in the system)</li>
+            <li><strong>description</strong>: Product description</li>
+            <li><strong>cost_price</strong>: Internal cost (number)</li>
+            <li><strong>stock_quantity</strong>: Stock quantity (number)</li>
+            <li><strong>is_exclusive</strong>: true/false, 1/0, or yes/no</li>
+            <li><strong>specifications</strong>: JSON object (optional) e.g., {"Pack size": "25kg"}</li>
+        </ul>
+    </div>
+
+    <div class="card p-5 mb-4">
+        <h2 class="pf font-bold text-[#1E88E5] text-sm mb-4">Example CSV</h2>
+        <div class="bg-slate-50 p-4 rounded text-sm font-mono overflow-x-auto">
+            <pre>name,category,description,cost_price,stock_quantity,is_exclusive,specifications
+Long Grain White Rice 25kg,Grains,Premium imported long grain rice,45.00,100,false,"{""Pack size"": ""25kg sack""}"
+Coconut Oil 1L,Oils,Pure virgin coconut oil,12.50,50,true,"{""Size"": ""1 liter""}"</pre>
+        </div>
+    </div>
+
+    <div class="card p-5 mb-4">
+        <h2 class="pf font-bold text-[#1E88E5] text-sm mb-2">Start from the template</h2>
+        <p class="text-sm text-slate-600 mb-3">Download a CSV with the header row and two example products already filled in, then replace the examples with your own.</p>
+        <a href="{% url 'manage:product_csv_template' %}" class="btn btn-o">Download CSV template</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="mb-4">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="msg msg--error mb-4">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="card p-5 mb-4">
+            <label class="f-label" for="{{ form.csv_file.id_for_label }}">{{ form.csv_file.label }}</label>
+            {{ form.csv_file }}
+            <p class="f-help">{{ form.csv_file.help_text }}</p>
+            {% for e in form.csv_file.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+        </div>
+
+        <div class="flex gap-2">
+            <button type="submit" class="btn btn-p">Upload and create products</button>
+            <a href="{% url 'manage:product_list' %}" class="btn btn-o">Cancel</a>
+        </div>
+    </form>
+
+    <div class="card p-5 bg-blue-50">
+        <h3 class="text-sm font-bold text-[#1E88E5] mb-2">Notes</h3>
+        <ul class="text-sm text-slate-600 space-y-1">
+            <li>• All products will be added to <strong>Ah Liki Wholesale</strong></li>
+            <li>• SKU and slug are auto-generated from the product name</li>
+            <li>• <strong>Categories are auto-created if they don't exist</strong> (case-insensitive)</li>
+            <li>• If a row has errors, it will be skipped and reported</li>
+            <li>• Products are created as active by default</li>
+            <li>• You'll see a summary of which categories were created</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

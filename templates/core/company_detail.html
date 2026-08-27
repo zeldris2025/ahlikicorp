@@ -370,8 +370,8 @@
             <div class="cd-cards">
                 {% for product in products %}
                     <a href="{{ product.get_absolute_url }}" class="cd-prod">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% if product.list_image %}
+                            <img src="{{ product.list_image.url }}" alt="{{ product.name }}" loading="lazy">
                         {% else %}
                             <div class="cd-prod-fallback" aria-hidden="true">📦</div>
                         {% endif %}
