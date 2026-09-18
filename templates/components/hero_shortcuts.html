@@ -1,0 +1,25 @@
+{% comment %}
+One track's worth of exclusive-brand discs for the hero shortcut marquee.
+
+Rendered twice per marquee — the second copy is the clone that makes the
+scroll loop seamlessly — so it takes `clone` to hide the duplicate from
+screen readers and from the tab order.
+{% endcomment %}
+{% for brand in exclusive_brands %}
+    {# A logo only becomes a link when the supplier gave us a site. #}
+    {% if brand.website and not clone %}
+        <a href="{{ brand.website }}" class="ph-shortcut" target="_blank" rel="noopener noreferrer">
+            <span class="ph-shortcut-disc">
+                <img src="{{ brand.logo.url }}" alt="" loading="lazy" decoding="async">
+            </span>
+            <span class="ph-shortcut-label">{{ brand.name }}</span>
+        </a>
+    {% else %}
+        <div class="ph-shortcut"{% if clone %} aria-hidden="true"{% endif %}>
+            <span class="ph-shortcut-disc">
+                <img src="{{ brand.logo.url }}" alt="" loading="lazy" decoding="async">
+            </span>
+            <span class="ph-shortcut-label">{{ brand.name }}</span>
+        </div>
+    {% endif %}
+{% endfor %}

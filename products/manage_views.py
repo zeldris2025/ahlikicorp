@@ -6,6 +6,8 @@ server-side, so hiding a link is never what keeps someone out.
 """
 
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -13,9 +15,10 @@ from django.views.generic import CreateView, DeleteView, ListView, TemplateView,
 
 from accounts.permissions import StaffPortalMixin
 
+from .csv_export import DATASETS, archive_response, dataset_counts, dataset_response
 from .csv_import import CsvImportError, import_products, template_response
-from .forms import CategoryForm, ExclusiveBrandForm, ProductForm, ProductBulkUploadForm
-from .models import Brand, Category, ExclusiveBrand, Product
+from .forms import CategoryForm, ExclusiveBrandForm, ProductForm, ProductBulkUploadForm, PromotionForm
+from .models import Brand, Category, ExclusiveBrand, Product, Promotion
 
 
 class DashboardView(StaffPortalMixin, TemplateView):
@@ -258,6 +261,97 @@ class ExclusiveLogoDeleteView(StaffPortalMixin, DeleteView):
     def form_valid(self, form):
         messages.success(self.request, f'“{self.object.name}” was removed from the marquee.')
         return super().form_valid(form)
+
+
+class PromotionListView(StaffPortalMixin, ListView):
+    """Slides in the home page hero slideshow.
+
+    Adding one needs a photo and a short headline, so the create form sits
+    beside the list rather than on a screen of its own.
+    """
+
+    model = Promotion
+    template_name = 'manage/promotion_list.html'
+    context_object_name = 'promotions'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.setdefault('form', PromotionForm())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = PromotionForm(request.POST, request.FILES)
+        if form.is_valid():
+            promotion = form.save()
+            messages.success(request, f'“{promotion.headline}” was added to the home page slideshow.')
+            return redirect('manage:promotion_list')
+
+        self.object_list = self.get_queryset()
+        return render(request, self.template_name, self.get_context_data(form=form))
+
+
+class PromotionUpdateView(StaffPortalMixin, UpdateView):
+    model = Promotion
+    form_class = PromotionForm
+    template_name = 'manage/promotion_form.html'
+    success_url = reverse_lazy('manage:promotion_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'“{self.object.headline}” was updated.')
+        return response
+
+
+class PromotionDeleteView(StaffPortalMixin, DeleteView):
+    model = Promotion
+    template_name = 'manage/promotion_confirm_delete.html'
+    success_url = reverse_lazy('manage:promotion_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, f'“{self.object.headline}” was removed from the slideshow.')
+        return super().form_valid(form)
+
+
+class ExportView(StaffPortalMixin, TemplateView):
+    """One screen listing everything that can be pulled out of the site."""
+
+    template_name = 'manage/export.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        counts = dataset_counts()
+        context['datasets'] = [
+            {'key': key, 'count': counts.get(key, 0), **dataset}
+            for key, dataset in DATASETS.items()
+        ]
+        context['row_total'] = sum(counts.values())
+        return context
+
+
+def export_dataset(request, key):
+    """Download a single dataset as CSV."""
+    _require_staff(request)
+    if key not in DATASETS:
+        raise Http404('There is no export by that name.')
+    return dataset_response(key)
+
+
+def export_all(request):
+    """Download every dataset at once as a ZIP of CSV files."""
+    _require_staff(request)
+    return archive_response()
+
+
+def _require_staff(request):
+    """Same server-side gate the class-based portal views apply.
+
+    The plain function views cannot use StaffPortalMixin, and an export is
+    exactly the kind of URL that must not rely on a hidden link for safety.
+    """
+    from accounts.permissions import is_finance
+
+    if not request.user.is_authenticated or not is_finance(request.user):
+        raise PermissionDenied('This area is restricted to authorised staff.')
 
 
 def toggle_active(request, pk):

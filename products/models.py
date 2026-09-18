@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 from .image_utils import generate_thumbnail, optimize_image
 
@@ -194,4 +195,73 @@ class ExclusiveBrand(models.Model):
 		# Supplier logos ride in a marquee on the home page; keep their
 		# transparency so they sit on the page background, not on white.
 		_optimize_field(self, 'logo', keep_transparency=True)
+		super().save(*args, **kwargs)
+
+
+class PromotionQuerySet(models.QuerySet):
+	def live(self):
+		"""Promotions that are switched on and inside their date window.
+
+		A blank start or end means "no bound on that side", so a promotion
+		with neither date runs until someone withdraws it.
+		"""
+		now = timezone.now()
+		return self.filter(
+			models.Q(is_active=True)
+			& (models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=now))
+			& (models.Q(ends_at__isnull=True) | models.Q(ends_at__gte=now))
+		)
+
+
+class Promotion(models.Model):
+	"""A promotion slide on the home page hero.
+
+	The hero is a slideshow rather than a grid of cards: a promotion is sold
+	by its photography, and one full-width stage per offer carries an image
+	far better than four thumbnails competing for the same row.
+	"""
+
+	kicker = models.CharField(
+		max_length=28,
+		blank=True,
+		help_text='Small label above the headline, e.g. "This week" or "New in".',
+	)
+	headline = models.CharField(
+		max_length=60,
+		help_text='Keep it to a few words — it is set very large on the slide.',
+	)
+	subtext = models.CharField(
+		max_length=100,
+		blank=True,
+		help_text='Optional single supporting line. Leave empty if the headline says it.',
+	)
+	image = models.ImageField(
+		upload_to='promotions/',
+		help_text='Landscape photo, at least 1600px wide. It fills the whole slide.',
+	)
+	cta_label = models.CharField(max_length=24, default='See the deal')
+	cta_url = models.CharField(
+		max_length=300,
+		blank=True,
+		help_text='Where the button goes, e.g. /products/?category=3. Blank hides the button.',
+	)
+	accent_color = models.CharField(max_length=7, default='#8BC53F')
+	starts_at = models.DateTimeField(null=True, blank=True, help_text='Optional. Blank means live now.')
+	ends_at = models.DateTimeField(null=True, blank=True, help_text='Optional. Blank means no end date.')
+	is_active = models.BooleanField(default=True)
+	sort_order = models.PositiveSmallIntegerField(default=0)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	objects = PromotionQuerySet.as_manager()
+
+	class Meta:
+		ordering = ('sort_order', '-created_at')
+
+	def __str__(self):
+		return self.headline
+
+	def save(self, *args, **kwargs):
+		# Promotion photos are full-bleed JPEGs; flattening them is fine and
+		# keeps the hero's largest asset small.
+		_optimize_field(self, 'image')
 		super().save(*args, **kwargs)

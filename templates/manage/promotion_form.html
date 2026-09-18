@@ -1,0 +1,37 @@
+{% extends 'manage/base.html' %}
+{% block title %}Edit promotion{% endblock %}
+{% block heading %}Edit promotion{% endblock %}
+
+{% block content %}
+<div class="card p-6 max-w-xl">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if object.image %}
+            <div class="mb-4">
+                <span class="f-label">Current photo</span>
+                <img src="{{ object.image.url }}" alt="{{ object.headline }}"
+                     style="max-height: 9rem; max-width: 100%; object-fit: cover; border-radius: 0.5rem;">
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            {% if field.name == 'is_active' %}
+                <label class="flex items-center gap-2 mt-3 text-sm">
+                    {{ field }} {{ field.label }}
+                </label>
+            {% else %}
+                <label class="f-label{% if not forloop.first %} mt-3{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+            {% endif %}
+            {% if field.help_text %}<p class="f-help">{{ field.help_text }}</p>{% endif %}
+            {% for e in field.errors %}<p class="f-err">{{ e }}</p>{% endfor %}
+        {% endfor %}
+
+        <div class="flex gap-2 mt-5">
+            <button type="submit" class="btn btn-p">Save changes</button>
+            <a href="{% url 'manage:promotion_list' %}" class="btn btn-o">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

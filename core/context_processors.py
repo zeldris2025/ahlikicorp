@@ -26,6 +26,33 @@ def site_brands(request):
     }
 
 
+def site_contact(request):
+    """Address, phone and email for the header contact bar.
+
+    The address comes from whichever Location is flagged as headquarters, so
+    it stays correct when the head office moves, and falls back to the
+    SITE_ADDRESS setting when no site is flagged. The result is cached: it is
+    read on every page and changes about once a decade.
+    """
+    from django.conf import settings
+
+    address = cache.get('site_contact_address')
+    if address is None:
+        from .models import Location
+        hq = Location.objects.filter(is_headquarters=True).first()
+        address = (hq.address if hq else '') or getattr(settings, 'SITE_ADDRESS', '')
+        cache.set('site_contact_address', address, 3600)
+
+    phone = getattr(settings, 'SITE_PHONE', '')
+    return {
+        'site_address': address,
+        'site_phone': phone,
+        # tel: links must not contain spaces or punctuation.
+        'site_phone_href': ''.join(c for c in phone if c.isdigit() or c == '+'),
+        'site_email': getattr(settings, 'SITE_EMAIL', ''),
+    }
+
+
 def user_roles(request):
     """Expose role flags to every template.
 

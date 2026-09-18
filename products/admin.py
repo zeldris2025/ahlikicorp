@@ -4,7 +4,7 @@ from django.urls import path, reverse
 
 from .csv_import import CSV_COLUMNS, CsvImportError, import_products, template_response
 from .forms import ProductBulkUploadForm
-from .models import Brand, Category, ExclusiveBrand, Product, ProductImage
+from .models import Brand, Category, ExclusiveBrand, Product, ProductImage, Promotion
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -121,3 +121,21 @@ class ProductImageAdmin(admin.ModelAdmin):
     list_display = ('product', 'alt_text', 'sort_order')
     list_filter = ('product', 'sort_order')
     ordering = ('product', 'sort_order')
+
+
+@admin.register(Promotion)
+class PromotionAdmin(admin.ModelAdmin):
+    """Slides in the home page hero slideshow."""
+
+    list_display = ('headline', 'kicker', 'is_active', 'starts_at', 'ends_at', 'sort_order')
+    list_filter = ('is_active',)
+    search_fields = ('headline', 'kicker', 'subtext')
+    fieldsets = (
+        ('Slide', {'fields': ('kicker', 'headline', 'subtext', 'image')}),
+        ('Button', {'fields': ('cta_label', 'cta_url')}),
+        ('Scheduling', {
+            'fields': ('is_active', 'starts_at', 'ends_at', 'sort_order'),
+            'description': 'Leave both dates blank to run the slide until it is switched off.',
+        }),
+        ('Styling', {'fields': ('accent_color',)}),
+    )

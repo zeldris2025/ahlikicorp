@@ -112,6 +112,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.user_roles',
                 'core.context_processors.site_brands',
+                'core.context_processors.site_contact',
                 'core.context_processors.social_links',
                 'core.context_processors.quote_basket',
                 'core.context_processors.site_assistant',
@@ -255,6 +256,13 @@ LOGGING = {
 # empty is simply not rendered.
 # Facebook, Instagram, LinkedIn and YouTube were each confirmed by fetching the
 # page and checking it returns an Ah Liki-titled profile.
+# Contact details shown in the header bar. The address defaults to the
+# headquarters Location record when one is marked as such; these settings are
+# the fallback and the override.
+SITE_PHONE = os.getenv('SITE_PHONE', '+685 67890')
+SITE_EMAIL = os.getenv('SITE_EMAIL', 'info@ahliki.com')
+SITE_ADDRESS = os.getenv('SITE_ADDRESS', '')
+
 SOCIAL_LINKS = {
     'facebook': os.getenv('SOCIAL_FACEBOOK', 'https://www.facebook.com/AhLikiWholesale'),
     'instagram': os.getenv('SOCIAL_INSTAGRAM', 'https://www.instagram.com/ahlikiwholesalesamoa/'),

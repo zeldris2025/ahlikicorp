@@ -1,0 +1,95 @@
+{% extends 'manage/base.html' %}
+{% block title %}Export data{% endblock %}
+{% block heading %}Export data{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ex-hero {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.25rem;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #04212a, #0e7c86);
+        color: #fff;
+    }
+    .ex-hero h2 { font-weight: 700; font-size: 1.15rem; }
+    .ex-hero p { font-size: 0.85rem; color: rgba(255, 255, 255, 0.75); margin-top: 0.3rem; max-width: 34rem; }
+    .ex-zip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.4rem;
+        border-radius: 0.6rem;
+        background: #fff;
+        color: #04212a;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .ex-zip:hover { background: #e9f3f2; }
+    .ex-count {
+        display: inline-block;
+        min-width: 3rem;
+        font-variant-numeric: tabular-nums;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ex-hero mb-5">
+    <div>
+        <h2 class="pf">Download everything</h2>
+        <p>
+            One ZIP containing every table below as a CSV file, plus a README listing
+            what is in it. {{ row_total }} rows in total.
+        </p>
+    </div>
+    <a href="{% url 'manage:export_all' %}" class="ex-zip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download ZIP
+    </a>
+</div>
+
+<div class="card overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <tr>
+                <th class="text-left px-4 py-2.5">Dataset</th>
+                <th class="text-right px-4 py-2.5">Rows</th>
+                <th class="text-right px-4 py-2.5">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+            {% for dataset in datasets %}
+                <tr>
+                    <td class="px-4 py-3">
+                        <span class="font-semibold text-[#04212a]">{{ dataset.label }}</span>
+                        <span class="block text-xs text-slate-500 mt-0.5">{{ dataset.description }}</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-slate-500">
+                        <span class="ex-count">{{ dataset.count }}</span>
+                    </td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                        <a href="{% url 'manage:export_dataset' dataset.key %}" class="text-[#0e7c86] font-semibold">Download CSV</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<p class="f-help mt-4">
+    Files are UTF-8 CSV with a byte order mark, so Excel opens them without mangling
+    accented characters. The products export uses the same columns as the
+    <a href="{% url 'manage:product_bulk_upload' %}" class="text-[#0e7c86] font-semibold">bulk upload</a>,
+    so an edited export can be uploaded straight back in.
+</p>
+{% endblock %}

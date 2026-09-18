@@ -6,387 +6,539 @@
 {% block extra_css %}
 <style>
     /* ============================================
-       HERO — premium dark editorial treatment
-       Palette: deep ocean/green, gold accent
+       HERO — supermarket banner carousel
+       A light page, one big rounded banner that cross-fades between
+       promotions, and a row of round shortcuts underneath. The banner is
+       the only loud thing on the screen, which is how a grocery front page
+       is meant to read.
        ============================================ */
-    .hero-v2 {
-        position: relative;
-        overflow: hidden;
-        background-color: #052129;
-        color: #fff;
-        isolation: isolate;
+    .promo-hero {
+        --ink: #06231C;
+        --accent: #8BC53F;
+        --accent-deep: #2F7D32;
+        background: #fff;
+        padding: 1.25rem 0 0.5rem;
     }
+    [x-cloak] { display: none !important; }
 
-    .hero-bg {
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        background:
-            linear-gradient(155deg, #04212a 0%, #073236 45%, #05202f 100%);
-    }
-
-    .hero-glow {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(90px);
-        opacity: 0.5;
-    }
-    .hero-glow-a {
-        width: 520px; height: 520px;
-        top: -180px; right: -120px;
-        background: radial-gradient(circle, rgba(20, 184, 166, 0.45), transparent 70%);
-    }
-    .hero-glow-b {
-        width: 460px; height: 460px;
-        bottom: -220px; left: -140px;
-        background: radial-gradient(circle, rgba(212, 175, 55, 0.28), transparent 70%);
-    }
-
-    /* ---------- Background video layer ---------- */
-    .hero-media {
-        position: absolute;
-        inset: 0;
-        background-color: #04212a;
-        background-size: cover;
-        background-position: center;
-        opacity: 0;
-        transition: opacity 0.9s ease;
-        overflow: hidden;
-    }
-    /* The poster is a plain image, so it shows straight away — the hero never
-       depends on JavaScript or on a third-party iframe to look finished. */
-    .hero-media.has-poster,
-    .hero-media.is-ready { opacity: 1; }
-
-    /* Once footage is playing, pull back the decorative layers that would
-       otherwise sit on top of it as noise. */
-    .hero-v2.has-video .hero-weave { opacity: 0; }
-    .hero-v2.has-video .hero-glow { opacity: 0.22; }
-    .hero-weave, .hero-glow { transition: opacity 0.9s ease; }
-
-    .hero-media video,
-    .hero-media iframe {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 0;
-        pointer-events: none;
-    }
-    .hero-media video {
+    .ph-inner {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    /* A 16:9 iframe has to be over-sized in both axes to cover the box. */
-    .hero-media iframe {
-        width: 100vw;
-        height: 56.25vw;
-        min-height: 100%;
-        min-width: 177.78vh;
-    }
-
-    /* Keeps headline contrast well clear of AA regardless of the footage. */
-    .hero-scrim {
-        position: absolute;
-        inset: 0;
-        /* Heavy on the left where the headline sits, light on the right so the
-           footage is actually visible. White text over the left end stays far
-           above the AA threshold. */
-        background:
-            linear-gradient(100deg, rgba(4, 33, 42, 0.92) 0%, rgba(4, 33, 42, 0.72) 40%, rgba(5, 32, 47, 0.34) 100%),
-            linear-gradient(to top, rgba(4, 33, 42, 0.78), transparent 48%);
-        pointer-events: none;
-    }
-
-    /* Subtle Polynesian tapa-style lattice */
-    .hero-weave {
-        position: absolute;
-        inset: 0;
-        background-image:
-            repeating-linear-gradient(45deg,  rgba(212,175,55,.07) 0 1px, transparent 1px 16px),
-            repeating-linear-gradient(-45deg, rgba(212,175,55,.07) 0 1px, transparent 1px 16px);
-        mask-image: radial-gradient(ellipse at 30% 40%, black 0%, transparent 75%);
-        -webkit-mask-image: radial-gradient(ellipse at 30% 40%, black 0%, transparent 75%);
-    }
-
-    .hero-inner {
-        position: relative;
+        min-width: 0;
         max-width: 80rem;
         margin: 0 auto;
-        padding: 2.5rem 1.5rem 2rem;
+        padding: 0 1rem;
     }
     @media (min-width: 1024px) {
-        .hero-inner { padding: 3.25rem 2rem 2.5rem; }
+        .ph-inner { padding: 0 2rem; }
     }
 
-    .hero-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 2.25rem;
-        align-items: center;
-    }
-    @media (min-width: 1024px) {
-        .hero-grid { grid-template-columns: 1.05fr 0.9fr; gap: 3rem; }
-    }
-
-    /* ---------- Left column ---------- */
-    .hero-eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 0.9rem;
-        border: 1px solid rgba(212, 175, 55, 0.35);
-        background: rgba(212, 175, 55, 0.08);
-        color: #e8c96a;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
-    }
-    .hero-eyebrow-dot {
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        background: #e8c96a;
-        flex-shrink: 0;
-    }
-
-    .hero-title {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 800;
-        font-size: clamp(1.95rem, 4vw, 2.9rem);
-        line-height: 1.08;
-        letter-spacing: -0.03em;
-        margin-bottom: 1.5rem;
-        color: #fff;
-    }
-    .hero-title-accent {
-        background-image: linear-gradient(100deg, #1E88E5, #00BCD4 55%, #7CB342);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-    }
-
-    .hero-lede {
-        font-size: 1.0625rem;
-        line-height: 1.75;
-        color: rgba(226, 240, 240, 0.72);
-        max-width: 32rem;
-        margin-bottom: 1.5rem;
-    }
-    @media (min-width: 768px) { .hero-lede { font-size: 1.125rem; } }
-
-    /* Glass search bar */
-    .hero-search {
+    /* ---------- Utility bar above the banner ---------- */
+    .ph-bar {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        max-width: 33rem;
-        padding: 0.45rem 0.45rem 0.45rem 1.1rem;
-        border-radius: 0.875rem;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        background: rgba(255, 255, 255, 0.07);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        transition: border-color 0.25s ease, background-color 0.25s ease;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
     }
-    .hero-search:focus-within {
-        border-color: rgba(212, 175, 55, 0.6);
-        background: rgba(255, 255, 255, 0.11);
+    .ph-search {
+        position: relative;
+        flex: 1 1 18rem;
+        display: flex;
+        align-items: center;
+        background: #F1F4F2;
+        border: 1px solid #E1E7E2;
+        border-radius: 999px;
+        padding: 0.35rem 0.35rem 0.35rem 1rem;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
     }
-    .hero-search-icon {
-        width: 19px; height: 19px;
-        flex-shrink: 0;
-        color: rgba(226, 240, 240, 0.5);
+    .ph-search:focus-within {
+        background: #fff;
+        border-color: var(--accent-deep);
     }
-    .hero-search-input {
+    .ph-search-icon {
+        width: 18px;
+        height: 18px;
+        flex: none;
+        color: #6B7B74;
+    }
+    .ph-search-input {
         flex: 1;
         min-width: 0;
-        border: none;
-        outline: none;
+        border: 0;
         background: transparent;
-        color: #fff;
+        padding: 0.5rem 0.75rem;
         font-size: 0.95rem;
+        color: var(--ink);
+        outline: none;
     }
-    .hero-search-input::placeholder { color: rgba(226, 240, 240, 0.45); }
-    .hero-search-btn {
-        flex-shrink: 0;
-        border: none;
+    .ph-search-input::placeholder { color: #8A9992; }
+    .ph-search-btn {
+        flex: none;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 0;
+        border-radius: 999px;
+        background: var(--accent-deep);
+        color: #fff;
+        display: grid;
+        place-items: center;
         cursor: pointer;
-        border-radius: 0.625rem;
-        padding: 0.6rem 1.35rem;
+        transition: background-color 0.2s ease;
+    }
+    .ph-search-btn:hover { background: #245F27; }
+    .ph-search-btn svg { width: 16px; height: 16px; }
+
+    .ph-quote {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.7rem 1.25rem;
+        border-radius: 999px;
+        border: 1px solid #D6DEDA;
+        background: #fff;
+        color: var(--ink);
         font-weight: 700;
         font-size: 0.9rem;
-        color: #052129;
-        background: linear-gradient(135deg, #1E88E5, #00BCD4);
-        transition: filter 0.2s ease, transform 0.2s ease;
+        text-decoration: none;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
     }
-    .hero-search-btn:hover { filter: brightness(1.08); }
-    .hero-search-btn:active { transform: translateY(1px); }
+    .ph-quote:hover { border-color: var(--accent-deep); background: #F4F8F4; }
 
-    .hero-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 0;
+    /* ---------- The 25 / 75 row: categories beside the banner ---------- */
+    .ph-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        align-items: stretch;
     }
-    .hero-btn {
+    /* A grid item will not shrink below its own minimum size, and an item
+       with both an aspect-ratio and a min-height takes a minimum WIDTH from
+       the two (20rem tall at 21/8 demands 52rem wide). Left at auto that
+       pushes the banner straight through the side of the viewport. */
+    .ph-row > * { min-width: 0; }
+    @media (min-width: 1024px) {
+        /* minmax(0, …) rather than a bare track: a bare track is floored by
+           the item's own minimum size, and the banner — stretched to the row
+           height, with an aspect-ratio — asks for far more width than the
+           column has. That floor is what pushed it off the screen. */
+        .ph-row { grid-template-columns: minmax(0, 25%) minmax(0, 1fr); }
+    }
+    /* With no categories to show, the banner takes the whole width back. */
+    .ph-row--solo { grid-template-columns: 1fr !important; }
+    /* Stacked, the banner leads and the category card follows it. */
+    @media (max-width: 1023px) {
+        .ph-cats { order: 2; }
+        .ph-banner { order: 1; }
+    }
+
+    /* ---------- Category quicklinks ---------- */
+    .ph-cats {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        border-radius: 1.25rem;
+        border: 1px solid #E4EAE6;
+        background: #fff;
+        box-shadow: 0 6px 20px rgba(3, 20, 16, 0.06);
+        overflow: hidden;
+    }
+    .ph-cats-head {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 1.1rem;
+        border-bottom: 1px solid #EEF2EF;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink);
+    }
+    .ph-cats-head svg { width: 16px; height: 16px; color: var(--accent-deep); }
+
+    /* The list scrolls inside the card rather than stretching it, so the
+       column never outgrows the banner beside it. */
+    .ph-cats-list {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0.35rem;
+        scrollbar-width: thin;
+    }
+    @media (min-width: 1024px) {
+        .ph-cats-list { display: block; }
+    }
+    /* On a narrow screen the card sits under the banner, where two columns
+       of links read better than one tall list. */
+    @media (max-width: 1023px) {
+        .ph-cats-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            overflow: visible;
+        }
+    }
+
+    .ph-cat {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.7rem;
+        text-decoration: none;
+        color: var(--ink);
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .ph-cat:hover { background: #EFF6EC; color: var(--accent-deep); }
+    .ph-cat-name {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ph-cat-count {
+        flex: none;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #7C8C85;
+        font-variant-numeric: tabular-nums;
+    }
+    .ph-cat-arrow {
+        flex: none;
+        width: 14px;
+        height: 14px;
+        color: #B6C2BC;
+        transition: transform 0.15s ease, color 0.15s ease;
+    }
+    .ph-cat:hover .ph-cat-arrow { color: var(--accent-deep); transform: translateX(2px); }
+
+    .ph-cats-foot {
+        padding: 0.7rem 1.1rem;
+        border-top: 1px solid #EEF2EF;
+    }
+    .ph-cats-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--accent-deep);
+        text-decoration: none;
+    }
+    .ph-cats-all:hover { text-decoration: underline; }
+
+    /* ---------- The banner ---------- */
+    .ph-banner {
+        position: relative;
+        min-width: 0;
+        max-width: 100%;
+        border-radius: 1.25rem;
+        overflow: hidden;
+        background: #0A4636;
+        box-shadow: 0 10px 30px rgba(3, 20, 16, 0.18);
+        min-height: 17rem;
+        aspect-ratio: 16 / 9;
+    }
+    @media (min-width: 768px) {
+        .ph-banner { aspect-ratio: 21 / 8; min-height: 20rem; }
+    }
+    /* In the 75% column the banner is narrower, so it earns a taller crop. */
+    @media (min-width: 1024px) {
+        .ph-banner { aspect-ratio: 2 / 1; }
+    }
+    @media (min-width: 1280px) {
+        .ph-banner { aspect-ratio: 21 / 9; }
+    }
+
+    /* Slides stack and cross-fade; only the active one is visible. */
+    .ph-slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        pointer-events: none;
+    }
+    .ph-slide.is-active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .ph-shot {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        /* A slow drift keeps the banner alive without asking for attention. */
+        animation: ph-drift 18s ease-in-out infinite alternate;
+    }
+    .ph-shot--plain {
+        background: linear-gradient(135deg, var(--slide-accent, #8BC53F) 0%, #0A4636 100%);
+        display: grid;
+        place-items: center;
+        animation: none;
+    }
+    .ph-shot--plain img {
+        width: min(38%, 16rem);
+        filter: brightness(0) invert(1);
+        opacity: 0.9;
+    }
+    @keyframes ph-drift {
+        from { transform: scale(1.02); }
+        to   { transform: scale(1.08); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .ph-shot { animation: none; }
+        .ph-slide { transition: none; }
+    }
+
+    /* Scrim seats the copy on the left whatever the photograph is doing. */
+    .ph-scrim {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(90deg, rgba(3, 20, 16, 0.86) 0%, rgba(3, 20, 16, 0.66) 38%, rgba(3, 20, 16, 0.12) 72%, rgba(3, 20, 16, 0) 100%),
+            linear-gradient(to top, rgba(3, 20, 16, 0.5) 0%, transparent 45%);
+    }
+
+    .ph-copy {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1.5rem 1.5rem 3.25rem;
+        max-width: 34rem;
+        color: #fff;
+    }
+    @media (min-width: 768px) {
+        .ph-copy { padding: 2rem 2rem 3.5rem 3rem; }
+    }
+
+    .ph-kicker {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.3rem 0.8rem;
+        border-radius: 999px;
+        background: var(--slide-accent, #8BC53F);
+        color: #06231C;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    .ph-headline {
+        font-size: clamp(1.85rem, 4.4vw, 3.25rem);
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0;
+        text-wrap: balance;
+    }
+    .ph-sub {
+        font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        max-width: 28rem;
+    }
+    .ph-cta {
+        align-self: flex-start;
+        margin-top: 0.4rem;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
         padding: 0.8rem 1.6rem;
-        border-radius: 0.625rem;
-        font-weight: 600;
+        border-radius: 999px;
+        background: var(--accent-deep);
+        color: #fff;
+        font-weight: 800;
         font-size: 0.95rem;
         text-decoration: none;
-        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        transition: background-color 0.2s ease, transform 0.2s ease;
     }
-    .hero-btn:active { transform: translateY(1px); }
-    .hero-btn-solid {
-        background: #fff;
-        color: #052129;
-    }
-    .hero-btn-solid:hover { background: #e9f3f2; }
-    .hero-btn-ghost {
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        color: #fff;
-    }
-    .hero-btn-ghost:hover {
-        border-color: rgba(255, 255, 255, 0.6);
-        background: rgba(255, 255, 255, 0.06);
-    }
+    .ph-cta:hover { background: #245F27; transform: translateY(-1px); }
+    .ph-cta-arrow { transition: transform 0.2s ease; }
+    .ph-cta:hover .ph-cta-arrow { transform: translateX(3px); }
 
-    /* ---------- Right column: brand spotlight deck ---------- */
-    .hero-stage {
-        position: relative;
-        height: 17.5rem;
-        perspective: 1400px;
-    }
-    @media (min-width: 640px) { .hero-stage { height: 18.5rem; } }
-
-    .hero-card {
+    /* ---------- Carousel controls ---------- */
+    .ph-arrow {
         position: absolute;
-        inset: 0 0 auto 0;
-        padding: 1.5rem;
-        border-radius: 1.1rem;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-        transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
-        will-change: transform, opacity;
-        border-top: 3px solid var(--brand-accent, #7CB342);
-    }
-    .hero-card-head {
-        display: flex;
-        align-items: center;
-        gap: 0.9rem;
-        margin-bottom: 0.9rem;
-    }
-    .hero-card-badge {
-        width: 54px;
-        height: 54px;
-        flex-shrink: 0;
-        border-radius: 0.7rem;
-        background: rgba(255, 255, 255, 0.94);
-        display: grid;
-        place-items: center;
-        padding: 0.35rem;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    }
-    .hero-card-badge img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-    }
-    .hero-card-badge span { font-size: 1.6rem; line-height: 1; }
-    .hero-card-name {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.15rem;
-        letter-spacing: -0.01em;
-        line-height: 1.25;
-    }
-    .hero-card-tagline {
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--brand-accent, #7CB342);
-    }
-    .hero-card-desc {
-        font-size: 0.875rem;
-        line-height: 1.6;
-        color: rgba(226, 240, 240, 0.65);
-        margin-bottom: 1rem;
-    }
-    .hero-card-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #fff;
-        text-decoration: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        padding-bottom: 2px;
-        transition: border-color 0.2s ease;
-    }
-    .hero-card-link:hover { border-color: #fff; }
-
-    .hero-dots {
-        position: absolute;
-        bottom: -2.25rem;
-        left: 0;
-        display: flex;
-        gap: 0.5rem;
-    }
-    .hero-dot {
-        width: 28px;
-        height: 3px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 0;
         border-radius: 999px;
-        border: none;
-        padding: 0;
+        background: rgba(255, 255, 255, 0.92);
+        color: #06231C;
+        display: none;
+        place-items: center;
         cursor: pointer;
-        background: rgba(255, 255, 255, 0.22);
-        transition: background-color 0.3s ease;
-    }
-    .hero-dot.is-active { background: #7CB342; }
-
-    /* ---------- Metrics strip ---------- */
-    .hero-metrics {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.1rem 1rem;
-        margin-top: 2.75rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 2px 10px rgba(3, 20, 16, 0.25);
+        transition: background-color 0.2s ease;
+        z-index: 2;
     }
     @media (min-width: 768px) {
-        .hero-metrics { grid-template-columns: repeat(4, 1fr); }
+        .ph-arrow { display: grid; }
     }
-    .hero-metric-value {
+    .ph-arrow:hover { background: #fff; }
+    .ph-arrow svg { width: 16px; height: 16px; }
+    .ph-arrow--prev { left: 1rem; }
+    .ph-arrow--next { right: 1rem; }
+
+    .ph-dots {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.4rem;
+        z-index: 2;
+    }
+    .ph-dot {
+        width: 0.55rem;
+        height: 0.55rem;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: width 0.25s ease, background-color 0.25s ease;
+    }
+    .ph-dot[aria-selected="true"] {
+        width: 1.6rem;
+        background: #fff;
+    }
+
+    /* ---------- Round shortcuts under the banner ----------
+       The discs drift past on the same seamless-loop trick as the exclusive
+       section: two identical tracks, one translated by exactly its own
+       width, so the hand-over has no seam. */
+    .ph-shortcuts {
+        position: relative;
+        display: flex;
+        margin: 1.25rem 0 0.5rem;
+        padding-bottom: 0.5rem;
+        overflow: hidden;
+        /* Fade the discs out at both edges rather than cutting them off. */
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    }
+    .ph-shortcuts-track {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 1.25rem;
+        /* The trailing padding is the gap across the hand-over, so the
+           spacing stays even where one track meets the next. */
+        padding-right: 1.25rem;
+        min-width: 100%;
+        animation: ph-shortcuts-scroll var(--ph-shortcuts-duration, 40s) linear infinite;
+        will-change: transform;
+    }
+    .ph-shortcuts:hover .ph-shortcuts-track,
+    .ph-shortcuts:focus-within .ph-shortcuts-track { animation-play-state: paused; }
+
+    @keyframes ph-shortcuts-scroll {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-100%); }
+    }
+
+    /* No motion: a plain swipeable row, with the clone dropped so no logo
+       appears twice. */
+    @media (prefers-reduced-motion: reduce) {
+        .ph-shortcuts { overflow-x: auto; scrollbar-width: none; }
+        .ph-shortcuts::-webkit-scrollbar { display: none; }
+        .ph-shortcuts-track { animation: none; min-width: 0; }
+        .ph-shortcuts-clone { display: none; }
+    }
+
+    .ph-shortcut {
+        flex: none;
+        width: 5.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: var(--ink);
+    }
+    .ph-shortcut-disc {
+        width: 4.25rem;
+        height: 4.25rem;
+        border-radius: 999px;
+        background: #F1F4F2;
+        border: 1px solid #E4EAE6;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .ph-shortcut:hover .ph-shortcut-disc {
+        transform: translateY(-2px);
+        border-color: var(--accent-deep);
+        background: #EAF3EA;
+    }
+    .ph-shortcut-disc img {
+        width: 72%;
+        height: 72%;
+        object-fit: contain;
+    }
+    .ph-shortcut-disc svg { width: 40%; height: 40%; color: var(--accent-deep); }
+    .ph-shortcut-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1.25;
+        text-align: center;
+    }
+
+    /* ---------- Proof bar ---------- */
+    .ph-proof {
+        background: #06231C;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+    .ph-proof-inner {
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem 1rem;
+    }
+    @media (min-width: 768px) {
+        .ph-proof-inner { grid-template-columns: repeat(4, 1fr); padding: 1.75rem 2rem; }
+        .ph-proof-inner > * + * {
+            border-left: 1px solid rgba(255, 255, 255, 0.12);
+            padding-left: 1.75rem;
+        }
+    }
+    .ph-proof-value {
         display: block;
         font-family: 'Poppins', sans-serif;
-        font-size: 2rem;
+        font-size: 1.85rem;
         font-weight: 800;
-        line-height: 1.1;
-        color: #fff;
-        margin-bottom: 0.25rem;
+        line-height: 1;
+        letter-spacing: -0.03em;
     }
-    .hero-metric-label {
-        font-size: 0.8125rem;
-        color: rgba(226, 240, 240, 0.55);
-        font-weight: 500;
+    @media (min-width: 768px) { .ph-proof-value { font-size: 2.15rem; } }
+    .ph-proof-label {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.55);
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .hero-card, .hero-btn, .hero-search-btn, .hero-dot { transition: none !important; }
-        .animate-fade-in-up { animation: none !important; }
+        .pc-shot, .pc-slide, .ph-cta, .pc-link { transition: none !important; }
+        .pc-shot.is-active { animation: none !important; transform: none; }
     }
 
     /* ============================================
@@ -1438,125 +1590,180 @@
 {% endblock %}
 
 {% block content %}
-<!-- ================= HERO ================= -->
-<section class="hero-v2">
-    <div class="hero-bg" aria-hidden="true">
-        {% if hero_video_file or hero_video_youtube_id %}
-            {# The poster (or the gradient below it) paints immediately; the
-               video is injected by script only on capable connections. #}
-            <div class="hero-media{% if hero_video_poster %} has-poster{% endif %}"
-                 data-hero-video
-                 {% if hero_video_file %}data-video-src="{{ hero_video_file }}"{% endif %}
-                 {% if hero_video_youtube_id %}data-youtube-id="{{ hero_video_youtube_id }}"{% endif %}
-                 {% if hero_video_poster %}style="background-image: url('{{ hero_video_poster }}');"{% endif %}></div>
-            <div class="hero-scrim"></div>
-        {% endif %}
-        <div class="hero-glow hero-glow-a"></div>
-        <div class="hero-glow hero-glow-b"></div>
-        <div class="hero-weave"></div>
-    </div>
+<!-- ============ HERO ============ -->
+<section class="promo-hero">
 
-    <div class="hero-inner">
-        <div class="hero-grid">
+    <div class="ph-inner">
 
-            <!-- Left: message + search + actions -->
-            <div class="animate-fade-in-up">
-                <span class="hero-eyebrow">
-                    <span class="hero-eyebrow-dot"></span>
-                    100% Samoan Owned &middot; Est. 2000
-                </span>
-
-                <h1 class="hero-title">
-                    One Standard Of Quality<br>
-                    {% comment %} <span class="hero-title-accent">One standard of quality.</span> {% endcomment %}
-                </h1>
-
-                <p class="hero-lede">
-                    From bulk wholesale distribution to the shelves of your local supermarket, Ah Liki Investment Corporation supplies Samoa &mdash; and Samoans abroad &mdash; with products built on two decades of reliability.
-                </p>
-
-                <form method="get" action="{% url 'products:list' %}" class="hero-search" role="search">
-                    <svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        <!-- Search and quote stay reachable from the top of the page. -->
+        <div class="ph-bar">
+            <form method="get" action="{% url 'products:list' %}" class="ph-search" role="search">
+                <svg class="ph-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" name="query" class="ph-search-input"
+                       placeholder="Search our catalogue" aria-label="Search products">
+                <button type="submit" class="ph-search-btn" aria-label="Search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="13 6 19 12 13 18"></polyline>
                     </svg>
-                    <input type="text" name="query" class="hero-search-input"
-                           placeholder="Search our catalogue&hellip;" aria-label="Search products">
-                    <button type="submit" class="hero-search-btn">Search</button>
-                </form>
+                </button>
+            </form>
+            <a href="{% url 'quotes:create' %}" class="ph-quote">
+                Request a quote
+                <span aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
 
-                <div class="hero-actions">
-                    <a href="{% url 'quotes:create' %}" class="hero-btn hero-btn-solid">
-                        Request a Quote
-                        <span aria-hidden="true">&rarr;</span>
-                    </a>
-                    <a href="{% url 'core:companies' %}" class="hero-btn hero-btn-ghost">Our Companies</a>
-                </div>
-            </div>
+        <div class="ph-row{% if not hero_categories %} ph-row--solo{% endif %}">
 
-            <!-- Right: auto-cycling brand spotlight deck -->
-            <div class="hero-stage"
-                 x-data="brandDeck({{ brands|length }})"
-                 x-init="start()"
-                 @mouseenter="stop()"
-                 @mouseleave="start()">
-                {% for brand in brands %}
-                    <article class="hero-card"
-                             style="--brand-accent: {{ brand.accent_color }};"
-                             :style="cardStyle({{ forloop.counter0 }})"
-                             :aria-hidden="active !== {{ forloop.counter0 }}">
-                        <div class="hero-card-head">
-                            <div class="hero-card-badge">
-                                {% if brand.logo %}
-                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }} logo" loading="lazy">
+            <!-- Straight into the aisles: the categories carrying the most stock -->
+            {% if hero_categories %}
+                <nav class="ph-cats" aria-label="Product categories">
+                    <p class="ph-cats-head">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="4" y1="7" x2="20" y2="7"></line>
+                            <line x1="4" y1="12" x2="20" y2="12"></line>
+                            <line x1="4" y1="17" x2="14" y2="17"></line>
+                        </svg>
+                        Shop by category
+                    </p>
+
+                    <div class="ph-cats-list">
+                        {% for category in hero_categories %}
+                            <a href="{% url 'products:list' %}?category={{ category.pk }}" class="ph-cat">
+                                <span class="ph-cat-name">{{ category.name }}</span>
+                                <span class="ph-cat-count">{{ category.product_count }}</span>
+                                <svg class="ph-cat-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polyline points="9 6 15 12 9 18"></polyline>
+                                </svg>
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    <div class="ph-cats-foot">
+                        <a href="{% url 'products:list' %}" class="ph-cats-all">
+                            All products
+                            <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    </div>
+                </nav>
+            {% endif %}
+
+            <!-- One big banner, cross-fading through the live promotions -->
+            {% if hero_slides %}
+                <div class="ph-banner"
+                     x-data="promoSlider({{ hero_slides|length }})"
+                     x-init="start()"
+                     @mouseenter="pause()"
+                     @mouseleave="resume()"
+                     @touchstart.passive="touchStart($event)"
+                     @touchend.passive="touchEnd($event)"
+                     aria-roledescription="carousel"
+                     aria-label="Promotions">
+
+                    {% for slide in hero_slides %}
+                        <div class="ph-slide{% if forloop.first %} is-active{% endif %}"
+                             :class="active === {{ forloop.counter0 }} ? 'is-active' : ''"
+                             role="group"
+                             aria-roledescription="slide"
+                             aria-label="{{ forloop.counter }} of {{ hero_slides|length }}"
+                             style="--slide-accent: {{ slide.accent }};">
+
+                            {% if slide.image %}
+                                <div class="ph-shot" style="background-image: url('{{ slide.image }}');" aria-hidden="true"></div>
+                            {% else %}
+                                <div class="ph-shot ph-shot--plain" aria-hidden="true">
+                                    {% if slide.logo %}<img src="{{ slide.logo }}" alt="" loading="lazy">{% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="ph-scrim" aria-hidden="true"></div>
+
+                            <div class="ph-copy">
+                                {% if slide.kicker %}<span class="ph-kicker">{{ slide.kicker }}</span>{% endif %}
+                                {% if forloop.first %}
+                                    <h1 class="ph-headline">{{ slide.headline }}</h1>
                                 {% else %}
-                                    <span aria-hidden="true">{% if 'Farmer' in brand.name %}🛒{% elif 'Tanumapua' in brand.name %}🌾{% else %}📦{% endif %}</span>
+                                    <h2 class="ph-headline">{{ slide.headline }}</h2>
+                                {% endif %}
+                                {% if slide.subtext %}<p class="ph-sub">{{ slide.subtext }}</p>{% endif %}
+                                {% if slide.cta_url %}
+                                    <a href="{{ slide.cta_url }}" class="ph-cta">
+                                        {{ slide.cta_label }}
+                                        <span class="ph-cta-arrow" aria-hidden="true">&rarr;</span>
+                                    </a>
                                 {% endif %}
                             </div>
-                            <div>
-                                <h2 class="hero-card-name">{{ brand.name }}</h2>
-                                <p class="hero-card-tagline">{{ brand.tagline }}</p>
-                            </div>
                         </div>
-                        <p class="hero-card-desc">{{ brand.description|truncatewords:16 }}</p>
-                        <a href="{{ brand.get_absolute_url }}" class="hero-card-link">
-                            Learn more <span aria-hidden="true">&rarr;</span>
-                        </a>
-                    </article>
-                {% endfor %}
-
-                <div class="hero-dots" role="tablist" aria-label="Brand spotlight">
-                    {% for brand in brands %}
-                        <button type="button" class="hero-dot"
-                                :class="active === {{ forloop.counter0 }} ? 'is-active' : ''"
-                                @click="select({{ forloop.counter0 }})"
-                                aria-label="Show {{ brand.name }}"></button>
                     {% endfor %}
+
+                    {% if hero_slides|length > 1 %}
+                        <button type="button" class="ph-arrow ph-arrow--prev" @click="prev()" aria-label="Previous promotion">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="15 6 9 12 15 18"></polyline>
+                            </svg>
+                        </button>
+                        <button type="button" class="ph-arrow ph-arrow--next" @click="next()" aria-label="Next promotion">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="9 6 15 12 9 18"></polyline>
+                            </svg>
+                        </button>
+
+                        <div class="ph-dots" role="tablist" aria-label="Choose a promotion">
+                            {% for slide in hero_slides %}
+                                <button type="button" class="ph-dot"
+                                        role="tab"
+                                        :aria-selected="active === {{ forloop.counter0 }}"
+                                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                        aria-label="{{ slide.tab }}"
+                                        @click="select({{ forloop.counter0 }})"></button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Round shortcuts: the labels we distribute exclusively, drifting past -->
+        {% if exclusive_brands %}
+            {# Four seconds a disc, so the speed holds however many there are. #}
+            <div class="ph-shortcuts"
+                 style="--ph-shortcuts-duration: {% widthratio exclusive_brands|length 1 4 %}s;"
+                 aria-label="Brands we distribute exclusively">
+                <div class="ph-shortcuts-track">
+                    {% include 'components/hero_shortcuts.html' %}
+                </div>
+                <div class="ph-shortcuts-track ph-shortcuts-clone" aria-hidden="true">
+                    {% include 'components/hero_shortcuts.html' with clone=True %}
                 </div>
             </div>
-        </div>
-
-        <!-- Metrics -->
-        <div class="hero-metrics">
-            <div>
-                <span class="hero-metric-value">50+</span>
-                <span class="hero-metric-label">Years of trading</span>
-            </div>
-            <div>
-                <span class="hero-metric-value">{{ brands|length }}</span>
-                <span class="hero-metric-label">Companies under one roof</span>
-            </div>
-            <div>
-                <span class="hero-metric-value">{{ locations_count|default:"10" }}</span>
-                <span class="hero-metric-label">Locations nationwide</span>
-            </div>
-            <div>
-                <span class="hero-metric-value">100%</span>
-                <span class="hero-metric-label">Samoan owned</span>
-            </div>
-        </div>
+        {% endif %}
     </div>
 </section>
+
+<!-- Numbers, not sentences. -->
+<div class="ph-proof">
+    <div class="ph-proof-inner">
+        <div>
+            <span class="ph-proof-value">50+</span>
+            <span class="ph-proof-label">Years trading</span>
+        </div>
+        <div>
+            <span class="ph-proof-value">{{ brands|length }}</span>
+            <span class="ph-proof-label">Companies</span>
+        </div>
+        <div>
+            <span class="ph-proof-value">{{ locations_count|default:"10" }}</span>
+            <span class="ph-proof-label">Locations</span>
+        </div>
+        <div>
+            <span class="ph-proof-value">100%</span>
+            <span class="ph-proof-label">Samoan owned</span>
+        </div>
+    </div>
+</div>
 
 <!-- ============ GROUP COMPANIES ============ -->
 <section class="companies-intro">
@@ -1718,20 +1925,33 @@
 
 {% block extra_js %}
 <script>
-    // Hero brand spotlight deck
+    // Hero promotion slideshow.
+    // Auto-advances on a timer that doubles as the progress bar on the rail,
+    // pauses under the pointer, and stays put for anyone who has asked for
+    // reduced motion.
     document.addEventListener('alpine:init', () => {
-        Alpine.data('brandDeck', (count) => ({
+        Alpine.data('promoSlider', (count) => ({
             active: 0,
             count: count,
+            progress: 0,
             timer: null,
+            paused: false,
+            touchX: null,
+            // How long one slide holds the stage, in milliseconds.
+            duration: 6500,
+            // Progress is stepped rather than animated so that pausing leaves
+            // the bar exactly where it was.
+            step: 50,
 
             start() {
                 if (this.count < 2) return;
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
                 this.stop();
                 this.timer = setInterval(() => {
-                    this.active = (this.active + 1) % this.count;
-                }, 4500);
+                    if (this.paused) return;
+                    this.progress += (this.step / this.duration) * 100;
+                    if (this.progress >= 100) this.next();
+                }, this.step);
             },
 
             stop() {
@@ -1741,146 +1961,42 @@
                 }
             },
 
-            select(index) {
+            pause() { this.paused = true; },
+            resume() { this.paused = false; },
+
+            next() { this.go((this.active + 1) % this.count); },
+            prev() { this.go((this.active - 1 + this.count) % this.count); },
+            select(index) { this.go(index); },
+
+            go(index) {
                 this.active = index;
+                this.progress = 0;
             },
 
-            // Stacked-deck positioning: front card is flat, the rest recede behind it.
-            cardStyle(index) {
-                const rel = (index - this.active + this.count) % this.count;
-                if (rel === 0) return 'transform: translateY(0) scale(1); opacity: 1; z-index: 30;';
-                if (rel === 1) return 'transform: translateY(20px) scale(0.94); opacity: 0.5; z-index: 20;';
-                if (rel === 2) return 'transform: translateY(38px) scale(0.88); opacity: 0.22; z-index: 10;';
-                return 'transform: translateY(48px) scale(0.84); opacity: 0; z-index: 0; pointer-events: none;';
+            // Touch devices get the gesture they expect from a carousel.
+            touchStart(event) {
+                this.touchX = event.changedTouches[0].clientX;
+            },
+            touchEnd(event) {
+                if (this.touchX === null) return;
+                const delta = event.changedTouches[0].clientX - this.touchX;
+                this.touchX = null;
+                if (Math.abs(delta) < 45) return;
+                delta < 0 ? this.next() : this.prev();
+            },
+
+            // Slides already shown stay filled, so the rail reads as a
+            // position indicator and not just a lone moving bar.
+            fillStyle(index) {
+                if (index < this.active) return 'width: 100%; opacity: 0.5;';
+                if (index > this.active) return 'width: 0%;';
+                // With auto-advance off there is no progress to show, so the
+                // active bar simply reads as "you are here" instead of empty.
+                if (!this.timer) return 'width: 100%;';
+                return 'width: ' + Math.min(this.progress, 100) + '%;';
             },
         }));
     });
-
-    // ---- Hero background video (deferred, guarded) ----
-    // The hero paints from CSS alone. The video is an enhancement fetched only
-    // after load, and only when the device looks able to absorb the cost, so it
-    // never competes with first paint.
-    (function () {
-        const host = document.querySelector('[data-hero-video]');
-        if (!host) return;
-        const hero = host.closest('.hero-v2');
-
-        function skipReason() {
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                return 'the visitor prefers reduced motion';
-            }
-            // Below this width the footage is mostly hidden behind the scrim
-            // while costing the most to fetch.
-            if (window.innerWidth < 768) {
-                return 'the viewport is narrower than 768px';
-            }
-            const net = navigator.connection;
-            if (net) {
-                if (net.saveData) return 'Save-Data is enabled';
-                if (/2g/.test(net.effectiveType || '')) return 'the connection reports ' + net.effectiveType;
-            }
-            return null;
-        }
-
-        function reveal() {
-            host.classList.add('is-ready');
-            if (hero) hero.classList.add('has-video');
-        }
-
-        function mount() {
-            const skip = skipReason();
-            if (skip) {
-                console.info('[hero] Background video skipped because ' + skip + '.');
-                return;
-            }
-
-            const fileSrc = host.dataset.videoSrc;
-            const ytId = host.dataset.youtubeId;
-            let media;
-
-            if (fileSrc) {
-                media = document.createElement('video');
-                media.muted = true;
-                media.defaultMuted = true;
-                media.loop = true;
-                media.autoplay = true;
-                media.playsInline = true;
-                media.preload = 'auto';
-                // Attribute forms matter for some mobile browsers.
-                media.setAttribute('muted', '');
-                media.setAttribute('playsinline', '');
-                media.setAttribute('aria-hidden', 'true');
-                media.addEventListener('loadeddata', reveal, { once: true });
-                media.addEventListener('error', function () {
-                    console.warn('[hero] Video file failed to load:', fileSrc);
-                });
-                media.src = fileSrc;
-            } else if (ytId) {
-                const params = new URLSearchParams({
-                    autoplay: '1', mute: '1', loop: '1', playlist: ytId,
-                    controls: '0', modestbranding: '1', playsinline: '1',
-                    rel: '0', disablekb: '1', fs: '0', iv_load_policy: '3',
-                });
-                media = document.createElement('iframe');
-                // -nocookie avoids tracking cookies for visitors who never
-                // interact with the player.
-                media.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?' + params.toString();
-                media.allow = 'autoplay; encrypted-media; picture-in-picture';
-                media.setAttribute('frameborder', '0');
-                media.setAttribute('tabindex', '-1');
-                media.setAttribute('aria-hidden', 'true');
-                media.setAttribute('title', 'Background video');
-                media.addEventListener('load', reveal, { once: true });
-            } else {
-                return;
-            }
-
-            // Append BEFORE calling play(); a detached element will not start.
-            host.appendChild(media);
-
-            if (media.tagName === 'VIDEO') {
-                const attempt = media.play();
-                if (attempt && attempt.catch) {
-                    attempt.catch(function () {
-                        console.info('[hero] Autoplay was refused; showing the still frame.');
-                        reveal();
-                    });
-                }
-
-                // Stop paying for decode once the hero scrolls away.
-                new IntersectionObserver(function (entries) {
-                    entries.forEach(function (entry) {
-                        if (entry.isIntersecting) {
-                            const r = media.play();
-                            if (r && r.catch) r.catch(function () {});
-                        } else {
-                            media.pause();
-                        }
-                    });
-                }, { threshold: 0.01 }).observe(host);
-            }
-
-            // A cross-origin iframe can be slow or silent about its load event;
-            // reveal anyway rather than leaving the layer stuck at opacity 0.
-            setTimeout(reveal, 2500);
-        }
-
-        // Wait for load, then an idle moment, so the video never delays first
-        // paint or competes with the critical rendering path.
-        function schedule() {
-            if (window.requestIdleCallback) {
-                window.requestIdleCallback(mount, { timeout: 2000 });
-            } else {
-                setTimeout(mount, 400);
-            }
-        }
-
-        if (document.readyState === 'complete') {
-            schedule();
-        } else {
-            window.addEventListener('load', schedule, { once: true });
-        }
-    })();
 
     // ---- Group company sections: scroll reveal + pointer tilt ----
     document.addEventListener('DOMContentLoaded', function () {

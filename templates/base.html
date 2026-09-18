@@ -110,7 +110,9 @@
            ANNOUNCEMENT MARQUEE
            ============================================ */
         .marquee {
-            background: linear-gradient(90deg, #1E88E5, #00BCD4 50%, #1E88E5);
+            /* Same blue as the My Quote button, so the top of the page reads
+               as one colour rather than a teal band above a blue button. */
+            background: #1E88E5;
             border-bottom: 1px solid rgba(124, 179, 66, 0.22);
             overflow: hidden;
             position: relative;
@@ -149,12 +151,12 @@
         }
 
         /* ============================================
-           TOP BAR (marquee + social)
+           TOP BAR (contact details + social)
            ============================================ */
         .topbar {
             display: flex;
             align-items: stretch;
-            background: linear-gradient(90deg, #1E88E5, #00BCD4 60%, #1E88E5);
+            background: #1E88E5;
             border-bottom: 1px solid rgba(124, 179, 66, 0.22);
         }
         .topbar .marquee {
@@ -163,6 +165,46 @@
             border-bottom: none;
             background: none;
         }
+        /* ---- Contact details in the top bar ---- */
+        .topbar-contact {
+            display: flex;
+            align-items: stretch;
+            flex: 1;
+            min-width: 0;
+            /* The bar scrolls sideways on a narrow phone rather than wrapping
+               into a second row and shoving the whole page down. */
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .topbar-contact::-webkit-scrollbar { display: none; }
+        .topbar-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.92);
+            text-decoration: none;
+            border-right: 1px solid rgba(255, 255, 255, 0.14);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .topbar-item:first-child { padding-left: 1.5rem; }
+        .topbar-item:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .topbar-item svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            color: #B9E08A;
+        }
+        /* The email address is the least urgent of the three, so it is the
+           first thing to go when the bar gets tight. */
+        .topbar-item--wide { display: none; }
+        @media (min-width: 1024px) { .topbar-item--wide { display: inline-flex; } }
+
         .topbar-social {
             display: none;
             align-items: center;

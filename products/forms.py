@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, Brand, Category, ExclusiveBrand
+from .models import Product, Brand, Category, ExclusiveBrand, Promotion
 
 class ProductSearchForm(forms.Form):
     query = forms.CharField(
@@ -158,3 +158,53 @@ class ExclusiveBrandForm(forms.ModelForm):
             'note': 'Optional small label under the logo.',
             'sort_order': 'Lowest number shows first.',
         }
+
+
+class PromotionForm(forms.ModelForm):
+    """A slide in the home page hero slideshow.
+
+    The field lengths are deliberately tight: the slide sets the headline very
+    large over a photograph, and long copy is what makes a hero look dated.
+    """
+
+    class Meta:
+        model = Promotion
+        fields = (
+            'kicker', 'headline', 'subtext', 'image',
+            'cta_label', 'cta_url', 'accent_color',
+            'starts_at', 'ends_at', 'sort_order', 'is_active',
+        )
+        widgets = {
+            'kicker': forms.TextInput(attrs={'class': 'f-input', 'placeholder': 'e.g. This week'}),
+            'headline': forms.TextInput(attrs={'class': 'f-input', 'placeholder': 'e.g. Bulk rice, better price'}),
+            'subtext': forms.TextInput(attrs={'class': 'f-input', 'placeholder': 'Optional single line'}),
+            'image': forms.FileInput(attrs={'class': 'f-input', 'accept': 'image/*'}),
+            'cta_label': forms.TextInput(attrs={'class': 'f-input', 'placeholder': 'e.g. See the deal'}),
+            'cta_url': forms.TextInput(attrs={'class': 'f-input', 'placeholder': '/products/'}),
+            'accent_color': forms.TextInput(attrs={'class': 'f-input', 'type': 'color'}),
+            'starts_at': forms.DateTimeInput(attrs={'class': 'f-input', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'ends_at': forms.DateTimeInput(attrs={'class': 'f-input', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'sort_order': forms.NumberInput(attrs={'class': 'f-input', 'min': '0'}),
+        }
+        labels = {
+            'kicker': 'Label',
+            'subtext': 'Supporting line',
+            'image': 'Photo',
+            'cta_label': 'Button text',
+            'cta_url': 'Button link',
+            'accent_color': 'Accent colour',
+            'starts_at': 'Starts',
+            'ends_at': 'Ends',
+            'sort_order': 'Order',
+            'is_active': 'Show on the home page',
+        }
+        help_texts = {
+            'sort_order': 'Lowest number shows first.',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # A browser datetime-local input only pre-fills from this exact format,
+        # so an edit would otherwise silently blank the dates already set.
+        for name in ('starts_at', 'ends_at'):
+            self.fields[name].input_formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M']

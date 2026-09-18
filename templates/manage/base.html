@@ -77,9 +77,18 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 Categories
             </a>
+            <a href="{% url 'manage:promotion_list' %}" class="side-link{% if 'promotion' in view_name %} on{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 8.4 12.5 16.5a2 2 0 0 1-2.8 0L4 10.8V4h6.8l9.8 9.8a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>
+                Promotions
+            </a>
             <a href="{% url 'manage:exclusive_list' %}" class="side-link{% if 'exclusive' in view_name %} on{% endif %}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.6 5.6 6.4.8-4.7 4.3 1.2 6.3L12 16l-5.5 3 1.2-6.3L3 8.4l6.4-.8z"/></svg>
                 Exclusive logos
+            </a>
+
+            <a href="{% url 'manage:export' %}" class="side-link{% if 'export' in view_name %} on{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export data
             </a>
 
             <p class="side-group">Quotes</p>

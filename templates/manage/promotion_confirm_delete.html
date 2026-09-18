@@ -1,0 +1,26 @@
+{% extends 'manage/base.html' %}
+{% block title %}Delete promotion{% endblock %}
+{% block heading %}Delete promotion{% endblock %}
+
+{% block content %}
+<div class="card p-6 max-w-xl">
+    <h2 class="pf font-bold text-[#04212a] text-lg mb-2">Remove &ldquo;{{ object.headline }}&rdquo; from the slideshow?</h2>
+
+    {% if object.image %}
+        <img src="{{ object.image.url }}" alt="{{ object.headline }}"
+             class="mb-4" style="max-height: 8rem; max-width: 100%; object-fit: cover; border-radius: 0.5rem;">
+    {% endif %}
+
+    <p class="text-sm text-slate-600 mb-4">
+        This cannot be undone. To take it off the home page without deleting it,
+        <a href="{% url 'manage:promotion_edit' object.pk %}" class="text-[#0e7c86] font-semibold">edit it</a>
+        and untick &ldquo;Show on the home page&rdquo;.
+    </p>
+
+    <form method="post" class="flex gap-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-d">Delete permanently</button>
+        <a href="{% url 'manage:promotion_list' %}" class="btn btn-o">Cancel</a>
+    </form>
+</div>
+{% endblock %}
