@@ -1,0 +1,692 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}Live chat{% endblock %}
+{% block heading %}Live chat{% endblock %}
+{% block content_class %}content-chat{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* The inbox fills the space under the portal header, and each of the
+       three panels scrolls on its own. */
+    .content-chat { flex: 1; min-height: 0; display: flex; }
+    .ci {
+        --line: #e6edf0; --ink: #04212a; --muted: #64748b; --soft: #f4f7f8;
+        --blue: #1E88E5; --green: #15803d; --gold: #e8c96a;
+        flex: 1; min-width: 0;
+        height: calc(100vh - 61px);
+        display: grid;
+        grid-template-columns: 19rem minmax(0, 1fr) 21rem;
+        background: #fff;
+    }
+    .ci-pane { min-height: 0; display: flex; flex-direction: column; }
+    .ci-list-pane { border-right: 1px solid var(--line); background: #fbfcfd; }
+    .ci-help-pane { border-left: 1px solid var(--line); background: #fbfcfd; }
+
+    /* ---------- Left: conversations ---------- */
+    .ci-list-head { padding: 0.9rem 0.9rem 0.6rem; }
+    .ci-search {
+        display: flex; align-items: center; gap: 0.45rem;
+        padding: 0.5rem 0.7rem; border: 1px solid #dbe4e8; border-radius: 0.6rem; background: #fff;
+    }
+    .ci-search:focus-within { border-color: var(--ink); }
+    .ci-search svg { width: 15px; height: 15px; color: #94a3b8; flex: none; }
+    .ci-search input { border: 0; outline: 0; flex: 1; min-width: 0; font-size: 0.85rem; background: transparent; }
+    .ci-tabs { display: flex; gap: 0.25rem; padding: 0 0.9rem 0.7rem; border-bottom: 1px solid var(--line); }
+    .ci-tab {
+        flex: 1; white-space: nowrap; border: 0; background: transparent; cursor: pointer;
+        padding: 0.45rem 0.2rem; border-radius: 0.5rem;
+        font-size: 0.75rem; font-weight: 600; color: var(--muted);
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+    }
+    .ci-tab:hover { background: #eef3f5; color: var(--ink); }
+    .ci-tab.on { background: var(--ink); color: #fff; }
+    .ci-count { min-width: 1.15rem; padding: 0 0.3rem; border-radius: 999px; background: #e2e8f0; color: var(--ink); font-size: 0.65rem; line-height: 1.15rem; }
+    .ci-tab.on .ci-count { background: var(--gold); }
+    .ci-tab .ci-count.hot { background: #ef4444; color: #fff; }
+
+    .ci-list { flex: 1; overflow-y: auto; padding: 0.4rem; }
+    .ci-item {
+        width: 100%; text-align: left; border: 0; background: transparent; cursor: pointer;
+        display: flex; gap: 0.65rem; padding: 0.7rem; border-radius: 0.7rem;
+    }
+    .ci-item:hover { background: #eef3f5; }
+    .ci-item.on { background: #e3f0fb; box-shadow: inset 3px 0 0 var(--blue); }
+    .ci-avatar {
+        width: 2.4rem; height: 2.4rem; flex: none; border-radius: 999px;
+        display: grid; place-items: center; font-weight: 700; font-size: 0.9rem;
+        background: #dbeafe; color: #1e40af;
+    }
+    .ci-avatar--staff { background: #fef3c7; color: #92400e; }
+    .ci-item-main { flex: 1; min-width: 0; display: block; overflow: hidden; }
+    .ci-item-top { display: flex; align-items: baseline; gap: 0.4rem; }
+    .ci-item-name { font-weight: 700; font-size: 0.86rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .ci-item-time { font-size: 0.68rem; color: #94a3b8; flex: none; }
+    .ci-item-preview { display: block; font-size: 0.78rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 0.1rem; }
+    .ci-item.unread .ci-item-preview { color: var(--ink); font-weight: 600; }
+    .ci-item-meta { display: flex; align-items: center; gap: 0.35rem; margin-top: 0.3rem; flex-wrap: wrap; }
+    .ci-tag { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.1rem 0.4rem; border-radius: 999px; background: #eef2f5; color: var(--muted); }
+    .ci-tag--wait { background: #fee2e2; color: #b91c1c; }
+    .ci-tag--staff { background: #fef3c7; color: #92400e; }
+    .ci-tag--quote { background: #dcfce7; color: var(--green); }
+    .ci-badge { margin-left: auto; min-width: 1.25rem; height: 1.25rem; padding: 0 0.35rem; border-radius: 999px; background: #ef4444; color: #fff; font-size: 0.68rem; font-weight: 700; display: grid; place-items: center; }
+    .ci-empty-list { padding: 2rem 1rem; text-align: center; font-size: 0.82rem; color: #94a3b8; }
+
+    /* ---------- Middle: chat ---------- */
+    .ci-chat-head {
+        display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+        padding: 0.75rem 1rem; border-bottom: 1px solid var(--line);
+    }
+    .ci-chat-name { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--ink); font-size: 1rem; line-height: 1.2; }
+    .ci-contact { display: flex; gap: 0.9rem; flex-wrap: wrap; margin-top: 0.15rem; font-size: 0.78rem; }
+    .ci-contact a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; }
+    .ci-contact a:hover { color: var(--blue); }
+    .ci-contact svg { width: 13px; height: 13px; }
+    .ci-chat-actions { margin-left: auto; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .ci-btn-sm { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+    .ci-back, .ci-help-toggle, .ci-x.ci-help-toggle { display: none; }
+
+    .ci-notice { padding: 0.5rem 1rem; font-size: 0.78rem; background: #fffbeb; color: #92400e; border-bottom: 1px solid #fde68a; }
+
+    .ci-log { flex: 1; overflow-y: auto; padding: 1.1rem 1rem; display: flex; flex-direction: column; gap: 0.55rem; background: var(--soft); }
+    .ci-msg { max-width: min(34rem, 80%); }
+    .ci-msg--customer { align-self: flex-start; }
+    .ci-msg--agent { align-self: flex-end; }
+    .ci-msg--system { align-self: center; max-width: 90%; }
+    .ci-bubble { padding: 0.6rem 0.85rem; border-radius: 0.9rem; font-size: 0.875rem; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word; }
+    .ci-msg--customer .ci-bubble { background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 0.3rem; color: #1e293b; }
+    .ci-msg--agent .ci-bubble { background: var(--blue); color: #fff; border-bottom-right-radius: 0.3rem; }
+    .ci-msg--system .ci-bubble { background: transparent; color: var(--muted); font-size: 0.76rem; text-align: center; padding: 0.2rem 0.5rem; }
+    .ci-msg-meta { font-size: 0.66rem; color: #94a3b8; margin-top: 0.2rem; }
+    .ci-msg--agent .ci-msg-meta { text-align: right; }
+
+    .ci-card { display: flex; gap: 0.65rem; align-items: center; padding: 0.55rem; background: #fff; border: 1px solid var(--line); border-radius: 0.8rem; color: #1e293b; text-decoration: none; min-width: 15rem; }
+    .ci-msg--agent .ci-card { border-color: #bfdbfe; }
+    .ci-card img, .ci-card .ci-noimg { width: 3.2rem; height: 3.2rem; border-radius: 0.5rem; object-fit: contain; background: var(--soft); flex: none; }
+    .ci-card b { display: block; font-size: 0.84rem; line-height: 1.3; }
+    .ci-card > span { min-width: 0; }
+    .ci-card span span { display: block; font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-card { max-width: 100%; }
+    .ci-msg .ci-card + .ci-bubble { margin-top: 0.3rem; }
+
+    .ci-quick { display: flex; gap: 0.35rem; padding: 0.55rem 1rem 0; overflow-x: auto; scrollbar-width: none; }
+    .ci-quick::-webkit-scrollbar { display: none; }
+    .ci-chip { flex: none; border: 1px solid #dbe4e8; background: #fff; border-radius: 999px; padding: 0.3rem 0.7rem; font-size: 0.74rem; font-weight: 600; color: var(--ink); cursor: pointer; }
+    .ci-chip:hover { border-color: var(--blue); color: var(--blue); }
+    .ci-compose { display: flex; gap: 0.5rem; align-items: flex-end; padding: 0.6rem 1rem 0.9rem; }
+    .ci-compose textarea {
+        flex: 1; resize: none; min-height: 2.6rem; max-height: 9rem;
+        padding: 0.65rem 0.85rem; border: 1px solid #dbe4e8; border-radius: 0.7rem;
+        font: inherit; font-size: 0.9rem; outline: none;
+    }
+    .ci-compose textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(30,136,229,.12); }
+    .ci-send { width: 2.6rem; height: 2.6rem; border: 0; border-radius: 0.7rem; background: var(--blue); color: #fff; display: grid; place-items: center; cursor: pointer; flex: none; }
+    .ci-send:disabled { opacity: 0.4; cursor: default; }
+    .ci-send svg { width: 17px; height: 17px; }
+    .ci-hint { font-size: 0.68rem; color: #94a3b8; padding: 0 1rem 0.6rem; margin-top: -0.4rem; }
+    .ci-closed-bar { padding: 0.9rem 1rem; text-align: center; font-size: 0.84rem; color: var(--muted); border-top: 1px solid var(--line); }
+
+    .ci-blank { flex: 1; display: grid; place-items: center; text-align: center; padding: 2rem; color: var(--muted); background: var(--soft); }
+    .ci-blank svg { width: 46px; height: 46px; color: #cbd5e1; margin: 0 auto 0.8rem; }
+    .ci-blank b { display: block; color: var(--ink); font-size: 1rem; margin-bottom: 0.25rem; }
+
+    /* ---------- Right: helper ---------- */
+    .ci-help-tabs { display: flex; padding: 0.7rem 0.8rem 0; gap: 0.3rem; border-bottom: 1px solid var(--line); }
+    .ci-help-tab { flex: 1; border: 0; background: transparent; cursor: pointer; padding: 0.55rem; font-size: 0.8rem; font-weight: 700; color: var(--muted); border-bottom: 2px solid transparent; }
+    .ci-help-tab.on { color: var(--ink); border-bottom-color: var(--ink); }
+    .ci-help-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .ci-help-search { padding: 0.75rem 0.8rem 0.5rem; }
+    .ci-help-tip { font-size: 0.7rem; color: #94a3b8; padding: 0 0.8rem 0.45rem; }
+    .ci-products { flex: 1; overflow-y: auto; padding: 0 0.5rem 0.8rem; }
+    .ci-prod { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem; border-radius: 0.6rem; }
+    .ci-prod:hover { background: #eef3f5; }
+    .ci-prod-send { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.6rem; border: 0; background: transparent; text-align: left; cursor: pointer; padding: 0; }
+    .ci-prod-send:disabled { cursor: not-allowed; opacity: 0.55; }
+    .ci-prod img, .ci-prod .ci-noimg { width: 2.6rem; height: 2.6rem; flex: none; border-radius: 0.45rem; object-fit: contain; background: #fff; border: 1px solid var(--line); }
+    .ci-prod-name { font-size: 0.8rem; font-weight: 600; color: var(--ink); line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .ci-prod-text { flex: 1; min-width: 0; display: block; }
+    .ci-prod-sub { display: block; font-size: 0.68rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-prod-add { flex: none; width: 1.9rem; height: 1.9rem; border-radius: 0.45rem; border: 1px solid #dbe4e8; background: #fff; color: var(--ink); cursor: pointer; display: grid; place-items: center; }
+    .ci-prod-add:hover { border-color: var(--green); color: var(--green); }
+    .ci-prod-add.in { background: #dcfce7; border-color: #86efac; color: var(--green); }
+    .ci-prod-add svg { width: 14px; height: 14px; }
+
+    .ci-quote { flex: 1; overflow-y: auto; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.8rem; }
+    .ci-to { padding: 0.7rem 0.8rem; border-radius: 0.6rem; background: #fff; border: 1px solid var(--line); font-size: 0.78rem; line-height: 1.6; }
+    .ci-to p { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; }
+    .ci-line { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #fff; border: 1px solid var(--line); border-radius: 0.6rem; }
+    .ci-line-name { flex: 1; min-width: 0; font-size: 0.78rem; font-weight: 600; line-height: 1.3; }
+    .ci-qty { display: flex; align-items: center; border: 1px solid #dbe4e8; border-radius: 0.45rem; overflow: hidden; }
+    .ci-qty button { width: 1.6rem; height: 1.8rem; border: 0; background: var(--soft); cursor: pointer; font-weight: 700; }
+    .ci-qty input { width: 3rem; height: 1.8rem; border: 0; text-align: center; font-size: 0.8rem; outline: none; -moz-appearance: textfield; }
+    .ci-qty input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .ci-x { border: 0; background: transparent; cursor: pointer; color: #94a3b8; width: 1.5rem; height: 1.5rem; display: grid; place-items: center; }
+    .ci-x:hover { color: #b91c1c; }
+    .ci-x svg { width: 14px; height: 14px; }
+    .ci-quote textarea { width: 100%; min-height: 4rem; resize: vertical; padding: 0.55rem 0.7rem; border: 1px solid #dbe4e8; border-radius: 0.5rem; font: inherit; font-size: 0.82rem; }
+    .ci-done { padding: 0.7rem 0.8rem; border-radius: 0.6rem; background: #dcfce7; color: #14532d; font-size: 0.8rem; }
+    .ci-done a { color: inherit; font-weight: 700; }
+
+    .ci-noimg { display: grid; place-items: center; color: #cbd5e1; }
+    .ci-noimg svg { width: 45%; height: 45%; }
+
+    .ci-toast { position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 0.6rem 1rem; border-radius: 0.6rem; font-size: 0.84rem; z-index: 80; box-shadow: 0 10px 30px rgba(4,33,42,.25); }
+    .ci-toast--error { background: #b91c1c; }
+
+    /* ---------- Narrower screens ----------
+       Below 1200px the helper becomes a drawer; below 760px the list and
+       the chat take turns. */
+    @media (max-width: 1199px) {
+        .ci { grid-template-columns: 17rem minmax(0, 1fr); }
+        .ci-help-pane {
+            position: fixed; top: 0; right: 0; bottom: 0; width: min(22rem, 92vw); z-index: 70;
+            transform: translateX(100%); visibility: hidden;
+            transition: transform 0.2s ease, visibility 0.2s;
+        }
+        .ci-help-pane.open { transform: none; visibility: visible; box-shadow: -18px 0 40px rgba(4,33,42,.18); }
+        .ci-help-toggle { display: inline-flex; }
+        .ci-x.ci-help-toggle { display: grid; }
+    }
+    @media (max-width: 759px) {
+        .ci { grid-template-columns: minmax(0, 1fr); height: calc(100vh - 61px); }
+        .ci.has-active .ci-list-pane { display: none; }
+        .ci:not(.has-active) .ci-chat-pane { display: none; }
+        .ci-back { display: inline-flex; }
+        .ci-chat-head > .ci-avatar { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="ci" x-data="chatInbox()" :class="active ? 'has-active' : ''">
+
+    <!-- ============ LEFT: conversations ============ -->
+    <aside class="ci-pane ci-list-pane" aria-label="Conversations">
+        <div class="ci-list-head">
+            <label class="ci-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" placeholder="Search name, phone or email" x-model="search"
+                       @input.debounce.300ms="loadList()" aria-label="Search conversations">
+            </label>
+        </div>
+        <div class="ci-tabs" role="tablist">
+            <template x-for="t in tabs" :key="t.key">
+                <button type="button" class="ci-tab" role="tab" :class="tab === t.key ? 'on' : ''"
+                        :aria-selected="tab === t.key" @click="tab = t.key; loadList()">
+                    <span x-text="t.label"></span>
+                    <span class="ci-count" x-show="counts[t.key] !== undefined"
+                          :class="t.key === 'waiting' && counts.waiting > 0 ? 'hot' : ''"
+                          x-text="counts[t.key]"></span>
+                </button>
+            </template>
+        </div>
+
+        <div class="ci-list">
+            <template x-for="c in items" :key="c.id">
+                <button type="button" class="ci-item" :class="{ on: active && active.id === c.id, unread: c.unread > 0 }" @click="open(c.id)">
+                    <span class="ci-avatar" :class="c.channel === 'staff' ? 'ci-avatar--staff' : ''" x-text="initials(c.name)"></span>
+                    <span class="ci-item-main">
+                        <span class="ci-item-top">
+                            <span class="ci-item-name" x-text="c.name"></span>
+                            <span class="ci-item-time" x-text="when(c.last_message_at)"></span>
+                        </span>
+                        <span class="ci-item-preview" x-text="(c.preview_sender === 'agent' ? 'You: ' : '') + c.preview"></span>
+                        <span class="ci-item-meta">
+                            <span class="ci-tag ci-tag--wait" x-show="c.status === 'open' && !c.assigned_id">Waiting</span>
+                            <span class="ci-tag" x-show="c.assigned_id && c.agent" x-text="c.assigned_id === me ? 'You' : c.agent"></span>
+                            <span class="ci-tag ci-tag--staff" x-show="c.channel === 'staff'">Staff</span>
+                            <span class="ci-tag ci-tag--quote" x-show="c.quote">Quoted</span>
+                            <span class="ci-badge" x-show="c.unread > 0" x-text="c.unread"></span>
+                        </span>
+                    </span>
+                </button>
+            </template>
+            <p class="ci-empty-list" x-show="loaded && !items.length" x-text="emptyText()"></p>
+        </div>
+    </aside>
+
+    <!-- ============ MIDDLE: chat ============ -->
+    <section class="ci-pane ci-chat-pane" aria-label="Chat">
+        <template x-if="!active">
+            <div class="ci-blank">
+                <div>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <b>Pick a conversation</b>
+                    <span x-show="counts.waiting > 0" x-text="counts.waiting + ' customer' + (counts.waiting === 1 ? ' is' : 's are') + ' waiting for a reply.'"></span>
+                    <span x-show="!counts.waiting">No one is waiting right now. New chats appear here automatically.</span>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="active">
+            <div class="ci-pane" style="flex:1">
+                <header class="ci-chat-head">
+                    <button type="button" class="btn btn-o ci-btn-sm ci-back" @click="active = null" aria-label="Back to conversations">&larr;</button>
+                    <span class="ci-avatar" :class="active.channel === 'staff' ? 'ci-avatar--staff' : ''" x-text="initials(active.name)"></span>
+                    <div style="min-width:0">
+                        <div class="ci-chat-name">
+                            <span x-text="active.name"></span>
+                            <span class="ci-tag ci-tag--staff" x-show="active.channel === 'staff'" style="vertical-align:middle">Staff</span>
+                            <span class="ci-tag" x-show="active.is_member" style="vertical-align:middle">Trade account</span>
+                        </div>
+                        <div class="ci-contact">
+                            <a :href="'tel:' + active.phone.replace(/[^\d+]/g, '')" title="Call">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+                                <span x-text="active.phone"></span>
+                            </a>
+                            <a :href="'mailto:' + active.email" title="Email">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+                                <span x-text="active.email"></span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ci-chat-actions">
+                        <button type="button" class="btn btn-o ci-btn-sm ci-help-toggle" @click="helpOpen = true">Products &amp; quote</button>
+                        <button type="button" class="btn btn-o ci-btn-sm" x-show="active.status === 'open' && active.assigned_id && active.assigned_id !== me" @click="take()">Take over</button>
+                        <button type="button" class="btn btn-o ci-btn-sm" x-show="active.status === 'open'" @click="setStatus('close')">Close chat</button>
+                        <button type="button" class="btn btn-p ci-btn-sm" x-show="active.status !== 'open'" @click="setStatus('reopen')">Reopen</button>
+                    </div>
+                </header>
+
+                <p class="ci-notice" x-show="active.status === 'open' && active.assigned_id && active.assigned_id !== me">
+                    <span x-text="active.agent"></span> is looking after this chat. You can still reply, or take it over.
+                </p>
+
+                <div class="ci-log" x-ref="log">
+                    <template x-for="m in messages" :key="m.id">
+                        <div class="ci-msg" :class="'ci-msg--' + m.sender">
+                            <template x-if="m.product">
+                                <a class="ci-card" :href="m.product.url" target="_blank" rel="noopener">
+                                    <template x-if="m.product.image"><img :src="m.product.image" alt=""></template>
+                                    <template x-if="!m.product.image"><span class="ci-noimg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span></template>
+                                    <span><b x-text="m.product.name"></b><span x-text="m.product.brand + ' · ' + m.product.sku"></span></span>
+                                </a>
+                            </template>
+                            <div class="ci-bubble" x-show="m.body" x-text="m.body"></div>
+                            <div class="ci-msg-meta" x-show="m.sender !== 'system'"
+                                 x-text="(m.sender === 'agent' ? (m.agent || 'Staff') : active.name) + ' · ' + clock(m.at)"></div>
+                        </div>
+                    </template>
+                </div>
+
+                <template x-if="active.status === 'open'">
+                    <div>
+                        <div class="ci-quick">
+                            <template x-for="q in quickReplies" :key="q">
+                                <button type="button" class="ci-chip" @click="draft = q; $nextTick(() => $refs.box.focus())" x-text="q"></button>
+                            </template>
+                        </div>
+                        <form class="ci-compose" @submit.prevent="send()">
+                            <textarea x-ref="box" x-model="draft" rows="1" placeholder="Type a reply…"
+                                      @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); send(); }"
+                                      @input="grow($event.target)" aria-label="Reply"></textarea>
+                            <button type="submit" class="ci-send" :disabled="!draft.trim() || sending" aria-label="Send">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            </button>
+                        </form>
+                        <p class="ci-hint">Enter to send · Shift + Enter for a new line</p>
+                    </div>
+                </template>
+                <template x-if="active.status !== 'open'">
+                    <div class="ci-closed-bar">This chat is closed. Reopen it to reply.</div>
+                </template>
+            </div>
+        </template>
+    </section>
+
+    <!-- ============ RIGHT: helper ============ -->
+    <aside class="ci-pane ci-help-pane" :class="helpOpen ? 'open' : ''" aria-label="Products and quote"
+           @keydown.escape="helpOpen = false">
+        <div class="ci-help-tabs">
+            <button type="button" class="ci-help-tab" :class="helpTab === 'products' ? 'on' : ''" @click="helpTab = 'products'">Products</button>
+            <button type="button" class="ci-help-tab" :class="helpTab === 'quote' ? 'on' : ''" @click="helpTab = 'quote'">
+                Quote <span x-show="quoteLines().length" x-text="'(' + quoteLines().length + ')'"></span>
+            </button>
+            <button type="button" class="ci-x ci-help-toggle" @click="helpOpen = false" aria-label="Close panel" style="align-self:center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+            </button>
+        </div>
+
+        <!-- Products: click to send into the chat, + to add to the quote -->
+        <div class="ci-help-body" x-show="helpTab === 'products'">
+            <div class="ci-help-search">
+                <label class="ci-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="search" placeholder="Search products, brand or SKU" x-model="productQuery"
+                           @input.debounce.250ms="searchProducts()" aria-label="Search products">
+                </label>
+            </div>
+            <p class="ci-help-tip" x-text="canSend() ? 'Click a product to send it to the customer. + adds it to the quote.' : 'Open a chat to send products.'"></p>
+            <div class="ci-products">
+                <template x-for="p in products" :key="p.id">
+                    <div class="ci-prod">
+                        <button type="button" class="ci-prod-send" :disabled="!canSend()" @click="sendProduct(p)" :title="'Send ' + p.name + ' to the customer'">
+                            <template x-if="p.image"><img :src="p.image" alt="" loading="lazy"></template>
+                            <template x-if="!p.image"><span class="ci-noimg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span></template>
+                            <span class="ci-prod-text">
+                                <span class="ci-prod-name" x-text="p.name"></span>
+                                <span class="ci-prod-sub" x-text="p.brand + ' · ' + p.sku + (p.stock ? ' · ' + p.stock + ' in stock' : '')"></span>
+                            </span>
+                        </button>
+                        <button type="button" class="ci-prod-add" :class="inQuote(p.id) ? 'in' : ''" :disabled="!active"
+                                @click="toggleQuote(p)" :aria-label="inQuote(p.id) ? 'Remove from quote' : 'Add to quote'">
+                            <svg x-show="!inQuote(p.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <svg x-show="inQuote(p.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </button>
+                    </div>
+                </template>
+                <p class="ci-empty-list" x-show="productsLoaded && !products.length">No products match that search.</p>
+            </div>
+        </div>
+
+        <!-- Quote: built from the products in this chat -->
+        <div class="ci-help-body" x-show="helpTab === 'quote'">
+            <div class="ci-quote">
+                <template x-if="!active">
+                    <p class="ci-empty-list">Open a chat to build a quote for that customer.</p>
+                </template>
+                <template x-if="active">
+                    <div style="display:flex;flex-direction:column;gap:.8rem">
+                        <div class="ci-to">
+                            <p>Quote will be sent to</p>
+                            <div><b x-text="active.name"></b></div>
+                            <div x-text="active.email"></div>
+                            <div x-text="active.phone"></div>
+                        </div>
+
+                        <template x-if="active.quote">
+                            <div class="ci-done">
+                                Quote request
+                                {% if can_manage_quotes %}
+                                    <a :href="'{% url 'quotes:detail' 0 %}'.replace('/0/', '/' + active.quote.id + '/')" target="_blank" x-text="active.quote.reference"></a>
+                                {% else %}
+                                    <b x-text="active.quote.reference"></b>
+                                {% endif %}
+                                was created from this chat and is with Finance for pricing.
+                            </div>
+                        </template>
+
+                        <template x-for="line in quoteLines()" :key="line.product.id">
+                            <div class="ci-line">
+                                <span class="ci-line-name" x-text="line.product.name"></span>
+                                <span class="ci-qty">
+                                    <button type="button" @click="line.quantity = Math.max(1, (+line.quantity || 1) - 1)" aria-label="Fewer">−</button>
+                                    <input type="number" min="1" x-model.number="line.quantity" aria-label="Quantity">
+                                    <button type="button" @click="line.quantity = (+line.quantity || 0) + 1" aria-label="More">+</button>
+                                </span>
+                                <button type="button" class="ci-x" @click="removeLine(line.product.id)" aria-label="Remove">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+                                </button>
+                            </div>
+                        </template>
+                        <p class="ci-empty-list" style="padding:1rem" x-show="!quoteLines().length">
+                            Products you send in the chat are added here automatically. You can also press + next to any product.
+                        </p>
+
+                        <div x-show="quoteLines().length">
+                            <label class="f-label" for="ci-notes">Notes for Finance (optional)</label>
+                            <textarea id="ci-notes" x-model="notes[active.id]" placeholder="Delivery area, timing, anything they asked for…"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-p" style="justify-content:center"
+                                x-show="quoteLines().length" :disabled="quoting" @click="createQuote()">
+                            <span x-text="quoting ? 'Creating…' : 'Create quote request'"></span>
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </aside>
+
+    <div class="ci-toast" :class="toast.error ? 'ci-toast--error' : ''" x-show="toast.text" x-transition.opacity x-text="toast.text" role="status"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ request.user.pk|json_script:"chat-me" }}
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('chatInbox', () => ({
+        me: JSON.parse(document.getElementById('chat-me').textContent),
+        tabs: [
+            { key: 'waiting', label: 'Waiting' },
+            { key: 'mine', label: 'Mine' },
+            { key: 'open', label: 'Open' },
+            { key: 'closed', label: 'Closed' },
+        ],
+        tab: 'open',
+        search: '',
+        items: [],
+        counts: {},
+        loaded: false,
+
+        active: null,
+        messages: [],
+        lastId: 0,
+        draft: '',
+        sending: false,
+
+        helpOpen: false,
+        helpTab: 'products',
+        productQuery: '',
+        products: [],
+        productsLoaded: false,
+        // Quote drafts per conversation, so switching chats keeps each one.
+        drafts: {},
+        notes: {},
+        quoting: false,
+
+        toast: { text: '', error: false },
+        quickReplies: [
+            'Talofa! How can I help you today?',
+            'Let me check that for you.',
+            'How many would you like?',
+            'Which area should we deliver to?',
+            'I have sent you a quote request — Finance will email the pricing shortly.',
+        ],
+
+        init() {
+            const wanted = new URLSearchParams(location.search).get('c');
+            this.loadList().then(() => {
+                if (wanted) this.open(+wanted);
+                // Start somewhere useful: waiting customers first.
+                else if (this.counts.waiting > 0) { this.tab = 'waiting'; this.loadList(); }
+            });
+            this.searchProducts();
+            setInterval(() => this.loadList(), 5000);
+            setInterval(() => this.poll(), 3000);
+        },
+
+        csrf() { return document.querySelector('[name=csrfmiddlewaretoken]').value; },
+
+        async api(url, body) {
+            const opts = body === undefined ? {} : {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': this.csrf() },
+                body: JSON.stringify(body),
+            };
+            const res = await fetch(url, opts);
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+            return data;
+        },
+
+        notify(text, error) {
+            this.toast = { text, error: !!error };
+            clearTimeout(this._toast);
+            this._toast = setTimeout(() => (this.toast.text = ''), 2600);
+        },
+
+        // ---------- Conversation list ----------
+        async loadList() {
+            const params = new URLSearchParams({ tab: this.tab, q: this.search });
+            try {
+                const data = await this.api('{% url "chat:api_list" %}?' + params);
+                this.items = data.items;
+                this.counts = data.counts;
+                this.loaded = true;
+                document.title = (data.unread_total ? '(' + data.unread_total + ') ' : '') + 'Live chat | Ah Liki';
+            } catch (e) { /* keep the last list; the next tick retries */ }
+        },
+
+        emptyText() {
+            if (this.search) return 'No conversations match that search.';
+            return { waiting: 'No one is waiting. Nice work!', mine: 'You have no open chats.', open: 'No open chats right now.', closed: 'No closed chats yet.' }[this.tab];
+        },
+
+        // ---------- Active conversation ----------
+        async open(id) {
+            try {
+                const data = await this.api(this.detailUrl(id));
+                this.active = data.conversation;
+                this.messages = data.messages;
+                this.lastId = this.messages.length ? this.messages[this.messages.length - 1].id : 0;
+                this.draft = '';
+                this.seedQuote(id, data.shared_products);
+                this.scroll();
+                history.replaceState(null, '', '?c=' + id);
+                const row = this.items.find((c) => c.id === id);
+                if (row) row.unread = 0;
+                this.$nextTick(() => this.$refs.box && this.$refs.box.focus());
+            } catch (e) { this.notify(e.message, true); }
+        },
+
+        detailUrl(id) { return '{% url "chat:api_detail" 0 %}'.replace('/0/', '/' + id + '/'); },
+        actionUrl(id, action) { return this.detailUrl(id) + action + '/'; },
+
+        async poll() {
+            if (!this.active) return;
+            const id = this.active.id;
+            try {
+                const data = await this.api(this.detailUrl(id) + '?after=' + this.lastId);
+                if (!this.active || this.active.id !== id) return;
+                this.active = data.conversation;
+                this.append(data.messages);
+                this.seedQuote(id, data.shared_products);
+            } catch (e) { /* retry next tick */ }
+        },
+
+        append(list) {
+            const fresh = list.filter((m) => m.id > this.lastId);
+            if (!fresh.length) return;
+            this.messages.push(...fresh);
+            this.lastId = fresh[fresh.length - 1].id;
+            this.scroll();
+        },
+
+        async send() {
+            const body = this.draft.trim();
+            if (!body || this.sending || !this.active) return;
+            this.sending = true;
+            try {
+                const data = await this.api(this.actionUrl(this.active.id, 'send'), { body });
+                this.draft = '';
+                if (this.$refs.box) this.$refs.box.style.height = '';
+                this.append([data.message]);
+                if (!this.active.assigned_id) { this.active.assigned_id = this.me; }
+                this.loadList();
+            } catch (e) { this.notify(e.message, true); }
+            this.sending = false;
+        },
+
+        canSend() { return this.active && this.active.status === 'open'; },
+
+        async sendProduct(p) {
+            if (!this.canSend()) return;
+            try {
+                const data = await this.api(this.actionUrl(this.active.id, 'send'), { product_id: p.id });
+                this.append([data.message]);
+                this.addLine(this.active.id, p);
+                this.notify('Sent ' + p.name);
+                this.loadList();
+            } catch (e) { this.notify(e.message, true); }
+        },
+
+        async take() {
+            try {
+                await this.api(this.actionUrl(this.active.id, 'take'), {});
+                this.active.assigned_id = this.me;
+                this.notify('This chat is now yours.');
+                this.loadList();
+            } catch (e) { this.notify(e.message, true); }
+        },
+
+        async setStatus(action) {
+            if (action === 'close' && !confirm('Close this chat? The customer will see that it has ended.')) return;
+            try {
+                await this.api(this.actionUrl(this.active.id, 'status'), { action });
+                await this.poll();
+                this.loadList();
+            } catch (e) { this.notify(e.message, true); }
+        },
+
+        // ---------- Products ----------
+        async searchProducts() {
+            try {
+                const data = await this.api('{% url "chat:api_products" %}?q=' + encodeURIComponent(this.productQuery));
+                this.products = data.items;
+                this.productsLoaded = true;
+            } catch (e) { /* ignore */ }
+        },
+
+        // ---------- Quote builder ----------
+        quoteLines() { return this.active ? (this.drafts[this.active.id] || []) : []; },
+        inQuote(pid) { return this.quoteLines().some((l) => l.product.id === pid); },
+
+        addLine(cid, product) {
+            const lines = this.drafts[cid] || (this.drafts[cid] = []);
+            if (!lines.some((l) => l.product.id === product.id)) lines.push({ product, quantity: 1 });
+        },
+        removeLine(pid) {
+            this.drafts[this.active.id] = this.quoteLines().filter((l) => l.product.id !== pid);
+        },
+        toggleQuote(p) {
+            if (!this.active) return;
+            this.inQuote(p.id) ? this.removeLine(p.id) : (this.addLine(this.active.id, p), this.notify('Added to quote'));
+        },
+        // Products already shared in the chat start off in the quote, once.
+        seedQuote(cid, shared) {
+            this._seeded = this._seeded || {};
+            const seen = this._seeded[cid] || (this._seeded[cid] = new Set());
+            (shared || []).forEach((p) => {
+                if (!seen.has(p.id)) { seen.add(p.id); this.addLine(cid, p); }
+            });
+        },
+
+        async createQuote() {
+            const lines = this.quoteLines();
+            if (!lines.length || this.quoting) return;
+            if (lines.some((l) => !(+l.quantity >= 1))) { this.notify('Every product needs a quantity of at least 1.', true); return; }
+            this.quoting = true;
+            try {
+                const data = await this.api(this.actionUrl(this.active.id, 'quote'), {
+                    items: lines.map((l) => ({ product_id: l.product.id, quantity: +l.quantity })),
+                    notes: this.notes[this.active.id] || '',
+                });
+                this.drafts[this.active.id] = [];
+                this.notes[this.active.id] = '';
+                this.notify('Quote ' + data.quote.reference + ' created and sent to Finance.');
+                await this.poll();
+                this.loadList();
+            } catch (e) { this.notify(e.message, true); }
+            this.quoting = false;
+        },
+
+        // ---------- Helpers ----------
+        initials(name) {
+            return (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+        },
+        clock(iso) {
+            return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        },
+        when(iso) {
+            const d = new Date(iso), now = new Date();
+            if (d.toDateString() === now.toDateString()) return this.clock(iso);
+            const days = (now - d) / 864e5;
+            return d.toLocaleDateString([], days < 6 ? { weekday: 'short' } : { day: 'numeric', month: 'short' });
+        },
+        grow(el) { el.style.height = ''; el.style.height = Math.min(el.scrollHeight, 144) + 'px'; },
+        scroll() { this.$nextTick(() => { const l = this.$refs.log; if (l) l.scrollTop = l.scrollHeight; }); },
+    }));
+});
+</script>
+{% endblock %}

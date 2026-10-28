@@ -63,10 +63,22 @@
             <div><b>Ah Liki</b><span>Staff Portal</span></div>
         </div>
         <nav class="side-nav">
+            {% if can_manage_quotes %}
             <a href="{% url 'manage:dashboard' %}" class="side-link{% if view_name == 'manage:dashboard' %} on{% endif %}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Dashboard
             </a>
+            {% endif %}
+
+            {% if can_answer_chats %}
+            <p class="side-group">Customers</p>
+            <a href="{% url 'chat:inbox' %}" class="side-link{% if view_name == 'chat:inbox' %} on{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Live chat
+            </a>
+            {% endif %}
+
+            {% if can_manage_quotes %}
 
             <p class="side-group">Catalogue</p>
             <a href="{% url 'manage:product_list' %}" class="side-link{% if 'product' in view_name %} on{% endif %}">
@@ -91,11 +103,17 @@
                 Export data
             </a>
 
+            <a href="{% url 'manage:application_list' %}" class="side-link{% if 'application' in view_name %} on{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 11 2 2 4-4"/></svg>
+                Applications
+            </a>
+
             <p class="side-group">Quotes</p>
             <a href="{% url 'quotes:finance_dashboard' %}" class="side-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Quote requests
             </a>
+            {% endif %}
         </nav>
         <div class="side-foot">
             <a href="{% url 'core:home' %}">&larr; Back to website</a>
@@ -107,12 +125,12 @@
             <h1>{% block heading %}Staff Portal{% endblock %}</h1>
             <div class="who">
                 <span><b>{{ user.get_short_name|default:user.username }}</b></span>
-                <span class="pill">{% if is_admin %}Admin{% elif is_finance %}Finance{% else %}Staff{% endif %}</span>
+                <span class="pill">{% if is_admin %}Admin{% elif is_finance %}Finance{% elif is_sales %}Sales{% else %}Staff{% endif %}</span>
                 <a href="{% url 'accounts:logout' %}" class="btn btn-o">Sign out</a>
             </div>
         </header>
 
-        <main class="content">
+        <main class="{% block content_class %}content{% endblock %}">
             {% if messages %}
                 {% for message in messages %}
                     <div class="msg msg--{{ message.level_tag|default:'info' }}">{{ message }}</div>

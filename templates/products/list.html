@@ -2,6 +2,34 @@
 {% block title %}Wholesale Catalogue | Ah Liki Samoa Wholesale{% endblock %}
 {% block meta_description %}Browse the Ah Liki Samoa Wholesale trade catalogue — bulk food, foodstuff and non-food lines. Add items to a quote request for trade pricing.{% endblock %}
 
+{% block extra_css %}
+<style>
+    .quick-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #475569;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+    }
+    .quick-chip:hover {
+        border-color: #1E88E5;
+        color: #1E88E5;
+    }
+    .quick-chip.is-active {
+        background: #1E88E5;
+        border-color: #1E88E5;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="bg-gradient-to-br from-[#04212a] via-[#073236] to-[#05202f] text-white py-12">
     <div class="max-w-7xl mx-auto px-4">
@@ -18,6 +46,23 @@
         category: '{{ request.GET.category|default:''|escapejs }}',
         exclusive: {% if request.GET.is_exclusive %}true{% else %}false{% endif %}
      })">
+
+    {% if quick_categories %}
+        {# Ordinary links: they work without JavaScript and can be bookmarked. #}
+        <nav class="flex flex-wrap items-center gap-2 mb-4" aria-label="Popular departments">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-400 mr-1">Quick links</span>
+
+            <a href="{% url 'products:list' %}"
+               class="quick-chip{% if not request.GET.category %} is-active{% endif %}">All</a>
+
+            {% for category in quick_categories %}
+                <a href="{% url 'products:list' %}?category={{ category.pk }}"
+                   class="quick-chip{% if request.GET.category == category.pk|stringformat:'s' %} is-active{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </nav>
+    {% endif %}
 
     {# Still a plain GET form: without JavaScript the Search button works as before. #}
     <form method="get" class="mb-8 p-5 bg-white rounded-xl border border-gray-200 shadow-sm"

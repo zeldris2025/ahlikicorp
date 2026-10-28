@@ -4,8 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils.http import url_has_allowed_host_and_scheme
-from .forms import CustomUserCreationForm, UserProfileForm, UserUpdateForm
-from .models import UserProfile
+from .email import notify_staff_of_application, send_application_received
+from .forms import CustomerApplicationForm, UserProfileForm, UserUpdateForm
+from .models import CustomerApplication, UserProfile
 
 def _resolve_login(identifier, password, request):
     """Authenticate against a username or an email address.
@@ -49,6 +50,9 @@ def _safe_redirect_target(request, fallback='core:home'):
 
     if request.user.groups.filter(name__in=['Finance', 'Admin']).exists():
         return 'quotes:finance_dashboard'
+    # Sales girls work only in the chat inbox, so start them there.
+    if request.user.groups.filter(name='Sales Girls').exists():
+        return 'chat:inbox'
 
     return fallback
 
@@ -57,6 +61,8 @@ def login_view(request):
     if request.user.is_authenticated:
         if request.user.groups.filter(name__in=['Finance', 'Admin']).exists():
             return redirect('quotes:finance_dashboard')
+        if request.user.groups.filter(name='Sales Girls').exists():
+            return redirect('chat:inbox')
         return redirect('core:home')
 
     if request.method == 'POST':
@@ -75,19 +81,41 @@ def login_view(request):
     return render(request, 'accounts/login.html', {'next': request.GET.get('next', '')})
 
 def register_view(request):
+    """Apply for a trade account.
+
+    This does not create a login. It files an application for an administrator
+    to review, which is what keeps anonymous quote requests off the system —
+    the account, and the password, only exist once a person has approved it.
+    """
     if request.user.is_authenticated:
         return redirect('core:home')
 
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = CustomerApplicationForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
-            messages.success(request, 'Account created successfully! Please log in.')
-            return redirect('accounts:login')
+            application = form.save()
+            send_application_received(application)
+            notify_staff_of_application(application)
+            request.session['application_submitted'] = application.pk
+            return redirect('accounts:register_submitted')
     else:
-        form = CustomUserCreationForm()
+        form = CustomerApplicationForm()
 
     return render(request, 'accounts/register.html', {'form': form})
+
+
+def register_submitted_view(request):
+    """The "we are reviewing your details" acknowledgement.
+
+    Reached only straight after submitting, so a stale bookmark does not show
+    a confirmation for an application that was never made.
+    """
+    application_pk = request.session.pop('application_submitted', None)
+    if not application_pk:
+        return redirect('accounts:register')
+
+    application = CustomerApplication.objects.filter(pk=application_pk).first()
+    return render(request, 'accounts/register_submitted.html', {'application': application})
 
 def logout_view(request):
     logout(request)

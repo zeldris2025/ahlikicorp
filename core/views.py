@@ -231,6 +231,11 @@ class LocationsView(ListView):
         context['headquarters'] = next((l for l in locations if l.is_headquarters), None)
         context['companies'] = Brand.objects.all().order_by('sort_order', 'name')
 
+        # The basemap provider is a setting, so swapping it never means editing
+        # JavaScript inside a template.
+        context['map_tile_url'] = settings.MAP_TILE_URL
+        context['map_tile_attribution'] = settings.MAP_TILE_ATTRIBUTION
+
         # Only sites with coordinates can be plotted; the rest still list.
         context['map_points'] = [
             {

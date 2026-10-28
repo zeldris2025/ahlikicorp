@@ -10,6 +10,8 @@ urlpatterns = [
     path('products/', include('products.urls', namespace='products')),
     path('quotes/', include('quotes.urls', namespace='quotes')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
+    # Live chat: the visitor endpoints and the agent inbox at /manage/chats/.
+    path('', include('chat.urls', namespace='chat')),
     # Staff portal — a narrow alternative to Django Admin for Finance.
     path('manage/', include('products.manage_urls', namespace='manage')),
     path('api/products/', include('products.api_urls', namespace='api-products')),

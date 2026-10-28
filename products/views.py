@@ -15,6 +15,15 @@ class ProductListView(ListView):
     # companies are retail/hospitality operations and do not sell from here.
     CATALOGUE_BRAND_SLUG = 'ahliki-wholesale'
 
+    # The five departments that account for most repeat ordering.
+    QUICK_CATEGORIES = (
+        'Meat & Poultry',
+        'Dairy',
+        'Produce',
+        'Beverages',
+        'Cleaning & Household',
+    )
+
     def get_queryset(self):
         queryset = (
             Product.objects
@@ -47,6 +56,15 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = ProductSearchForm(self.request.GET)
+
+        # Shortcuts to the departments people come back for, shown above the
+        # search bar. Named rather than ranked by size, so the row stays the
+        # same from visit to visit; any name that no longer exists is simply
+        # left out instead of rendering a dead chip.
+        by_name = {c.name: c for c in Category.objects.filter(name__in=self.QUICK_CATEGORIES)}
+        context['quick_categories'] = [
+            by_name[name] for name in self.QUICK_CATEGORIES if name in by_name
+        ]
         context['categories'] = Category.objects.all()
         context['catalogue_brand'] = Brand.objects.filter(slug=self.CATALOGUE_BRAND_SLUG).first()
         context['search_query'] = self.request.GET.get('query', '').strip()

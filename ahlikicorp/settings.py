@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'core',
     'products',
     'quotes',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -248,6 +249,7 @@ LOGGING = {
     'loggers': {
         'django': {'handlers': ['console'], 'level': 'INFO'},
         'quotes': {'handlers': ['console', 'file'], 'level': 'DEBUG'},
+        'chat': {'handlers': ['console', 'file'], 'level': 'INFO'},
     },
 }
 
@@ -262,6 +264,40 @@ LOGGING = {
 SITE_PHONE = os.getenv('SITE_PHONE', '+685 67890')
 SITE_EMAIL = os.getenv('SITE_EMAIL', 'info@ahliki.com')
 SITE_ADDRESS = os.getenv('SITE_ADDRESS', '')
+
+# The online store the header's "Shop Online" button points at. Left blank
+# until the Shopify storefront is live; the button still renders so the header
+# keeps its shape, but it is marked as not-yet-linked rather than sending
+# anyone to a dead URL.
+SHOP_ONLINE_URL = os.getenv('SHOP_ONLINE_URL', '')
+
+# The Shop Online button is hidden until the storefront is ready. Flip this to
+# True (or set SHOW_SHOP_ONLINE=True) to put it back in the header.
+SHOW_SHOP_ONLINE = os.getenv('SHOW_SHOP_ONLINE', 'False').lower() == 'true'
+
+# Absolute URL used in emails, which have no request to build links from.
+SITE_BASE_URL = os.getenv('SITE_BASE_URL', 'http://127.0.0.1:8000').rstrip('/')
+
+# Where new trade account applications are announced for review.
+APPLICATION_NOTIFICATION_EMAIL = os.getenv(
+    'APPLICATION_NOTIFICATION_EMAIL',
+    os.getenv('QUOTE_NOTIFICATION_EMAIL', 'sales@ahliki.com'),
+)
+
+# Basemap tiles for the Locations map. OpenStreetMap's own tiles need no
+# account and no key, which is why they are the default: CARTO's basemaps
+# started demanding an API key and every tile came back as a watermark.
+# To use a keyed provider instead, set both of these — for CARTO Voyager:
+#   MAP_TILE_URL=https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?api_key=YOUR_KEY
+#   MAP_TILE_ATTRIBUTION=&copy; OpenStreetMap &copy; CARTO
+MAP_TILE_URL = os.getenv(
+    'MAP_TILE_URL',
+    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+)
+MAP_TILE_ATTRIBUTION = os.getenv(
+    'MAP_TILE_ATTRIBUTION',
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+)
 
 SOCIAL_LINKS = {
     'facebook': os.getenv('SOCIAL_FACEBOOK', 'https://www.facebook.com/AhLikiWholesale'),

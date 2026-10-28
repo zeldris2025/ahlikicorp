@@ -1,5 +1,7 @@
 from django.urls import path
 
+from accounts import manage_views as account_views
+
 from . import manage_views
 
 app_name = 'manage'
@@ -16,6 +18,10 @@ urlpatterns = [
     path('products/<int:pk>/toggle/', manage_views.toggle_active, name='product_toggle'),
 
     path('categories/', manage_views.CategoryListView.as_view(), name='category_list'),
+
+    path('applications/', account_views.ApplicationListView.as_view(), name='application_list'),
+    path('applications/<int:pk>/', account_views.ApplicationDetailView.as_view(), name='application_detail'),
+    path('applications/<int:pk>/decide/', account_views.application_decide, name='application_decide'),
 
     path('export/', manage_views.ExportView.as_view(), name='export'),
     path('export/all.zip', manage_views.export_all, name='export_all'),
