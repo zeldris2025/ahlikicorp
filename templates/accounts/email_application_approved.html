@@ -1,0 +1,30 @@
+{% extends 'quotes/email_base.html' %}
+{% block strapline %}Trade Accounts{% endblock %}
+{% block body %}
+<p style="margin:0 0 14px;font-size:16px;font-weight:bold;">Your trade account is ready, {{ application.full_name }}</p>
+<p style="margin:0 0 16px;font-size:14px;line-height:1.7;">
+  Your application for <strong>{{ application.organisation }}</strong> has been approved.
+  You can now sign in and request quotes from the catalogue.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border:1px solid #e6edf0;border-radius:8px;">
+  <tr><td style="padding:14px 16px;background:#f8fafb;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Your sign-in details</td></tr>
+  <tr><td style="padding:16px;font-size:14px;line-height:1.9;">
+    <strong>Website:</strong> <a href="{{ site_url }}" style="color:#1E88E5;">{{ site_url }}</a><br>
+    <strong>Username:</strong> <span style="font-family:Consolas,Menlo,monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px;">{{ username }}</span><br>
+    <strong>Password:</strong> <span style="font-family:Consolas,Menlo,monospace;background:#f1f5f9;padding:2px 6px;border-radius:4px;">{{ password }}</span>
+  </td></tr>
+</table>
+
+<p style="margin:0 0 20px;">
+  <a href="{{ site_url }}/accounts/login/"
+     style="display:inline-block;background:#0A6B4E;color:#ffffff;text-decoration:none;padding:11px 24px;border-radius:6px;font-size:14px;font-weight:bold;">
+    Sign in
+  </a>
+</p>
+
+<p style="margin:0;font-size:13px;color:#64748b;line-height:1.7;">
+  This password was generated for you. Please <a href="{{ site_url }}/accounts/password/" style="color:#1E88E5;">change it</a> after signing in,
+  and do not share these details &mdash; quote requests raised on this account are treated as yours.
+</p>
+{% endblock %}

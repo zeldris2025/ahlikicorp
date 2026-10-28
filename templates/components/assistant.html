@@ -1,11 +1,18 @@
 {% comment %}
-Floating FAQ assistant. Entirely client-side: the topic set is rendered into a
-JSON script tag and matched with keyword scoring, so asking a question costs no
-network request and nothing is sent anywhere.
+Floating assistant. Opens on a choice: chat live with the sales team or with
+staff, or browse quick answers.
+
+Quick answers are entirely client-side: the topic set is rendered into a JSON
+script tag and matched with keyword scoring, so asking costs no request.
+Live chat asks for a name, phone and email first (that is where any quote is
+sent), then talks to the chat endpoints, which only ever serve the visitor's
+own conversation from their session.
 {% endcomment %}
 {% load static %}
 
 <div class="assistant" x-data="ahLikiAssistant()" x-cloak>
+    <input type="hidden" x-ref="csrf" value="{{ csrf_token }}">
+
     <!-- Launcher -->
     <button type="button" class="assistant-launcher" @click="toggle()"
             :aria-expanded="open ? 'true' : 'false'" aria-controls="assistant-panel"
@@ -16,60 +23,184 @@ network request and nothing is sent anywhere.
         <svg x-show="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>
         </svg>
-        <span class="assistant-launcher-label" x-show="!open">Ask us</span>
+        <span class="assistant-launcher-label" x-show="!open" x-text="chat && chat.status === 'open' ? 'Your chat' : 'Ask us'"></span>
+        <span class="assistant-unread" x-show="!open && unread > 0" x-text="unread" aria-label="New messages"></span>
     </button>
 
     <!-- Panel -->
     <section id="assistant-panel" class="assistant-panel" x-show="open" x-transition
              role="dialog" aria-label="Ah Liki assistant">
         <header class="assistant-head">
+            <button type="button" class="assistant-close" x-show="view === 'faq' || view === 'form'" @click="view = 'home'" aria-label="Back" style="margin-left:0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 6 9 12 15 18"></polyline></svg>
+            </button>
             <div class="assistant-head-mark">
                 <img src="{% static 'images/ahliki_logo.png' %}" alt="" width="731" height="731">
             </div>
-            <div>
+            <div style="min-width:0">
                 <p class="assistant-head-name">Ah Liki Assistant</p>
-                <p class="assistant-head-sub"><span class="assistant-dot"></span>Answers common questions</p>
+                <p class="assistant-head-sub"><span class="assistant-dot" :class="view === 'chat' && !(chat && chat.agent) ? 'assistant-dot--wait' : ''"></span><span x-text="headSub()"></span></p>
             </div>
-            <button type="button" class="assistant-close" @click="close()" aria-label="Close">
+            <button type="button" class="assistant-close assistant-end" x-show="view === 'chat' && chat && chat.status === 'open'" @click="endChat()">End chat</button>
+            <button type="button" class="assistant-close" :style="view === 'chat' && chat && chat.status === 'open' ? 'margin-left:0' : ''" @click="close()" aria-label="Close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>
                 </svg>
             </button>
         </header>
 
-        <div class="assistant-log" x-ref="log">
-            <template x-for="(msg, i) in messages" :key="i">
-                <div class="assistant-msg" :class="'assistant-msg--' + msg.role">
-                    <p x-text="msg.text"></p>
-                    <template x-if="msg.links && msg.links.length">
-                        <div class="assistant-msg-links">
-                            <template x-for="link in msg.links" :key="link.url">
-                                <a :href="link.url" class="assistant-msg-link" x-text="link.label"></a>
+        <!-- ============ Home: who would you like to talk to? ============ -->
+        <div class="assistant-home" x-show="view === 'home'">
+            <p class="assistant-home-hello">Talofa! 👋</p>
+            <p class="assistant-home-lead">How would you like us to help today?</p>
+
+            <button type="button" class="assistant-choice" @click="chooseChannel('sales')">
+                <span class="assistant-choice-icon assistant-choice-icon--sales" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+                </span>
+                <span>
+                    <b>Chat with our sales team</b>
+                    <span>Help choosing products, stock and your order</span>
+                </span>
+            </button>
+            <button type="button" class="assistant-choice" @click="chooseChannel('staff')">
+                <span class="assistant-choice-icon assistant-choice-icon--staff" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>
+                </span>
+                <span>
+                    <b>Chat with our staff</b>
+                    <span>Accounts, quotes, deliveries and anything else</span>
+                </span>
+            </button>
+            <button type="button" class="assistant-choice assistant-choice--quiet" @click="view = 'faq'; scrollLog()">
+                <span class="assistant-choice-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </span>
+                <span>
+                    <b>Quick answers</b>
+                    <span>Common questions, answered instantly</span>
+                </span>
+            </button>
+        </div>
+
+        <!-- ============ Contact details before a live chat ============ -->
+        <form class="assistant-form" x-show="view === 'form'" @submit.prevent="startChat()" novalidate>
+            <p class="assistant-form-lead">
+                You'll be chatting with <b x-text="form.channel === 'sales' ? 'our sales team' : 'our staff'"></b>.
+                <button type="button" class="assistant-link" @click="form.channel = form.channel === 'sales' ? 'staff' : 'sales'"
+                        x-text="form.channel === 'sales' ? 'Talk to staff instead' : 'Talk to sales instead'"></button>
+            </p>
+            <p class="assistant-form-note">So we can follow up and send your quote, please tell us:</p>
+
+            <label class="assistant-field">
+                <span>Your name</span>
+                <input type="text" x-model="form.name" autocomplete="name" maxlength="120" required x-ref="firstField">
+                <small x-show="errors.name" x-text="errors.name"></small>
+            </label>
+            <label class="assistant-field">
+                <span>Phone number</span>
+                <input type="tel" x-model="form.phone" autocomplete="tel" maxlength="40" inputmode="tel" required>
+                <small x-show="errors.phone" x-text="errors.phone"></small>
+            </label>
+            <label class="assistant-field">
+                <span>Email</span>
+                <input type="email" x-model="form.email" autocomplete="email" maxlength="254" required>
+                <small x-show="errors.email" x-text="errors.email"></small>
+            </label>
+            <label class="assistant-field">
+                <span>How can we help? <em>(optional)</em></span>
+                <textarea x-model="form.message" rows="2" maxlength="2000" placeholder="e.g. I'd like 20 cartons of rice delivered to Vaitele"></textarea>
+            </label>
+            <p class="assistant-form-error" x-show="errors.form" x-text="errors.form"></p>
+
+            <button type="submit" class="assistant-primary" :disabled="busy">
+                <span x-text="busy ? 'Connecting…' : 'Start chat'"></span>
+            </button>
+        </form>
+
+        <!-- ============ Log: quick answers or live chat ============ -->
+        <div class="assistant-log" x-ref="log" x-show="view === 'faq' || view === 'chat'">
+            <template x-if="view === 'faq'">
+                <div class="assistant-log-inner">
+                    <template x-for="(msg, i) in messages" :key="i">
+                        <div class="assistant-msg" :class="'assistant-msg--' + msg.role">
+                            <p x-text="msg.text"></p>
+                            <template x-if="msg.links && msg.links.length">
+                                <div class="assistant-msg-links">
+                                    <template x-for="link in msg.links" :key="link.url">
+                                        <a :href="link.url" class="assistant-msg-link" x-text="link.label"></a>
+                                    </template>
+                                </div>
                             </template>
+                        </div>
+                    </template>
+                    <div class="assistant-msg assistant-msg--bot assistant-typing" x-show="typing">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="view === 'chat'">
+                <div class="assistant-log-inner">
+                    <template x-for="m in chatMessages" :key="m.id">
+                        <div class="assistant-msg" :class="m.sender === 'customer' ? 'assistant-msg--user' : (m.sender === 'system' ? 'assistant-msg--system' : 'assistant-msg--bot')">
+                            <span class="assistant-msg-who" x-show="m.sender === 'agent'" x-text="(m.agent || 'Ah Liki') + ' · Ah Liki'"></span>
+                            <template x-if="m.product">
+                                <a class="assistant-product" :href="m.product.url" target="_blank" rel="noopener">
+                                    <template x-if="m.product.image"><img :src="m.product.image" alt=""></template>
+                                    <span>
+                                        <b x-text="m.product.name"></b>
+                                        <span x-text="m.product.brand"></span>
+                                        <em>View product &rarr;</em>
+                                    </span>
+                                </a>
+                            </template>
+                            <p x-show="m.body" x-text="m.body"></p>
                         </div>
                     </template>
                 </div>
             </template>
-            <div class="assistant-msg assistant-msg--bot assistant-typing" x-show="typing">
-                <span></span><span></span><span></span>
+        </div>
+
+        <!-- Quick answers: suggestions, a way to a person, and the question box -->
+        <template x-if="view === 'faq'">
+            <div>
+                <div class="assistant-suggestions" x-show="suggestions.length">
+                    <template x-for="s in suggestions" :key="s.id">
+                        <button type="button" class="assistant-chip" @click="askTopic(s)" x-text="s.q"></button>
+                    </template>
+                    <button type="button" class="assistant-chip assistant-chip--person" @click="view = 'home'">Talk to a person</button>
+                </div>
+                <form class="assistant-input" @submit.prevent="submit()">
+                    <input type="text" x-model="draft" placeholder="Ask a question…" aria-label="Ask a question" autocomplete="off">
+                    <button type="submit" :disabled="!draft.trim()" aria-label="Send">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
             </div>
-        </div>
+        </template>
 
-        <div class="assistant-suggestions" x-show="suggestions.length">
-            <template x-for="s in suggestions" :key="s.id">
-                <button type="button" class="assistant-chip" @click="askTopic(s)" x-text="s.q"></button>
-            </template>
-        </div>
-
-        <form class="assistant-input" @submit.prevent="submit()">
-            <input type="text" x-model="draft" placeholder="Ask a question…" aria-label="Ask a question" autocomplete="off">
-            <button type="submit" :disabled="!draft.trim()" aria-label="Send">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-            </button>
-        </form>
+        <!-- Live chat input, or a way to start again once it has ended -->
+        <template x-if="view === 'chat'">
+            <div>
+                <form class="assistant-input" x-show="chat && chat.status === 'open'" @submit.prevent="sendChat()">
+                    <input type="text" x-model="chatDraft" placeholder="Type a message…" aria-label="Type a message" autocomplete="off" maxlength="2000" x-ref="chatInput">
+                    <button type="submit" :disabled="!chatDraft.trim() || busy" aria-label="Send">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
+                <div class="assistant-ended" x-show="chat && chat.status !== 'open'">
+                    <p>This chat has ended. Thanks for talking with us!</p>
+                    <button type="button" class="assistant-primary" @click="newChat()">Start a new chat</button>
+                </div>
+            </div>
+        </template>
     </section>
 </div>
 

@@ -1,3 +1,4 @@
+{% load catalogue %}
 {% comment %}
 Search results for the catalogue: the count, the grid and the pager.
 
@@ -32,11 +33,11 @@ swaps just this block instead of reloading the page.
                     <a href="{{ product.get_absolute_url }}" class="text-[#1E88E5] hover:underline">{{ product.name }}</a>
                 </h2>
                 <p class="text-xs text-gray-500 mb-1">{{ product.category.name }}</p>
-                {% if product.specifications %}
-                    {% comment %} {# Pack size and unit code are often the only thing separating two
-                       products with the same name, so they belong on the card. #} {% endcomment %}
+                {% with specs=product.specifications|public_specs %}
+                {% if specs %}
+                    {# Pack size and unit code separate same-named products. #}
                     <dl class="flex flex-wrap gap-1 mb-2">
-                        {% for key, value in product.specifications.items %}
+                        {% for key, value in specs %}
                             <div class="flex items-baseline gap-1 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 text-[11px] leading-tight">
                                 <dt class="text-gray-500">{{ key }}</dt>
                                 <dd class="font-medium text-gray-700">{{ value }}</dd>
@@ -44,6 +45,7 @@ swaps just this block instead of reloading the page.
                         {% endfor %}
                     </dl>
                 {% endif %}
+                {% endwith %}
                 {% if product.description %}<p class="text-xs text-gray-500 leading-relaxed mb-4">{{ product.description|truncatewords:20 }}</p>{% else %}<div class="mb-4"></div>{% endif %}
 
                 <form method="post" action="{% url 'quotes:basket_add' product.pk %}"

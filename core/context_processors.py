@@ -27,7 +27,7 @@ def site_brands(request):
 
 
 def site_contact(request):
-    """Address, phone and email for the header contact bar.
+    """Address, phone, email and shop link for the header.
 
     The address comes from whichever Location is flagged as headquarters, so
     it stays correct when the head office moves, and falls back to the
@@ -50,6 +50,9 @@ def site_contact(request):
         # tel: links must not contain spaces or punctuation.
         'site_phone_href': ''.join(c for c in phone if c.isdigit() or c == '+'),
         'site_email': getattr(settings, 'SITE_EMAIL', ''),
+        # Hidden until the storefront launches; see SHOW_SHOP_ONLINE.
+        'shop_online_url': getattr(settings, 'SHOP_ONLINE_URL', ''),
+        'show_shop_online': getattr(settings, 'SHOW_SHOP_ONLINE', False),
     }
 
 
@@ -62,16 +65,29 @@ def user_roles(request):
     """
     user = getattr(request, 'user', None)
     if user is None or not user.is_authenticated:
-        return {'is_finance': False, 'is_admin': False, 'can_manage_quotes': False}
+        return {
+            'is_finance': False,
+            'is_admin': False,
+            'can_manage_quotes': False,
+            'can_request_quote': False,
+            'is_sales': False,
+            'can_answer_chats': False,
+        }
 
     groups = set(user.groups.values_list('name', flat=True))
     is_finance = 'Finance' in groups
     is_admin = 'Admin' in groups or user.is_superuser
+    # Approved trade accounts are the only ones that may raise a quote.
+    is_customer = 'Customers' in groups
+    is_sales = 'Sales Girls' in groups
 
     return {
         'is_finance': is_finance,
         'is_admin': is_admin,
         'can_manage_quotes': is_finance or is_admin,
+        'can_request_quote': is_customer or is_finance or is_admin,
+        'is_sales': is_sales,
+        'can_answer_chats': is_sales or is_finance or is_admin,
     }
 
 

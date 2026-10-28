@@ -157,15 +157,37 @@
 
         <!-- Actions -->
         <div class="site-actions">
-            <a href="{% url 'quotes:basket' %}" class="site-cta"
-               aria-label="Quote request{% if quote_basket_count %}, {{ quote_basket_count }} item{{ quote_basket_count|pluralize }}{% endif %}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                My Quote
-                <span class="site-cta-count" data-basket-count {% if not quote_basket_count %}hidden{% endif %}>{{ quote_basket_count }}</span>
-            </a>
+            {% if show_shop_online %}
+                {# Inert until SHOP_ONLINE_URL is set, rather than linked nowhere. #}
+                <a {% if shop_online_url %}href="{{ shop_online_url }}" target="_blank" rel="noopener"{% else %}aria-disabled="true"{% endif %}
+                   class="site-shop{% if not shop_online_url %} is-pending{% endif %}"
+                   title="{% if shop_online_url %}Shop our online store{% else %}Online store coming soon{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L21.5 7H6"></path>
+                        <circle cx="10" cy="20" r="1.4"></circle>
+                        <circle cx="18" cy="20" r="1.4"></circle>
+                    </svg>
+                    Shop Online
+                </a>
+            {% endif %}
+
+            {% comment %}
+            The quote basket belongs to approved trade accounts only, so
+            visitors are offered the way in instead.
+            {% endcomment %}
+            {% if can_request_quote %}
+                <a href="{% url 'quotes:basket' %}" class="site-cta"
+                   aria-label="Quote request{% if quote_basket_count %}, {{ quote_basket_count }} item{{ quote_basket_count|pluralize }}{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    My Quote
+                    <span class="site-cta-count" data-basket-count {% if not quote_basket_count %}hidden{% endif %}>{{ quote_basket_count }}</span>
+                </a>
+            {% elif not user.is_authenticated %}
+                <a href="{% url 'accounts:register' %}" class="site-cta site-cta--register">Register</a>
+            {% endif %}
 
             {% if user.is_authenticated %}
                 <div class="site-account" x-data="{ open: false }" @keydown.escape="open = false">
@@ -180,6 +202,10 @@
 
                     <div class="site-menu" x-show="open" x-transition.opacity @click.outside="open = false" x-cloak>
                         <a href="{% url 'accounts:profile' %}" class="site-menu-link">My Profile</a>
+                        <a href="{% url 'accounts:password_change' %}" class="site-menu-link">Change Password</a>
+                        {% if can_answer_chats %}
+                            <a href="{% url 'chat:inbox' %}" class="site-menu-link">Chat Inbox</a>
+                        {% endif %}
                         {% if can_manage_quotes %}
                             <a href="{% url 'manage:dashboard' %}" class="site-menu-link">Staff Portal</a>
                             <a href="{% url 'quotes:finance_dashboard' %}" class="site-menu-link">Quote Requests</a>
@@ -191,7 +217,7 @@
                     </div>
                 </div>
             {% else %}
-                <a href="{% url 'accounts:login' %}" class="site-signin">Sign In</a>
+                <a href="{% url 'accounts:login' %}" class="site-signin">Login</a>
             {% endif %}
 
             <!-- Mobile toggle -->
@@ -241,20 +267,33 @@
         <a href="{% url 'core:locations' %}" class="site-drawer-link{% if view_name == 'core:locations' %} is-active{% endif %}">Locations</a>
         <a href="{% url 'core:contact' %}" class="site-drawer-link{% if view_name == 'core:contact' %} is-active{% endif %}">Contact</a>
 
-        <a href="{% url 'quotes:basket' %}" class="site-drawer-cta">
-            My Quote Request{% if quote_basket_count %} ({{ quote_basket_count }}){% endif %}
-        </a>
+        {% if show_shop_online %}
+            <a {% if shop_online_url %}href="{{ shop_online_url }}" target="_blank" rel="noopener"{% else %}aria-disabled="true"{% endif %}
+               class="site-drawer-cta site-drawer-cta--shop{% if not shop_online_url %} is-pending{% endif %}">
+                Shop Online{% if not shop_online_url %} <small>(coming soon)</small>{% endif %}
+            </a>
+        {% endif %}
+
+        {% if can_request_quote %}
+            <a href="{% url 'quotes:basket' %}" class="site-drawer-cta">
+                My Quote Request{% if quote_basket_count %} ({{ quote_basket_count }}){% endif %}
+            </a>
+        {% elif not user.is_authenticated %}
+            <a href="{% url 'accounts:register' %}" class="site-drawer-cta">Register a trade account</a>
+        {% endif %}
 
         {% if user.is_authenticated %}
             <a href="{% url 'accounts:profile' %}" class="site-drawer-link">My Profile</a>
+            {% if can_answer_chats %}
+                <a href="{% url 'chat:inbox' %}" class="site-drawer-link">Chat Inbox</a>
+            {% endif %}
             {% if can_manage_quotes %}
                 <a href="{% url 'manage:dashboard' %}" class="site-drawer-link">Staff Portal</a>
                 <a href="{% url 'quotes:finance_dashboard' %}" class="site-drawer-link">Quote Requests</a>
             {% endif %}
             <a href="{% url 'accounts:logout' %}" class="site-drawer-link">Sign Out</a>
         {% else %}
-            <a href="{% url 'accounts:login' %}" class="site-drawer-link">Sign In</a>
-            <a href="{% url 'accounts:register' %}" class="site-drawer-link">Create Account</a>
+            <a href="{% url 'accounts:login' %}" class="site-drawer-link">Login</a>
         {% endif %}
 
         <div class="site-drawer-social">

@@ -1,0 +1,82 @@
+{% extends 'manage/base.html' %}
+{% block title %}Trade account applications{% endblock %}
+{% block heading %}Trade account applications{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ap-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .ap-tab {
+        padding: 0.45rem 0.95rem;
+        border-radius: 999px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #475569;
+        text-decoration: none;
+    }
+    .ap-tab.on { background: #04212a; border-color: #04212a; color: #fff; }
+    .ap-tab span { opacity: 0.65; margin-left: 0.3rem; }
+    .ap-badge {
+        display: inline-block;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .ap-badge.pending { background: #fef3c7; color: #92400e; }
+    .ap-badge.approved { background: #dcfce7; color: #166534; }
+    .ap-badge.rejected { background: #fee2e2; color: #991b1b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ap-tabs">
+    <a href="?status=pending" class="ap-tab{% if status == 'pending' %} on{% endif %}">Pending review <span>{{ counts.pending }}</span></a>
+    <a href="?status=approved" class="ap-tab{% if status == 'approved' %} on{% endif %}">Approved <span>{{ counts.approved }}</span></a>
+    <a href="?status=rejected" class="ap-tab{% if status == 'rejected' %} on{% endif %}">Declined <span>{{ counts.rejected }}</span></a>
+    <a href="?status=all" class="ap-tab{% if status == 'all' %} on{% endif %}">All</a>
+</div>
+
+<div class="card overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <tr>
+                <th class="text-left px-4 py-2.5">Applicant</th>
+                <th class="text-left px-4 py-2.5">Contact</th>
+                <th class="text-left px-4 py-2.5">Submitted</th>
+                <th class="text-left px-4 py-2.5">Status</th>
+                <th class="text-right px-4 py-2.5">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+            {% for application in applications %}
+                <tr>
+                    <td class="px-4 py-3">
+                        <span class="font-semibold text-[#04212a]">{{ application.full_name }}</span>
+                        <span class="block text-xs text-slate-500">{{ application.organisation }}</span>
+                    </td>
+                    <td class="px-4 py-3 text-slate-600 text-xs">
+                        {{ application.email }}<br>{{ application.phone }}
+                    </td>
+                    <td class="px-4 py-3 text-slate-500 text-xs">{{ application.created_at|date:"j M Y, H:i" }}</td>
+                    <td class="px-4 py-3">
+                        <span class="ap-badge {{ application.status }}">{{ application.get_status_display }}</span>
+                    </td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                        <a href="{% url 'manage:application_detail' application.pk %}" class="text-[#0e7c86] font-semibold">Review</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="px-4 py-10 text-center text-slate-500">
+                        Nothing here. New applications appear as soon as someone registers.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,10 +1,14 @@
 """Views for assembling and submitting a quote basket."""
 
+import functools
+
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from accounts.permissions import is_verified_customer
 from products.models import Product
 
 from .basket import QuoteBasket
@@ -17,7 +21,53 @@ def _wants_json(request):
     return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 
+def verified_customer_required(view):
+    """Only approved trade accounts may build or submit a quote.
+
+    Enforced on every basket endpoint, not just the pages with buttons: the
+    add-to-quote POST is reachable directly, so hiding the button is not what
+    keeps an unapproved visitor out.
+
+    The live catalogue posts by fetch, so an unapproved caller gets JSON with
+    somewhere to go rather than an HTML login page it cannot display.
+    """
+
+    @functools.wraps(view)
+    def wrapper(request, *args, **kwargs):
+        if is_verified_customer(request.user):
+            return view(request, *args, **kwargs)
+
+        login_url = reverse('accounts:login')
+        if _wants_json(request):
+            return JsonResponse(
+                {
+                    'ok': False,
+                    'error': 'approval_required',
+                    'message': (
+                        'Sign in with an approved trade account to request a quote.'
+                        if not request.user.is_authenticated
+                        else 'Your trade account is still awaiting approval.'
+                    ),
+                    'login_url': login_url,
+                },
+                status=403,
+            )
+
+        if not request.user.is_authenticated:
+            messages.info(request, 'Please sign in with your trade account to request a quote.')
+            return redirect(f'{login_url}?next={request.get_full_path()}')
+
+        messages.warning(
+            request,
+            'Your trade account is still being reviewed. We will email you as soon as it is approved.',
+        )
+        return redirect('core:home')
+
+    return wrapper
+
+
 @require_POST
+@verified_customer_required
 def basket_add(request, pk):
     product = get_object_or_404(Product, pk=pk, is_active=True)
     basket = QuoteBasket(request)
@@ -40,6 +90,7 @@ def basket_add(request, pk):
 
 
 @require_POST
+@verified_customer_required
 def basket_update(request, pk):
     basket = QuoteBasket(request)
     basket.set_quantity(pk, request.POST.get('quantity', 1))
@@ -47,6 +98,7 @@ def basket_update(request, pk):
 
 
 @require_POST
+@verified_customer_required
 def basket_remove(request, pk):
     basket = QuoteBasket(request)
     basket.remove(pk)
@@ -57,17 +109,20 @@ def basket_remove(request, pk):
 
 
 @require_POST
+@verified_customer_required
 def basket_clear(request):
     QuoteBasket(request).clear()
     messages.info(request, 'Your quote request has been emptied.')
     return redirect('quotes:basket')
 
 
+@verified_customer_required
 def basket_detail(request):
     basket = QuoteBasket(request)
     return render(request, 'quotes/basket.html', {'basket_items': basket.items()})
 
 
+@verified_customer_required
 def checkout(request):
     """Turn the basket into a Quote with its line items."""
     basket = QuoteBasket(request)

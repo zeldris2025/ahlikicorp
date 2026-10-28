@@ -1,0 +1,103 @@
+{% extends 'manage/base.html' %}
+{% block title %}Review application{% endblock %}
+{% block heading %}Review application{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ad-row { display: flex; gap: 1rem; justify-content: space-between; padding: 0.7rem 0; font-size: 0.875rem; }
+    .ad-row + .ad-row { border-top: 1px solid #eef2f5; }
+    .ad-row dt { color: #64748b; }
+    .ad-row dd { font-weight: 600; color: #04212a; text-align: right; }
+    .ad-doc {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding: 0.65rem 1.1rem;
+        border-radius: 0.55rem;
+        border: 1px solid #cbd5e1;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #0e7c86;
+        text-decoration: none;
+    }
+    .ad-doc:hover { background: #f8fafc; }
+    .ad-note { font-size: 0.8rem; color: #64748b; line-height: 1.6; margin-top: 0.75rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <div class="lg:col-span-2 card p-6">
+        <h2 class="pf font-bold text-[#04212a] text-lg mb-1">{{ application.full_name }}</h2>
+        <p class="text-sm text-slate-500 mb-4">{{ application.organisation }}</p>
+
+        <dl>
+            <div class="ad-row"><dt>Email</dt><dd>{{ application.email }}</dd></div>
+            <div class="ad-row"><dt>Phone</dt><dd>{{ application.phone }}</dd></div>
+            <div class="ad-row"><dt>Submitted</dt><dd>{{ application.created_at|date:"j M Y, H:i" }}</dd></div>
+            <div class="ad-row"><dt>Status</dt><dd>{{ application.get_status_display }}</dd></div>
+            {% if application.reviewed_at %}
+                <div class="ad-row"><dt>Reviewed</dt><dd>{{ application.reviewed_at|date:"j M Y, H:i" }}{% if application.reviewed_by %} by {{ application.reviewed_by.get_username }}{% endif %}</dd></div>
+            {% endif %}
+            {% if application.user %}
+                <div class="ad-row"><dt>Account</dt><dd>{{ application.user.username }}</dd></div>
+            {% endif %}
+        </dl>
+
+        {% if application.document %}
+            <a href="{{ application.document.url }}" target="_blank" rel="noopener" class="ad-doc">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Open the attached licence or ID
+            </a>
+            <p class="ad-note">Opens in a new tab. Check it names the organisation above before approving.</p>
+        {% else %}
+            <p class="ad-note">No document was attached to this application.</p>
+        {% endif %}
+    </div>
+
+    <div class="card p-5 h-fit">
+        <h2 class="pf font-bold text-[#04212a] text-sm mb-3">Decision</h2>
+
+        {% if application.user %}
+            <p class="text-sm text-slate-600 mb-3">
+                This application is approved and the account <strong>{{ application.user.username }}</strong>
+                already exists. Approving again would not issue a second password.
+            </p>
+            <a href="{% url 'manage:application_list' %}" class="btn btn-o w-full justify-center">Back to the list</a>
+        {% else %}
+            <form method="post" action="{% url 'manage:application_decide' application.pk %}">
+                {% csrf_token %}
+
+                <label class="f-label" for="review_notes">Notes</label>
+                <textarea name="review_notes" id="review_notes" rows="4" class="f-input"
+                          placeholder="Internal notes, or the reason if you decline.">{{ application.review_notes }}</textarea>
+
+                <button type="submit" name="decision" value="approve" class="btn btn-p mt-4 w-full justify-center">
+                    Approve &amp; create account
+                </button>
+                <p class="f-help mt-2">
+                    Creates the login, generates a password and emails {{ application.email }} the
+                    site link and sign-in details.
+                </p>
+
+                <hr class="my-4 border-slate-200">
+
+                <label class="flex items-center gap-2 text-sm">
+                    <input type="checkbox" name="notify" checked> Email the applicant if declined
+                </label>
+                <label class="flex items-center gap-2 text-sm mt-2">
+                    <input type="checkbox" name="include_notes"> Include the notes above in that email
+                </label>
+                <button type="submit" name="decision" value="decline" class="btn btn-d mt-3 w-full justify-center">
+                    Decline
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

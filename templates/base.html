@@ -389,7 +389,7 @@
         .assistant-panel {
             order: 1;
             width: min(23rem, calc(100vw - 2.5rem));
-            height: min(30rem, calc(100vh - 8rem));
+            height: min(34rem, calc(100vh - 8rem));
             display: flex;
             flex-direction: column;
             background: #fff;
@@ -534,6 +534,84 @@
         .assistant-input button:disabled { opacity: 0.4; cursor: default; }
         .assistant-input button svg { width: 16px; height: 16px; }
 
+        /* ---------- Live chat additions ---------- */
+        .assistant-launcher { position: relative; }
+        .assistant-unread {
+            position: absolute; top: -4px; right: -4px;
+            min-width: 1.3rem; height: 1.3rem; padding: 0 0.35rem;
+            border-radius: 999px; background: #ef4444; color: #fff;
+            font-size: 0.7rem; font-weight: 700; display: grid; place-items: center;
+            box-shadow: 0 0 0 2px #fff;
+        }
+        .assistant-dot--wait { background: #fbbf24; }
+        .assistant-head-sub span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .assistant-end {
+            width: auto; flex: none; white-space: nowrap; padding: 0 0.6rem; font-size: 0.72rem; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.4); color: #fff;
+        }
+        .assistant-log-inner { display: flex; flex-direction: column; gap: 0.7rem; }
+
+        .assistant-home { flex: 1; overflow-y: auto; padding: 1.1rem 1rem; background: #f8fafb; display: flex; flex-direction: column; gap: 0.6rem; }
+        .assistant-home-hello { font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+        .assistant-home-lead { font-size: 0.875rem; color: #475569; margin: -0.3rem 0 0.35rem; }
+        .assistant-choice {
+            display: flex; align-items: center; gap: 0.8rem; width: 100%;
+            padding: 0.85rem 0.9rem; text-align: left; cursor: pointer;
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 0.9rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+        }
+        .assistant-choice:hover { border-color: #1E88E5; box-shadow: 0 8px 20px rgba(30,136,229,0.12); transform: translateY(-1px); }
+        .assistant-choice b { display: block; font-size: 0.9rem; color: #0f172a; }
+        .assistant-choice > span:last-child > span { display: block; font-size: 0.76rem; color: #64748b; margin-top: 0.1rem; }
+        .assistant-choice--quiet { background: transparent; border-style: dashed; }
+        .assistant-choice-icon {
+            width: 2.5rem; height: 2.5rem; flex: none; border-radius: 0.75rem;
+            display: grid; place-items: center; background: #eef2f5; color: #475569;
+        }
+        .assistant-choice-icon svg { width: 19px; height: 19px; }
+        .assistant-choice-icon--sales { background: #E3F2FD; color: #1E88E5; }
+        .assistant-choice-icon--staff { background: #E0F7FA; color: #00838F; }
+
+        .assistant-form { flex: 1; overflow-y: auto; padding: 1rem; background: #f8fafb; display: flex; flex-direction: column; gap: 0.65rem; }
+        .assistant-form-lead { font-size: 0.85rem; color: #0f172a; line-height: 1.5; }
+        .assistant-form-note { font-size: 0.78rem; color: #64748b; margin-top: -0.3rem; }
+        .assistant-link { border: 0; background: none; padding: 0; color: #1E88E5; font-weight: 600; font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
+        .assistant-field { display: flex; flex-direction: column; gap: 0.25rem; }
+        .assistant-field > span { font-size: 0.76rem; font-weight: 700; color: #334155; }
+        .assistant-field em { font-weight: 400; color: #94a3b8; font-style: normal; }
+        .assistant-field input, .assistant-field textarea {
+            width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #dbe4e8; border-radius: 0.6rem;
+            font: inherit; font-size: 0.875rem; background: #fff; outline: none; resize: none;
+        }
+        .assistant-field input:focus, .assistant-field textarea:focus { border-color: #1E88E5; box-shadow: 0 0 0 3px rgba(30,136,229,0.12); }
+        .assistant-field small, .assistant-form-error { font-size: 0.74rem; color: #b91c1c; }
+        .assistant-primary {
+            width: 100%; padding: 0.7rem 1rem; border: 0; border-radius: 0.7rem;
+            background: #1E88E5; color: #fff; font-weight: 700; font-size: 0.875rem; cursor: pointer;
+        }
+        .assistant-primary:hover { background: #1565C0; }
+        .assistant-primary:disabled { opacity: 0.6; cursor: default; }
+
+        .assistant-msg p { white-space: pre-wrap; word-wrap: break-word; }
+        .assistant-msg--system {
+            align-self: center; max-width: 92%; padding: 0.2rem 0.4rem;
+            font-size: 0.74rem; line-height: 1.5; color: #64748b; text-align: center; background: none;
+        }
+        .assistant-msg-who { display: block; font-size: 0.68rem; font-weight: 700; color: #1E88E5; margin-bottom: 0.2rem; }
+        .assistant-product {
+            display: flex; gap: 0.6rem; align-items: center; margin: 0.15rem 0 0.35rem;
+            padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.7rem; background: #f8fafb;
+            text-decoration: none; color: #0f172a;
+        }
+        .assistant-product:hover { border-color: #1E88E5; }
+        .assistant-product img { width: 3.2rem; height: 3.2rem; flex: none; border-radius: 0.5rem; object-fit: contain; background: #fff; }
+        .assistant-product b { display: block; font-size: 0.82rem; line-height: 1.3; }
+        .assistant-product span span { display: block; font-size: 0.72rem; color: #64748b; }
+        .assistant-product em { display: block; font-style: normal; font-size: 0.72rem; font-weight: 700; color: #1E88E5; margin-top: 0.15rem; }
+        .assistant-chip--person { border-color: #1E88E5; background: #E3F2FD; }
+        .assistant-ended { padding: 0.8rem 1rem; border-top: 1px solid #eef2f5; background: #fff; text-align: center; }
+        .assistant-ended p { font-size: 0.8rem; color: #64748b; margin-bottom: 0.6rem; }
+
         @media (prefers-reduced-motion: reduce) {
             .assistant-launcher, .assistant-typing span { transition: none !important; animation: none !important; }
         }
@@ -562,7 +640,21 @@
             height: 5.25rem;
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 1rem;
+        }
+        @media (min-width: 1280px) { .site-header-inner { gap: 2rem; } }
+        /* Between 1024px and 1280px the full nav plus three buttons does not
+           fit at full size. Everything gives back a little, and the two button
+           icons drop out — the labels alone are unambiguous. */
+        @media (min-width: 1152px) and (max-width: 1279px) {
+            .site-nav-link { padding: 0.5rem 0.45rem; font-size: 0.85rem; }
+            .site-shop, .site-cta {
+                padding: 0.55rem 0.75rem;
+                font-size: 0.82rem;
+            }
+            .site-shop svg, .site-cta svg { display: none; }
+            .site-signin { padding: 0.55rem 0.7rem; font-size: 0.82rem; }
+            .site-brand-sub { display: none; }
         }
 
         /* Brand lockup */
@@ -607,12 +699,13 @@
             gap: 0.35rem;
             margin-right: auto;
         }
-        @media (min-width: 1024px) { .site-nav { display: flex; } }
+        @media (min-width: 1152px) { .site-nav { display: flex; } }
 
         .site-nav-link {
             position: relative;
             padding: 0.5rem 0.85rem;
             font-size: 0.9rem;
+            white-space: nowrap;
             font-weight: 600;
             color: #475569;
             text-decoration: none;
@@ -921,7 +1014,7 @@
             gap: 0.6rem;
             margin-left: auto;
         }
-        @media (min-width: 1024px) { .site-actions { margin-left: 0; } }
+        @media (min-width: 1152px) { .site-actions { margin-left: 0; } }
 
         .site-cta {
             display: none;
@@ -933,10 +1026,11 @@
             color: #fff;
             font-size: 0.875rem;
             font-weight: 600;
+            white-space: nowrap;
             text-decoration: none;
             transition: background-color 0.2s ease, transform 0.15s ease;
         }
-        .site-cta svg { width: 16px; height: 16px; }
+        .site-cta svg { width: 16px; height: 16px; flex-shrink: 0; }
         .site-cta:hover { background: #1565C0; }
         .site-cta-count {
             display: inline-grid;
@@ -954,10 +1048,53 @@
         .site-cta:active { transform: translateY(1px); }
         @media (min-width: 768px) { .site-cta { display: inline-flex; } }
 
+        /* Shop Online — the storefront button, green so it reads apart from
+           the blue quote button sitting next to it. */
+        .site-shop {
+            display: none;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1.1rem;
+            border-radius: 0.6rem;
+            background: #7CB342;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: background-color 0.2s ease, transform 0.15s ease;
+        }
+        .site-shop svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .site-shop:hover { background: #689F38; }
+        .site-shop:active { transform: translateY(1px); }
+        @media (min-width: 768px) { .site-shop { display: inline-flex; } }
+        /* No storefront URL yet: still visible, but plainly not clickable. */
+        .site-shop.is-pending {
+            background: #eef2f5;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        .site-shop.is-pending:hover { background: #eef2f5; }
+        .site-shop.is-pending:active { transform: none; }
+
+        .site-drawer-cta--shop { background: #7CB342; }
+        .site-drawer-cta--shop small { font-weight: 600; opacity: 0.8; }
+        .site-drawer-cta--shop.is-pending {
+            background: #eef2f5;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Register sits where the quote button used to, so it keeps that
+           button's shape but the brand green of an invitation. */
+        .site-cta--register { background: #7CB342; }
+        .site-cta--register:hover { background: #689F38; }
+
         .site-signin {
             padding: 0.6rem 1rem;
             font-size: 0.875rem;
             font-weight: 600;
+            white-space: nowrap;
             color: #1E88E5;
             text-decoration: none;
             border-radius: 0.6rem;
@@ -1041,7 +1178,7 @@
             cursor: pointer;
         }
         .site-burger svg { width: 20px; height: 20px; }
-        @media (min-width: 1024px) { .site-burger { display: none; } }
+        @media (min-width: 1152px) { .site-burger { display: none; } }
 
         .site-drawer {
             border-top: 1px solid #eef2f5;
@@ -1051,7 +1188,7 @@
             flex-direction: column;
             gap: 0.15rem;
         }
-        @media (min-width: 1024px) { .site-drawer { display: none !important; } }
+        @media (min-width: 1152px) { .site-drawer { display: none !important; } }
         .site-drawer-link {
             padding: 0.7rem 0.5rem;
             border-radius: 0.5rem;
@@ -1213,19 +1350,33 @@
     </script>
 
     <script>
-    // ---- Ah Liki FAQ assistant ----
-    // Runs entirely in the browser against the topic set rendered above, so a
-    // question costs no request and no data leaves the page.
+    // ---- Ah Liki assistant ----
+    // Opens on a choice of live chat (sales or staff) or quick answers.
+    // Quick answers run entirely in the browser against the topic set
+    // rendered above, so a question costs no request. Live chat polls the
+    // chat endpoints, which only serve the visitor's own conversation.
     document.addEventListener('alpine:init', function () {
         Alpine.data('ahLikiAssistant', function () {
             return {
                 open: false,
+                view: 'home',          // home | faq | form | chat
                 draft: '',
                 typing: false,
                 messages: [],
                 topics: [],
                 starters: [],
                 suggestions: [],
+
+                // Live chat
+                chat: null,
+                chatMessages: [],
+                chatDraft: '',
+                lastId: 0,
+                unread: 0,
+                busy: false,
+                form: { channel: 'sales', name: '', phone: '', email: '', message: '' },
+                errors: {},
+                pollTimer: null,
 
                 init() {
                     this.topics = this.readJSON('assistant-topics');
@@ -1238,6 +1389,7 @@
                         links: [],
                     }];
 
+                    this.restoreChat();
                     this.maybeAutoOpen();
                 },
 
@@ -1247,10 +1399,18 @@
                     try { return JSON.parse(el.textContent); } catch (e) { return []; }
                 },
 
-                toggle() { this.open ? this.close() : (this.open = true, this.scrollLog()); },
+                toggle() { this.open ? this.close() : this.show(); },
+
+                show() {
+                    this.open = true;
+                    this.unread = 0;
+                    this.scrollLog();
+                    this.schedulePoll();
+                },
 
                 close() {
                     this.open = false;
+                    this.schedulePoll();
                     // Once dismissed, stop reopening for the rest of the visit.
                     this.remember();
                 },
@@ -1270,7 +1430,7 @@
 
                     const self = this;
                     setTimeout(function () {
-                        if (!self.open) { self.open = true; self.scrollLog(); }
+                        if (!self.open) self.show();
                         self.remember();
                     }, 1200);
                 },
@@ -1338,6 +1498,148 @@
                 contactLinks() {
                     const contact = this.topics.find((t) => t.id === 'contact');
                     return contact ? contact.links : [];
+                },
+
+                /* ---------- Live chat ---------- */
+
+                headSub() {
+                    if (this.view !== 'chat' || !this.chat) {
+                        return this.view === 'faq' ? 'Answers common questions' : 'We usually reply in a few minutes';
+                    }
+                    if (this.chat.status !== 'open') return 'Chat ended';
+                    if (this.chat.agent) return this.chat.agent + ' is helping you';
+                    return this.chat.channel === 'sales' ? 'Waiting for our sales team…' : 'Waiting for our staff…';
+                },
+
+                async api(url, body) {
+                    const opts = { headers: { 'X-Requested-With': 'XMLHttpRequest' } };
+                    if (body !== undefined) {
+                        opts.method = 'POST';
+                        opts.headers['Content-Type'] = 'application/json';
+                        opts.headers['X-CSRFToken'] = this.$refs.csrf.value;
+                        opts.body = JSON.stringify(body);
+                    }
+                    const res = await fetch(url, opts);
+                    const data = await res.json().catch(() => ({}));
+                    return { ok: res.ok, data: data };
+                },
+
+                // Pick up a chat already in progress after a page change.
+                async restoreChat() {
+                    try {
+                        const { ok, data } = await this.api('{% url "chat:current" %}');
+                        if (!ok) return;
+                        if (data.contact) Object.assign(this.form, data.contact);
+                        if (data.conversation) {
+                            this.loadChat(data.conversation, data.messages);
+                            this.view = 'chat';
+                            this.schedulePoll();
+                        }
+                    } catch (e) { /* offline: quick answers still work */ }
+                },
+
+                chooseChannel(channel) {
+                    this.form.channel = channel;
+                    this.errors = {};
+                    // Already chatting: go straight back to it.
+                    if (this.chat && this.chat.status === 'open') { this.view = 'chat'; this.scrollLog(); return; }
+                    this.view = 'form';
+                    this.$nextTick(() => this.$refs.firstField && this.$refs.firstField.focus());
+                },
+
+                async startChat() {
+                    if (this.busy) return;
+                    this.errors = {};
+                    const f = this.form;
+                    if (f.name.trim().length < 2) this.errors.name = 'Please tell us your name.';
+                    if ((f.phone.match(/\d/g) || []).length < 5) this.errors.phone = 'Please enter a phone number we can reach you on.';
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.trim())) this.errors.email = 'Please enter a valid email address.';
+                    if (Object.keys(this.errors).length) return;
+
+                    this.busy = true;
+                    try {
+                        const { ok, data } = await this.api('{% url "chat:start" %}', f);
+                        if (!ok) {
+                            this.errors = data.errors || { form: 'We could not start the chat. Please try again.' };
+                        } else {
+                            this.form.message = '';
+                            this.loadChat(data.conversation, data.messages);
+                            this.view = 'chat';
+                            this.schedulePoll();
+                            this.$nextTick(() => this.$refs.chatInput && this.$refs.chatInput.focus());
+                        }
+                    } catch (e) {
+                        this.errors = { form: 'We could not reach the server. Please check your connection.' };
+                    }
+                    this.busy = false;
+                },
+
+                loadChat(conversation, messages) {
+                    this.chat = conversation;
+                    this.chatMessages = [];
+                    this.lastId = 0;
+                    this.appendChat(messages || [], true);
+                },
+
+                appendChat(list, quiet) {
+                    const fresh = list.filter((m) => m.id > this.lastId);
+                    if (!fresh.length) return;
+                    this.chatMessages.push(...fresh);
+                    this.lastId = fresh[fresh.length - 1].id;
+                    if (!quiet && !this.open) {
+                        this.unread += fresh.filter((m) => m.sender === 'agent').length;
+                    }
+                    this.scrollLog();
+                },
+
+                async sendChat() {
+                    const body = this.chatDraft.trim();
+                    if (!body || this.busy) return;
+                    this.busy = true;
+                    try {
+                        const { ok, data } = await this.api('{% url "chat:send" %}', { body: body });
+                        if (ok) { this.chatDraft = ''; this.appendChat([data.message], true); }
+                        else { await this.pollChat(); }
+                    } catch (e) { /* keep the draft so nothing is lost */ }
+                    this.busy = false;
+                },
+
+                async pollChat() {
+                    if (!this.chat) return;
+                    try {
+                        const { ok, data } = await this.api('{% url "chat:poll" %}?after=' + this.lastId);
+                        if (!ok || !data.conversation) return;
+                        this.chat = data.conversation;
+                        this.appendChat(data.messages);
+                    } catch (e) { /* retry on the next tick */ }
+                },
+
+                // Quick while the panel is open, gentle while it is closed,
+                // and not at all once the chat has ended.
+                schedulePoll() {
+                    clearTimeout(this.pollTimer);
+                    if (!this.chat || this.chat.status !== 'open') return;
+                    this.pollTimer = setTimeout(async () => {
+                        await this.pollChat();
+                        this.schedulePoll();
+                    }, this.open ? 3000 : 10000);
+                },
+
+                async endChat() {
+                    if (!confirm('End this chat?')) return;
+                    await this.api('{% url "chat:end" %}', {});
+                    if (this.chat) this.chat.status = 'closed';
+                    this.chatMessages.push({ id: this.lastId + 0.5, sender: 'system', body: 'You ended the chat.' });
+                    clearTimeout(this.pollTimer);
+                    this.scrollLog();
+                },
+
+                async newChat() {
+                    await this.api('{% url "chat:end" %}', {});
+                    this.chat = null;
+                    this.chatMessages = [];
+                    this.lastId = 0;
+                    this.view = 'home';
                 },
 
                 push(role, text, links) {

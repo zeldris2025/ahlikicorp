@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+from accounts.permissions import VerifiedCustomerMixin
 from django.contrib import messages
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, View
 from django.http import HttpResponse, Http404
@@ -14,7 +16,7 @@ from .pdf import generate_quote_pdf
 from .signals import quote_pdf_cache_key
 from products.models import Product
 
-class QuoteCreateView(CreateView):
+class QuoteCreateView(VerifiedCustomerMixin, CreateView):
     model = Quote
     form_class = QuoteRequestForm
     template_name = 'quotes/create.html'
@@ -28,7 +30,7 @@ class QuoteCreateView(CreateView):
         messages.success(self.request, f'Quote {quote.reference} submitted successfully!')
         return redirect('quotes:confirmation', pk=quote.pk)
 
-class QuoteConfirmationView(DetailView):
+class QuoteConfirmationView(VerifiedCustomerMixin, DetailView):
     model = Quote
     template_name = 'quotes/confirmation.html'
     context_object_name = 'quote'
