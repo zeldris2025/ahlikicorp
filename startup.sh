@@ -11,6 +11,10 @@ cd "$(dirname "$0")"
 echo "Applying database migrations (existing data is kept)..."
 python manage.py migrate --noinput
 
+# A brand-new site has no way in, so create a first admin account. It does
+# nothing when any admin already exists (see core/management/commands/bootstrap_admin.py).
+python manage.py bootstrap_admin
+
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
