@@ -53,6 +53,15 @@ def site_contact(request):
         # Hidden until the storefront launches; see SHOW_SHOP_ONLINE.
         'shop_online_url': getattr(settings, 'SHOP_ONLINE_URL', ''),
         'show_shop_online': getattr(settings, 'SHOW_SHOP_ONLINE', False),
+        # Hidden while the catalogue is parked; see SHOW_PRODUCTS.
+        'show_products': getattr(settings, 'SHOW_PRODUCTS', False),
+        # The external HR system; see EMPLOYMENT_URL.
+        'employment_url': getattr(settings, 'EMPLOYMENT_URL', ''),
+        # The floating quote widget; see SHOW_ASSISTANT.
+        'show_assistant': getattr(settings, 'SHOW_ASSISTANT', False),
+        # The quote widget's "I'm not a robot" box is on every page.
+        'recaptcha_enabled': getattr(settings, 'RECAPTCHA_ENABLED', True),
+        'recaptcha_site_key': getattr(settings, 'RECAPTCHA_SITE_KEY', ''),
     }
 
 
@@ -144,14 +153,19 @@ def quote_basket(request):
 
 def site_assistant(request):
     """FAQ content for the floating assistant widget."""
+    from django.conf import settings
     from django.urls import reverse
 
     from .faq import FAQ_TOPICS, STARTER_IDS
 
+    show_products = getattr(settings, 'SHOW_PRODUCTS', False)
     topics = []
     for topic in FAQ_TOPICS:
         links = []
         for link in topic.get('links', []):
+            # No pointing visitors at the catalogue while it is parked.
+            if not show_products and link['url'].startswith('products:'):
+                continue
             try:
                 links.append({'label': link['label'], 'url': reverse(link['url'])})
             except Exception:

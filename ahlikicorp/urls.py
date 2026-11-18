@@ -1,3 +1,7 @@
+# Copyright (c) 2026 Charlie Wilson Ah Kuoi. All rights reserved.
+# Proprietary and confidential. Use, copying or distribution requires the
+# prior written permission of Charlie Wilson Ah Kuoi. See LICENSE.
+
 """ahlikicorp URL Configuration"""
 from django.conf import settings
 from django.conf.urls.static import static

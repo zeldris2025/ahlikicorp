@@ -256,7 +256,11 @@ Ensure `reportlab` is installed: `pip install reportlab`
 
 ## License
 
-Internal use only.
+Copyright (c) 2026 Charlie Wilson Ah Kuoi. All rights reserved.
+
+Proprietary software. It may not be used, copied, modified or distributed
+without the prior written permission of Charlie Wilson Ah Kuoi. See
+[LICENSE](LICENSE) for the full terms.
 
 ## Support
 

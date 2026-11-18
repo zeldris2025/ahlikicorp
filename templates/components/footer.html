@@ -23,7 +23,7 @@
                 </p>
                 <div class="space-y-2">
                     <p class="text-sm"><strong>Email:</strong> <a href="mailto:info@ahliki.com" class="text-yellow-300 hover:underline">info@ahliki.com</a></p>
-                    <p class="text-sm"><strong>Phone:</strong> <a href="tel:+68567890" class="text-yellow-300 hover:underline">+685-67890</a></p>
+                    <p class="text-sm"><strong>Phone:</strong> <a href="tel:+6858008000" class="text-yellow-300 hover:underline">+685-8008000</a></p>
                 </div>
                 <div class="mt-5">
                     {% include 'components/social_icons.html' with variant="light" %}
@@ -32,7 +32,7 @@
 
             <!-- Our Brands -->
             <div>
-                <h4 class="text-lg font-bold brand-font mb-4">Our Companies</h4>
+                <h4 class="text-lg font-bold brand-font mb-4">Companies</h4>
                 <ul class="space-y-2 text-sm text-gray-300">
                     {% for brand in footer_brands %}
                         <li><a href="{{ brand.get_absolute_url }}" class="hover:text-yellow-300">{{ brand.name }}</a></li>
@@ -46,16 +46,17 @@
                 <ul class="space-y-2 text-sm text-gray-300">
                     <li><a href="{% url 'core:home' %}" class="hover:text-yellow-300">Home</a></li>
                     <li><a href="{% url 'core:about' %}" class="hover:text-yellow-300">About Us</a></li>
-                    <li><a href="{% url 'products:list' %}" class="hover:text-yellow-300">Products</a></li>
-                    <li><a href="{% url 'quotes:create' %}" class="hover:text-yellow-300">Request Quote</a></li>
+                    {% if show_products %}<li><a href="{% url 'products:list' %}" class="hover:text-yellow-300">Products</a></li>{% endif %}
+                    <li><a href="{% url 'core:contact' %}" class="hover:text-yellow-300">Contact Us</a></li>
                     <li><a href="{% url 'core:locations' %}" class="hover:text-yellow-300">Locations</a></li>
+                    <li><a href="{{ employment_url|default:'#' }}"{% if employment_url %} target="_blank" rel="noopener"{% endif %} class="hover:text-yellow-300">Employment</a></li>
                 </ul>
             </div>
 
             <!-- Newsletter -->
             <div>
                 <h4 class="text-lg font-bold brand-font mb-4">Newsletter</h4>
-                <p class="text-sm text-gray-300 mb-3">Subscribe for product updates and special offers</p>
+                <p class="text-sm text-gray-300 mb-3">Subscribe for news and updates from the group</p>
                 <form method="post" action="{% url 'core:newsletter_subscribe' %}" class="space-y-2">
                     {% csrf_token %}
                     <input type="email" name="email" placeholder="Your email" required class="w-full px-3 py-2 rounded bg-blue-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-300">

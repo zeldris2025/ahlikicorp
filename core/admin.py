@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.contrib import admin
 from .models import Location, ContactMessage, NewsletterSubscriber
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'company', 'island', 'phone', 'is_headquarters', 'sort_order')
+    list_display = ('name', 'company', 'island', 'phone', 'on_map', 'is_headquarters', 'sort_order')
     list_filter = ('company', 'island', 'is_headquarters')
     search_fields = ('name', 'address', 'phone', 'email')
     list_select_related = ('company',)
@@ -12,12 +13,32 @@ class LocationAdmin(admin.ModelAdmin):
         ('Address', {
             'fields': ('address', 'latitude', 'longitude'),
             'description': (
-                'Seeded coordinates are town-level approximations. Correct them here so '
-                'map pins point at the actual site.'
+                'Use the map below to place the pin, or type the coordinates in. '
+                'Sites without coordinates are listed on the website but not pinned.'
             ),
         }),
         ('Contact', {'fields': ('phone', 'email', 'opening_hours')}),
     )
+
+    @admin.display(boolean=True, description='On map')
+    def on_map(self, obj):
+        return obj.latitude is not None and obj.longitude is not None
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        # The pin picker shows the group's other sites for reference.
+        others = Location.objects.filter(latitude__isnull=False, longitude__isnull=False)
+        if object_id:
+            others = others.exclude(pk=object_id)
+        extra_context = {
+            **(extra_context or {}),
+            'map_points': [
+                {'name': l.name, 'lat': float(l.latitude), 'lng': float(l.longitude)}
+                for l in others
+            ],
+            'map_tile_url': settings.MAP_TILE_URL,
+            'map_tile_attribution': settings.MAP_TILE_ATTRIBUTION,
+        }
+        return super().changeform_view(request, object_id, form_url, extra_context)
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):

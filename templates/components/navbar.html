@@ -37,14 +37,6 @@
             </a>
         {% endif %}
 
-        {% if site_phone %}
-            <a class="topbar-item" href="tel:{{ site_phone_href }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"></path>
-                </svg>
-                <span>{{ site_phone }}</span>
-            </a>
-        {% endif %}
 
         {% if site_email %}
             <a class="topbar-item topbar-item--wide" href="mailto:{{ site_email }}">
@@ -70,7 +62,7 @@
         <a href="{% url 'core:home' %}" class="site-brand" aria-label="Ah Liki Investment Corporation — home">
             <img src="{% static 'images/ahliki_logo.png' %}" alt="" class="site-brand-mark" width="731" height="731">
             <span class="site-brand-text">
-                <span class="site-brand-name">Ah Liki</span>
+                <span class="site-brand-name">AH LIKI</span>
                 <span class="site-brand-sub">Investment Corporation</span>
             </span>
         </a>
@@ -85,13 +77,16 @@
                  @mouseenter="open = true"
                  @mouseleave="open = false"
                  @keydown.escape="open = false"
+                 @click.outside="open = false"
                  @focusout="if (!$el.contains($event.relatedTarget)) open = false">
                 <button type="button" id="companies-trigger"
                         class="site-nav-link site-nav-trigger{% if view_name == 'core:companies' or view_name == 'core:company_detail' %} is-active{% endif %}"
-                        @click="open = !open"
+                        {# A mouse has already opened the menu on hover, so its click must not toggle it shut; touch and keyboard still toggle.
+                           click.outside sits on the wrapper, not the panel, or a click on this button would count as outside and close it. #}
+                        @click="open = $event.pointerType === 'mouse' ? true : !open"
                         :aria-expanded="open ? 'true' : 'false'"
                         aria-haspopup="true" aria-controls="companies-mega">
-                    Our Companies
+                    Companies
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"
                          class="site-nav-caret" :class="open ? 'is-open' : ''">
                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -99,7 +94,7 @@
                 </button>
 
                 <div class="mega" id="companies-mega" role="group" aria-labelledby="companies-trigger"
-                     x-show="open" x-transition.opacity.duration.150ms @click.outside="open = false" x-cloak>
+                     x-show="open" x-transition.opacity.duration.150ms x-cloak>
                     <div class="mega-inner">
                         <div class="mega-head">
                             <div>
@@ -141,7 +136,8 @@
                                     <li><strong>2000</strong><span>Samoan owned since</span></li>
                                 </ul>
                                 <div class="mega-rail-links">
-                                    <a href="{% url 'products:list' %}">Wholesale catalogue</a>
+                                    {% if show_products %}<a href="{% url 'products:list' %}">Wholesale catalogue</a>{% endif %}
+                                    <a href="{{ employment_url|default:'#' }}"{% if employment_url %} target="_blank" rel="noopener"{% endif %}>Careers</a>
                                     <a href="{% url 'core:locations' %}">Find a location</a>
                                     <a href="{% url 'core:contact' %}">Talk to the group</a>
                                 </div>
@@ -150,8 +146,11 @@
                     </div>
                 </div>
             </div>
-            <a href="{% url 'products:list' %}" class="site-nav-link{% if view_namespace == 'products' %} is-active{% endif %}"{% if view_namespace == 'products' %} aria-current="page"{% endif %}>Products</a>
+            {% if show_products %}
+                <a href="{% url 'products:list' %}" class="site-nav-link{% if view_namespace == 'products' %} is-active{% endif %}"{% if view_namespace == 'products' %} aria-current="page"{% endif %}>Products</a>
+            {% endif %}
             <a href="{% url 'core:locations' %}" class="site-nav-link{% if view_name == 'core:locations' %} is-active{% endif %}"{% if view_name == 'core:locations' %} aria-current="page"{% endif %}>Locations</a>
+            <a href="{{ employment_url|default:'#' }}"{% if employment_url %} target="_blank" rel="noopener"{% endif %} class="site-nav-link">Employment</a>
             <a href="{% url 'core:contact' %}" class="site-nav-link{% if view_name == 'core:contact' %} is-active{% endif %}"{% if view_name == 'core:contact' %} aria-current="page"{% endif %}>Contact</a>
         </nav>
 
@@ -186,7 +185,25 @@
                     <span class="site-cta-count" data-basket-count {% if not quote_basket_count %}hidden{% endif %}>{{ quote_basket_count }}</span>
                 </a>
             {% elif not user.is_authenticated %}
-                <a href="{% url 'accounts:register' %}" class="site-cta site-cta--register">Register</a>
+                {% if site_phone %}
+                    <a href="tel:{{ site_phone_href }}" class="site-call">
+                        <span class="site-call-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"></path>
+                            </svg>
+                        </span>
+                        <span class="site-call-text">
+                            <span class="site-call-label">Call us</span>
+                            <span class="site-call-number">{{ site_phone }}</span>
+                        </span>
+                    </a>
+                {% endif %}
+                <a href="{% url 'core:contact' %}" class="site-cta">
+                    Get in touch
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="13 6 19 12 13 18"></polyline>
+                    </svg>
+                </a>
             {% endif %}
 
             {% if user.is_authenticated %}
@@ -216,20 +233,15 @@
                         <a href="{% url 'accounts:logout' %}" class="site-menu-link site-menu-link-divider">Sign Out</a>
                     </div>
                 </div>
-            {% else %}
-                <a href="{% url 'accounts:login' %}" class="site-signin">Login</a>
             {% endif %}
 
             <!-- Mobile toggle -->
             <button type="button" class="site-burger" @click="mobileMenuOpen = !mobileMenuOpen"
                     :aria-expanded="mobileMenuOpen ? 'true' : 'false'" aria-label="Toggle navigation menu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <template x-if="!mobileMenuOpen">
-                        <g><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></g>
-                    </template>
-                    <template x-if="mobileMenuOpen">
-                        <g><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></g>
-                    </template>
+                    {# x-show rather than <template x-if>: a template inside an SVG is not an HTML template, so Alpine cannot render it. #}
+                    <g x-show="!mobileMenuOpen"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></g>
+                    <g x-show="mobileMenuOpen" style="display: none;"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></g>
                 </svg>
             </button>
         </div>
@@ -263,8 +275,11 @@
                 <a href="{% url 'core:companies' %}" class="site-drawer-sublink site-drawer-sublink-all">All companies</a>
             </div>
         </div>
-        <a href="{% url 'products:list' %}" class="site-drawer-link{% if view_namespace == 'products' %} is-active{% endif %}">Products</a>
+        {% if show_products %}
+            <a href="{% url 'products:list' %}" class="site-drawer-link{% if view_namespace == 'products' %} is-active{% endif %}">Products</a>
+        {% endif %}
         <a href="{% url 'core:locations' %}" class="site-drawer-link{% if view_name == 'core:locations' %} is-active{% endif %}">Locations</a>
+        <a href="{{ employment_url|default:'#' }}"{% if employment_url %} target="_blank" rel="noopener"{% endif %} class="site-drawer-link">Employment</a>
         <a href="{% url 'core:contact' %}" class="site-drawer-link{% if view_name == 'core:contact' %} is-active{% endif %}">Contact</a>
 
         {% if show_shop_online %}
@@ -279,7 +294,10 @@
                 My Quote Request{% if quote_basket_count %} ({{ quote_basket_count }}){% endif %}
             </a>
         {% elif not user.is_authenticated %}
-            <a href="{% url 'accounts:register' %}" class="site-drawer-cta">Register a trade account</a>
+            <a href="{% url 'core:contact' %}" class="site-drawer-cta">Get in touch</a>
+            {% if site_phone %}
+                <a href="tel:{{ site_phone_href }}" class="site-drawer-link">Call us: {{ site_phone }}</a>
+            {% endif %}
         {% endif %}
 
         {% if user.is_authenticated %}
@@ -292,8 +310,6 @@
                 <a href="{% url 'quotes:finance_dashboard' %}" class="site-drawer-link">Quote Requests</a>
             {% endif %}
             <a href="{% url 'accounts:logout' %}" class="site-drawer-link">Sign Out</a>
-        {% else %}
-            <a href="{% url 'accounts:login' %}" class="site-drawer-link">Login</a>
         {% endif %}
 
         <div class="site-drawer-social">

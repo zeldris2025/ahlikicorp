@@ -1,4 +1,5 @@
 {% load static %}
+{% comment %}Copyright (c) 2026 Charlie Wilson Ah Kuoi. All rights reserved. Proprietary; see LICENSE.{% endcomment %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -156,7 +157,7 @@
         .topbar {
             display: flex;
             align-items: stretch;
-            background: #1E88E5;
+            background: #1565C0;
             border-bottom: 1px solid rgba(124, 179, 66, 0.22);
         }
         .topbar .marquee {
@@ -1090,6 +1091,38 @@
         .site-cta--register { background: #7CB342; }
         .site-cta--register:hover { background: #689F38; }
 
+        /* Phone number beside the header button, for visitors on wide screens. */
+        .site-call {
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+            padding-right: 0.25rem;
+            color: inherit;
+            text-decoration: none;
+        }
+        @media (min-width: 1280px) { .site-call { display: inline-flex; } }
+        .site-call-icon {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            background: #E3F2FD;
+            color: #1565C0;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .site-call-icon svg { width: 17px; height: 17px; }
+        .site-call:hover .site-call-icon { background: #1E88E5; color: #fff; }
+        .site-call-text { display: flex; flex-direction: column; line-height: 1.2; }
+        .site-call-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+        .site-call-number { font-size: 0.9rem; font-weight: 700; color: #0f172a; white-space: nowrap; }
+
         .site-signin {
             padding: 0.6rem 1rem;
             font-size: 0.875rem;
@@ -1176,6 +1209,7 @@
             background: #fff;
             color: #04212a;
             cursor: pointer;
+            flex-shrink: 0;
         }
         .site-burger svg { width: 20px; height: 20px; }
         @media (min-width: 1152px) { .site-burger { display: none; } }
@@ -1299,7 +1333,8 @@
     </main>
 
     {% include 'components/footer.html' %}
-    {% include 'components/assistant.html' %}
+    {# The live-chat assistant (components/assistant.html) is parked; the quote widget takes its place. #}
+    {% if show_assistant %}{% include 'components/quote_assistant.html' %}{% endif %}
 
     <script>
     // ---- Add to quote ----

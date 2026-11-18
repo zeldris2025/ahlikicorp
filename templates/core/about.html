@@ -287,8 +287,8 @@
                 Retailer, hotel, restaurant or institution — tell us what you need and we will price it.
             </p>
             <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
-                <a href="{% url 'products:list' %}" class="btn-primary">Browse the catalogue</a>
-                <a href="{% url 'core:contact' %}" class="btn-outline">Contact our team</a>
+                {% if show_products %}<a href="{% url 'products:list' %}" class="btn-primary">Browse the catalogue</a>{% endif %}
+                <a href="{% url 'core:contact' %}" class="{% if show_products %}btn-outline{% else %}btn-primary{% endif %}">Contact our team</a>
             </div>
         </div>
     </section>

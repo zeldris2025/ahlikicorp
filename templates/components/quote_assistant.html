@@ -1,0 +1,327 @@
+{% comment %}
+Floating "Request a quote" widget. Two short steps (what you need, then who
+you are) posted as JSON to quotes:quick_request. Reuses the .assistant
+styles from base.html; the live chat version is parked in assistant.html.
+{% endcomment %}
+{% load static %}
+
+<style>
+    .qa-steps { display: flex; gap: .4rem; padding: .7rem 1rem 0; background: #f8fafb; }
+    .qa-step { flex: 1; height: 4px; border-radius: 999px; background: #dbe4e8; transition: background-color .2s ease; }
+    .qa-step.is-done { background: #1E88E5; }
+    .qa-title { font-size: 1rem; font-weight: 800; color: #0f172a; }
+    .qa-sub { font-size: .8rem; color: #64748b; margin-top: -.35rem; }
+    .qa-row { display: flex; gap: .4rem; align-items: center; }
+    .qa-row input[type="text"] {
+        flex: 1; min-width: 0; padding: .55rem .7rem; border: 1px solid #dbe4e8; border-radius: .6rem;
+        font: inherit; font-size: .875rem; background: #fff; outline: none;
+    }
+    .qa-row input[type="text"]:focus { border-color: #1E88E5; box-shadow: 0 0 0 3px rgba(30,136,229,.12); }
+    .qa-qty { display: flex; align-items: center; border: 1px solid #dbe4e8; border-radius: .6rem; background: #fff; overflow: hidden; flex: none; }
+    .qa-qty button { width: 1.8rem; height: 2.3rem; border: 0; background: none; color: #1E88E5; font-size: 1.05rem; font-weight: 700; cursor: pointer; }
+    .qa-qty button:hover { background: #E3F2FD; }
+    .qa-qty input {
+        width: 2.6rem; border: 0; text-align: center; font: inherit; font-size: .875rem; font-weight: 700;
+        outline: none; -moz-appearance: textfield; appearance: textfield;
+    }
+    .qa-qty input::-webkit-outer-spin-button, .qa-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .qa-remove { flex: none; width: 1.9rem; height: 1.9rem; border: 0; border-radius: 999px; background: none; color: #94a3b8; cursor: pointer; }
+    .qa-remove:hover { background: #fee2e2; color: #b91c1c; }
+    .qa-remove svg { width: 15px; height: 15px; }
+    .qa-add {
+        align-self: flex-start; display: inline-flex; align-items: center; gap: .35rem;
+        padding: .45rem .8rem; border: 1px dashed #93c5fd; border-radius: .6rem; background: #fff;
+        color: #1565C0; font-size: .8rem; font-weight: 700; cursor: pointer;
+    }
+    .qa-add:hover { background: #E3F2FD; }
+    .qa-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    /* Pinned to the foot of the panel so the button never scrolls out of
+       sight on a short screen; the negative margins cancel the form padding. */
+    .qa-actions {
+        position: sticky; bottom: -1rem; z-index: 1;
+        display: flex; gap: .5rem;
+        margin: auto -1rem -1rem; padding: .75rem 1rem 1rem;
+        background: #f8fafb; border-top: 1px solid #eef2f5;
+    }
+    .qa-back {
+        flex: none; padding: .7rem .9rem; border: 1px solid #dbe4e8; border-radius: .7rem;
+        background: #fff; color: #334155; font-weight: 700; font-size: .875rem; cursor: pointer;
+    }
+    .qa-captcha { display: flex; flex-direction: column; gap: .3rem; min-height: 78px; }
+    .qa-captcha-error { color: #dc2626; font-size: .75rem; font-weight: 600; }
+    .qa-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .qa-done { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem; padding: 1.5rem; text-align: center; background: #f8fafb; }
+    .qa-done-icon { display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 999px; background: #dcfce7; color: #16a34a; }
+    .qa-done-icon svg { width: 1.6rem; height: 1.6rem; }
+    .qa-ref { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 800; color: #0f172a; letter-spacing: .03em; }
+</style>
+
+<div class="assistant" x-data="quoteAssistant()" x-cloak @keydown.escape="open = false">
+    <input type="hidden" x-ref="csrf" value="{{ csrf_token }}">
+
+    <button type="button" class="assistant-launcher" @click="toggle()"
+            :aria-expanded="open ? 'true' : 'false'" aria-controls="quote-panel"
+            :aria-label="open ? 'Close the quote form' : 'Request a quote'">
+        <svg x-show="!open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line>
+        </svg>
+        <svg x-show="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>
+        </svg>
+        <span class="assistant-launcher-label" x-show="!open">Request a quote</span>
+    </button>
+
+    <section id="quote-panel" class="assistant-panel" x-show="open" x-transition role="dialog" aria-label="Request a quote">
+        <header class="assistant-head">
+            <div class="assistant-head-mark">
+                <img src="{% static 'images/ahliki_logo.png' %}" alt="" width="731" height="731">
+            </div>
+            <div style="min-width:0">
+                <p class="assistant-head-name">Request a quote</p>
+                <p class="assistant-head-sub"><span class="assistant-dot"></span><span>We reply within one business day</span></p>
+            </div>
+            <button type="button" class="assistant-close" @click="open = false" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line>
+                </svg>
+            </button>
+        </header>
+
+        <div class="qa-steps" x-show="step < 3" aria-hidden="true">
+            <span class="qa-step" :class="step >= 1 ? 'is-done' : ''"></span>
+            <span class="qa-step" :class="step >= 2 ? 'is-done' : ''"></span>
+        </div>
+
+        <!-- Step 1: what do you need? -->
+        <form class="assistant-form" x-show="step === 1" @submit.prevent="toDetails()" novalidate>
+            <p class="qa-title">What would you like a price for?</p>
+            <p class="qa-sub">Add each item and how many you need.</p>
+
+            <template x-for="(row, i) in items" :key="row.id">
+                <div class="qa-row">
+                    <input type="text" x-model="row.item" maxlength="200"
+                           :placeholder="i === 0 ? 'e.g. Rice 25kg bag' : 'Another item'"
+                           :aria-label="'Item ' + (i + 1)" :id="'qa-item-' + row.id">
+                    <div class="qa-qty">
+                        <button type="button" @click="row.qty = Math.max(1, (parseInt(row.qty) || 1) - 1)" aria-label="Fewer">&minus;</button>
+                        <input type="number" min="1" max="100000" inputmode="numeric" x-model.number="row.qty" :aria-label="'Quantity for item ' + (i + 1)">
+                        <button type="button" @click="row.qty = (parseInt(row.qty) || 0) + 1" aria-label="More">+</button>
+                    </div>
+                    <button type="button" class="qa-remove" @click="removeRow(i)" x-show="items.length > 1" :aria-label="'Remove item ' + (i + 1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>
+                    </button>
+                </div>
+            </template>
+
+            <button type="button" class="qa-add" @click="addRow()" x-show="items.length < 30">
+                <span aria-hidden="true">+</span> Add another item
+            </button>
+            <p class="assistant-form-error" x-show="errors.items" x-text="errors.items"></p>
+
+            <div class="qa-actions">
+                <button type="submit" class="assistant-primary">Next: your details</button>
+            </div>
+        </form>
+
+        <!-- Step 2: who are you? -->
+        <form class="assistant-form" x-show="step === 2" @submit.prevent="submit()" novalidate>
+            <p class="qa-title">Where should we send your quote?</p>
+
+            <label class="assistant-field">
+                <span>Your name</span>
+                <input type="text" x-model="form.name" autocomplete="name" maxlength="120" x-ref="nameField">
+                <small x-show="errors.name" x-text="errors.name"></small>
+            </label>
+            <div class="qa-pair">
+                <label class="assistant-field">
+                    <span>Phone</span>
+                    <input type="tel" x-model="form.phone" autocomplete="tel" maxlength="40" inputmode="tel">
+                    <small x-show="errors.phone" x-text="errors.phone"></small>
+                </label>
+                <label class="assistant-field">
+                    <span>Company <em>(optional)</em></span>
+                    <input type="text" x-model="form.company" autocomplete="organization" maxlength="160">
+                </label>
+            </div>
+            <label class="assistant-field">
+                <span>Email</span>
+                <input type="email" x-model="form.email" autocomplete="email" maxlength="254">
+                <small x-show="errors.email" x-text="errors.email"></small>
+            </label>
+            <label class="qa-trap" aria-hidden="true">Website <input type="text" x-model="form.website" tabindex="-1" autocomplete="off"></label>
+
+            {% if recaptcha_enabled %}
+            <div class="qa-captcha">
+                <div x-ref="captcha"></div>
+                <small class="qa-captcha-error" x-show="errors.captcha" x-text="errors.captcha"></small>
+            </div>
+            {% endif %}
+            <p class="assistant-form-error" x-show="errors.form" x-text="errors.form"></p>
+
+            <div class="qa-actions">
+                <button type="button" class="qa-back" @click="step = 1">Back</button>
+                <button type="submit" class="assistant-primary" :disabled="busy">
+                    <span x-text="busy ? 'Sending…' : 'Send quote request'"></span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Sent -->
+        <div class="qa-done" x-show="step === 3">
+            <span class="qa-done-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+            <p class="qa-title">Request sent</p>
+            <p class="qa-sub" style="margin:0">Your reference is</p>
+            <p class="qa-ref" x-text="reference"></p>
+            <p class="qa-sub" style="margin:0">We have emailed a copy to <b x-text="form.email"></b> and will be in touch soon.</p>
+            <button type="button" class="assistant-link" @click="reset()">Request another quote</button>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('quoteAssistant', () => ({
+        open: false,
+        step: 1,
+        busy: false,
+        reference: '',
+        nextId: 2,
+        items: [{ id: 1, item: '', qty: 1 }],
+        form: { name: '', phone: '', email: '', company: '', website: '' },
+        errors: {},
+        // Contact details are remembered in this browser only, so a repeat
+        // customer does not retype them.
+        storageKey: 'ahliki-quote-contact',
+
+        init() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
+                ['name', 'phone', 'email', 'company'].forEach((k) => { if (saved[k]) this.form[k] = saved[k]; });
+            } catch (e) { /* storage unavailable */ }
+        },
+
+        toggle() {
+            this.open = !this.open;
+            if (this.open && this.step === 1) this.focusRow(this.items[0].id);
+        },
+
+        focusRow(id) {
+            this.$nextTick(() => { const el = document.getElementById('qa-item-' + id); if (el) el.focus(); });
+        },
+
+        addRow() {
+            const id = this.nextId++;
+            this.items.push({ id, item: '', qty: 1 });
+            this.focusRow(id);
+        },
+
+        removeRow(i) { this.items.splice(i, 1); },
+
+        filledItems() {
+            return this.items
+                .filter((r) => r.item.trim())
+                .map((r) => ({ item: r.item.trim(), qty: Math.max(1, parseInt(r.qty) || 1) }));
+        },
+
+        toDetails() {
+            this.errors = {};
+            if (!this.filledItems().length) {
+                this.errors.items = 'Add at least one item you would like a price for.';
+                return;
+            }
+            this.step = 2;
+            this.$nextTick(() => { this.$refs.nameField.focus(); this.showCaptcha(); });
+        },
+
+        // reCAPTCHA is only fetched once someone reaches the details step, so
+        // it adds nothing to ordinary page loads.
+        captchaId: null,
+        captchaEnabled: {{ recaptcha_enabled|yesno:'true,false' }},
+        showCaptcha() {
+            if (!this.captchaEnabled || this.captchaId !== null) return;
+            const render = () => {
+                if (this.captchaId !== null) return;
+                const box = this.$refs.captcha;
+                this.captchaId = window.grecaptcha.render(box, {
+                    sitekey: '{{ recaptcha_site_key|escapejs }}',
+                    // The normal box is 304px wide; narrow phones get the compact one.
+                    size: box.clientWidth && box.clientWidth < 304 ? 'compact' : 'normal',
+                    callback: () => { delete this.errors.captcha; this.errors = { ...this.errors }; },
+                });
+            };
+            if (window.grecaptcha && window.grecaptcha.render) {
+                window.grecaptcha.ready(render);
+                return;
+            }
+            window.ahlikiQuoteCaptcha = render;
+            if (!document.getElementById('qa-recaptcha-js')) {
+                const s = document.createElement('script');
+                s.id = 'qa-recaptcha-js';
+                s.src = 'https://www.google.com/recaptcha/api.js?onload=ahlikiQuoteCaptcha&render=explicit';
+                s.async = true;
+                document.head.appendChild(s);
+            }
+        },
+
+        captchaToken() {
+            return this.captchaId !== null && window.grecaptcha ? window.grecaptcha.getResponse(this.captchaId) : '';
+        },
+
+        resetCaptcha() {
+            if (this.captchaId !== null && window.grecaptcha) window.grecaptcha.reset(this.captchaId);
+        },
+
+        validate() {
+            const e = {};
+            if (!this.form.name.trim()) e.name = 'Please tell us your name.';
+            if (!this.form.phone.trim()) e.phone = 'Please add a phone number.';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email.trim())) e.email = 'Please enter a valid email.';
+            if (this.captchaEnabled && !this.captchaToken()) e.captcha = 'Please tick "I\'m not a robot" before sending.';
+            this.errors = e;
+            return !Object.keys(e).length;
+        },
+
+        async submit() {
+            if (this.busy || !this.validate()) return;
+            this.busy = true;
+            try {
+                const res = await fetch('{% url "quotes:quick_request" %}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': this.$refs.csrf.value },
+                    body: JSON.stringify({ ...this.form, items: this.filledItems(), captcha: this.captchaToken() }),
+                });
+                const data = await res.json().catch(() => ({}));
+                // A token is good for one check only, so the box is cleared either way.
+                this.resetCaptcha();
+                if (!res.ok) {
+                    this.errors = data.errors || { form: 'Something went wrong. Please try again.' };
+                    if (this.errors.items) this.step = 1;
+                    return;
+                }
+                try {
+                    const { name, phone, email, company } = this.form;
+                    localStorage.setItem(this.storageKey, JSON.stringify({ name, phone, email, company }));
+                } catch (e) { /* storage unavailable */ }
+                this.reference = data.reference;
+                this.step = 3;
+            } catch (e) {
+                this.errors = { form: 'Could not send. Check your connection and try again.' };
+            } finally {
+                this.busy = false;
+            }
+        },
+
+        reset() {
+            this.items = [{ id: this.nextId++, item: '', qty: 1 }];
+            this.errors = {};
+            this.reference = '';
+            this.step = 1;
+            this.focusRow(this.items[0].id);
+        },
+    }));
+});
+</script>

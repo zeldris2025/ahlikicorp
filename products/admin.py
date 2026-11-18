@@ -1,9 +1,16 @@
+import json
+
+from django import forms
 from django.contrib import admin, messages
+from django.db.models import Count
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
+from django.utils.html import format_html
 
 from .csv_import import CSV_COLUMNS, CsvImportError, import_products, template_response
 from .forms import ProductBulkUploadForm
+from core.models import Location
+
 from .models import Brand, Category, ExclusiveBrand, Product, ProductImage, Promotion
 
 class ProductImageInline(admin.TabularInline):
@@ -11,22 +18,97 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
     fields = ('image', 'alt_text', 'sort_order')
 
+class LocationInline(admin.TabularInline):
+    """A company's sites, with a link through to the full form and its map."""
+
+    model = Location
+    extra = 0
+    fields = ('name', 'address', 'island', 'latitude', 'longitude', 'is_headquarters')
+    show_change_link = True
+
+class HighlightsField(forms.CharField):
+    """Edits the highlights JSON list as plain text, one chip per line."""
+
+    widget = forms.Textarea(attrs={'rows': 4, 'placeholder': 'Fresh eggs\nIsland-wide delivery'})
+
+    def prepare_value(self, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except ValueError:
+                return value
+        if isinstance(value, list):
+            return '\n'.join(str(item) for item in value)
+        return value or ''
+
+    def to_python(self, value):
+        lines = (line.strip() for line in (value or '').splitlines())
+        return [line for line in lines if line]
+
+
+class CompanyAdminForm(forms.ModelForm):
+    highlights = HighlightsField(
+        required=False,
+        help_text='One per line. Each line becomes a chip on the company section, e.g. "Fresh eggs".',
+    )
+
+    class Meta:
+        model = Brand
+        fields = '__all__'
+        widgets = {
+            'accent_color': forms.TextInput(attrs={'type': 'color', 'style': 'width:4rem;height:2.2rem;padding:0'}),
+            'description': forms.Textarea(attrs={'rows': 5}),
+        }
+        help_texts = {
+            'slug': 'Web address of the company page, e.g. /companies/farmer-joe/. Filled in from the name.',
+            'tagline': 'One line under the company name.',
+            'accent_color': 'Brand colour used for the company section, buttons and map pins.',
+            'logo': 'Transparent PNG or SVG-style logo works best.',
+            'sort_order': 'Lower numbers appear first on the home page, menu and footer.',
+        }
+
+
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    """Group operating companies (surfaced to visitors as "companies")."""
+    """Operating companies under Ah Liki Investment Corporation.
 
-    list_display = ('name', 'sector', 'slug', 'sort_order')
+    Every company added here appears on the home page, the Companies page,
+    the header menu and the footer, and gets its own page at /companies/<slug>/.
+    """
+
+    form = CompanyAdminForm
+    list_display = ('logo_preview', 'name', 'sector', 'sites', 'sort_order', 'view_page')
+    list_display_links = ('logo_preview', 'name')
+    list_editable = ('sort_order',)
     list_filter = ('sector',)
     search_fields = ('name', 'sector', 'tagline')
     prepopulated_fields = {'slug': ('name',)}
     fieldsets = (
-        ('Basic Info', {'fields': ('name', 'slug', 'sector', 'tagline')}),
-        ('Branding', {'fields': ('accent_color', 'logo')}),
-        ('Details', {
-            'fields': ('description', 'highlights', 'sort_order'),
-            'description': 'Highlights must be a JSON list of short strings, e.g. ["Eggs", "Fresh produce"].',
-        }),
+        ('Company', {'fields': ('name', 'slug', 'sector', 'tagline')}),
+        ('Branding', {'fields': ('accent_color', 'logo', 'hero_image')}),
+        ('About the company', {'fields': ('description', 'highlights', 'sort_order')}),
     )
+    inlines = [LocationInline]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(_sites=Count('locations'))
+
+    @admin.display(description='Logo')
+    def logo_preview(self, obj):
+        if obj.logo:
+            return format_html('<img src="{}" alt="" style="height:32px;max-width:80px;object-fit:contain">', obj.logo.url)
+        return format_html(
+            '<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:{}"></span>',
+            obj.accent_color,
+        )
+
+    @admin.display(description='Sites', ordering='_sites')
+    def sites(self, obj):
+        return obj._sites
+
+    @admin.display(description='Page')
+    def view_page(self, obj):
+        return format_html('<a href="{}" target="_blank" rel="noopener">View ↗</a>', obj.get_absolute_url())
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

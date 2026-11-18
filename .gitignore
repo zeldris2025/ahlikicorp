@@ -46,3 +46,6 @@ htmlcov/
 
 # Original uncompressed source media (kept locally, never served)
 assets_src/
+
+# Local Docker hosting secrets
+.env.docker

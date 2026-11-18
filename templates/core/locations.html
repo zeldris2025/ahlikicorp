@@ -218,6 +218,10 @@ document.addEventListener('alpine:init', function () {
                     L.tileLayer(tileUrl, {
                         attribution: tileAttribution,
                         maxZoom: 19,
+                        // OpenStreetMap blocks tile requests that carry no
+                        // Referer, and Django's same-origin policy strips it
+                        // from cross-site requests. Send just the origin.
+                        referrerPolicy: 'strict-origin-when-cross-origin',
                     }).addTo(this.map);
 
                     const bounds = [];

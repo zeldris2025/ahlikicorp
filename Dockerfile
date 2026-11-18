@@ -18,11 +18,8 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p staticfiles media logs
 
-# Collect static files
-RUN python manage.py collectstatic --noinput --clear 2>/dev/null || true
-
-# Run migrations and seed data
-RUN chmod +x entrypoint.sh
+# Windows checkouts can give the script CRLF endings, which bash rejects.
+RUN sed -i 's/\r$//' entrypoint.sh && chmod +x entrypoint.sh
 
 EXPOSE 8000
 

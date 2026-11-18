@@ -18,7 +18,17 @@
             {% for error in field.errors %}<p class="text-red-700 text-sm mt-1">{{ error }}</p>{% endfor %}
         </div>
         {% endfor %}
+
+        <div>
+            {% if recaptcha_enabled %}<div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>{% endif %}
+            {% for error in form.non_field_errors %}<p class="text-red-700 text-sm mt-1">{{ error }}</p>{% endfor %}
+        </div>
+
         <button type="submit" class="btn-primary">Send message</button>
     </form>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+{% if recaptcha_enabled %}<script src="https://www.google.com/recaptcha/api.js" async defer></script>{% endif %}
 {% endblock %}

@@ -1,3 +1,7 @@
+# Copyright (c) 2026 Charlie Wilson Ah Kuoi. All rights reserved.
+# Proprietary and confidential. Use, copying or distribution requires the
+# prior written permission of Charlie Wilson Ah Kuoi. See LICENSE.
+
 """
 Django settings for ahlikicorp project.
 
@@ -207,6 +211,13 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Ah Liki Quotes <quotes@ahliki.com>')
 QUOTE_NOTIFICATION_EMAIL = os.getenv('QUOTE_NOTIFICATION_EMAIL', 'sales@ahliki.com')
 
+# Microsoft 365 via the Graph API (EMAIL_BACKEND=core.graph_email.GraphEmailBackend).
+# GRAPH_SENDER is the mailbox mail is sent from; blank uses DEFAULT_FROM_EMAIL's address.
+GRAPH_TENANT_ID = os.getenv('GRAPH_TENANT_ID', '')
+GRAPH_CLIENT_ID = os.getenv('GRAPH_CLIENT_ID', '')
+GRAPH_CLIENT_SECRET = os.getenv('GRAPH_CLIENT_SECRET', '')
+GRAPH_SENDER = os.getenv('GRAPH_SENDER', '')
+
 if os.getenv('REDIS_URL'):
     CACHES = {
         'default': {
@@ -226,8 +237,14 @@ REST_FRAMEWORK = {
 }
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+# Secure-only cookies are never sent over plain http, so a non-debug site
+# served without TLS (e.g. local Docker on http://localhost:8080) sets
+# DJANGO_SECURE_COOKIES=False or nobody can sign in.
+_secure_cookies = os.getenv('DJANGO_SECURE_COOKIES', str(not DEBUG)).lower() == 'true'
+SESSION_COOKIE_SECURE = _secure_cookies
+CSRF_COOKIE_SECURE = _secure_cookies
+if os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS'):
+    CSRF_TRUSTED_ORIGINS = [o for o in os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS').split(',') if o]
 SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
@@ -261,7 +278,7 @@ LOGGING = {
 # Contact details shown in the header bar. The address defaults to the
 # headquarters Location record when one is marked as such; these settings are
 # the fallback and the override.
-SITE_PHONE = os.getenv('SITE_PHONE', '+685 67890')
+SITE_PHONE = os.getenv('SITE_PHONE', '+685 8008000')
 SITE_EMAIL = os.getenv('SITE_EMAIL', 'info@ahliki.com')
 SITE_ADDRESS = os.getenv('SITE_ADDRESS', '')
 
@@ -274,6 +291,28 @@ SHOP_ONLINE_URL = os.getenv('SHOP_ONLINE_URL', '')
 # The Shop Online button is hidden until the storefront is ready. Flip this to
 # True (or set SHOW_SHOP_ONLINE=True) to put it back in the header.
 SHOW_SHOP_ONLINE = os.getenv('SHOW_SHOP_ONLINE', 'False').lower() == 'true'
+
+# The product catalogue is parked for now: its links are hidden from the
+# header, footer and company pages. Set SHOW_PRODUCTS=True to bring it back.
+SHOW_PRODUCTS = os.getenv('SHOW_PRODUCTS', 'False').lower() == 'true'
+
+# Employment links in the header, footer and hero go to the external HR
+# system. Set EMPLOYMENT_URL once it is live; until then they go nowhere.
+EMPLOYMENT_URL = os.getenv('EMPLOYMENT_URL', '')
+
+# The floating "Request a quote" widget on every page. Set SHOW_ASSISTANT=False
+# to hide it.
+SHOW_ASSISTANT = os.getenv('SHOW_ASSISTANT', 'True').lower() == 'true'
+
+# reCAPTCHA v2 ("I'm not a robot" checkbox) on the contact form. Register the
+# site at https://www.google.com/recaptcha/admin and set both keys. The
+# defaults are Google's public test keys: the box always passes and shows a
+# "for testing purposes only" notice, so they must be replaced in production.
+# "I'm not a robot" on the contact form and quote widget. RECAPTCHA_ENABLED=False
+# switches it off everywhere (front end and server check) without touching the keys.
+RECAPTCHA_ENABLED = os.getenv('RECAPTCHA_ENABLED', 'True').lower() == 'true'
+RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI')
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe')
 
 # Absolute URL used in emails, which have no request to build links from.
 SITE_BASE_URL = os.getenv('SITE_BASE_URL', 'http://127.0.0.1:8000').rstrip('/')

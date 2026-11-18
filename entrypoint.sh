@@ -1,11 +1,18 @@
 #!/bin/bash
 set -e
 
-echo "Running migrations..."
-python manage.py migrate
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
 
-echo "Seeding initial data..."
-python manage.py seed_data || true
+echo "Running migrations..."
+python manage.py migrate --noinput
+
+# Demo data (sample users, products, locations) only when asked for, so a
+# restart never adds it on top of real content.
+if [ "${SEED_DATA:-False}" = "True" ]; then
+    echo "Seeding initial data..."
+    python manage.py seed_data || true
+fi
 
 echo "Starting Gunicorn server..."
 exec gunicorn ahlikicorp.wsgi:application \

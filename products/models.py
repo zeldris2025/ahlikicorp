@@ -5,7 +5,7 @@ from django.utils import timezone
 from .image_utils import generate_thumbnail, optimize_image
 
 
-def _optimize_field(instance, field_name, keep_transparency=False):
+def _optimize_field(instance, field_name, keep_transparency=False, **size):
 	"""Compress a freshly uploaded file in place, before it reaches storage.
 
 	Django marks a field ``_committed = False`` only while it holds a new file
@@ -17,7 +17,7 @@ def _optimize_field(instance, field_name, keep_transparency=False):
 	if not field or field._committed:
 		return False
 
-	optimized = optimize_image(field, keep_transparency=keep_transparency)
+	optimized = optimize_image(field, keep_transparency=keep_transparency, **size)
 	if optimized:
 		setattr(instance, field_name, optimized)
 	return True
@@ -46,10 +46,17 @@ class Brand(models.Model):
 	)
 	accent_color = models.CharField(max_length=7, default='#0A6B4E')
 	logo = models.ImageField(upload_to='brands/', blank=True)
+	hero_image = models.ImageField(
+		upload_to='brands/hero/',
+		blank=True,
+		help_text='Wide photo shown behind the header of the company page. Landscape, at least 1920px wide.',
+	)
 	sort_order = models.PositiveSmallIntegerField(default=0)
 
 	class Meta:
 		ordering = ('sort_order', 'name')
+		verbose_name = 'group company'
+		verbose_name_plural = 'group companies'
 
 	def __str__(self):
 		return self.name
@@ -58,6 +65,8 @@ class Brand(models.Model):
 		# Company logos are usually transparent PNGs, so they must not be
 		# flattened onto a white rectangle.
 		_optimize_field(self, 'logo', keep_transparency=True)
+		# Shown full width, so it keeps more pixels than the 1200px default.
+		_optimize_field(self, 'hero_image', max_width=2400, max_height=1600)
 		super().save(*args, **kwargs)
 
 	def get_absolute_url(self):

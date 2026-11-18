@@ -30,6 +30,26 @@
         -webkit-mask-image: radial-gradient(ellipse at 20% 40%, black 0%, transparent 75%);
         pointer-events: none;
     }
+    /* Company photo from the admin, under a wash dark enough for the copy. */
+    .cd-hero--photo { background: #04212a; }
+    .cd-hero-photo {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .cd-hero-photo-scrim {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(90deg, rgba(4,33,42,.92) 0%, rgba(4,33,42,.78) 45%, rgba(4,33,42,.45) 100%),
+            linear-gradient(0deg, color-mix(in srgb, var(--accent) 30%, transparent) 0%, transparent 60%);
+    }
+    @media (max-width: 939px) {
+        .cd-hero-photo-scrim { background: rgba(4,33,42,.8); }
+    }
+
     .cd-hero-inner {
         position: relative;
         max-width: 76rem;
@@ -300,8 +320,13 @@
 {% block content %}
 <div class="cd">
 
-<section class="cd-hero">
-    <div class="cd-hero-weave" aria-hidden="true"></div>
+<section class="cd-hero{% if company.hero_image %} cd-hero--photo{% endif %}">
+    {% if company.hero_image %}
+        <img class="cd-hero-photo" src="{{ company.hero_image.url }}" alt="" aria-hidden="true" fetchpriority="high">
+        <div class="cd-hero-photo-scrim" aria-hidden="true"></div>
+    {% else %}
+        <div class="cd-hero-weave" aria-hidden="true"></div>
+    {% endif %}
     <div class="cd-hero-inner">
         <div>
             <nav class="cd-crumbs" aria-label="Breadcrumb">

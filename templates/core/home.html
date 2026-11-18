@@ -6,539 +6,289 @@
 {% block extra_css %}
 <style>
     /* ============================================
-       HERO — supermarket banner carousel
-       A light page, one big rounded banner that cross-fades between
-       promotions, and a row of round shortcuts underneath. The banner is
-       the only loud thing on the screen, which is how a grocery front page
-       is meant to read.
+       HERO — head office photograph
+       A full-bleed shot of the building with the copy on a dark wash down
+       the left, where the facade is plain, so the red pylon and its sign
+       stay visible on the right. Figures for the group sit along the foot.
        ============================================ */
-    .promo-hero {
-        --ink: #06231C;
-        --accent: #8BC53F;
-        --accent-deep: #2F7D32;
-        background: #fff;
-        padding: 1.25rem 0 0.5rem;
-    }
     [x-cloak] { display: none !important; }
 
-    .ph-inner {
-        width: 100%;
-        min-width: 0;
-        max-width: 80rem;
-        margin: 0 auto;
-        padding: 0 1rem;
-    }
-    @media (min-width: 1024px) {
-        .ph-inner { padding: 0 2rem; }
-    }
-
-    /* ---------- Utility bar above the banner ---------- */
-    .ph-bar {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-    }
-    .ph-search {
+    .hero {
+        --hero-ink: #081628;
+        --hero-green: #8BC34A;
+        --hero-blue: #1E88E5;
         position: relative;
-        flex: 1 1 18rem;
-        display: flex;
-        align-items: center;
-        background: #F1F4F2;
-        border: 1px solid #E1E7E2;
-        border-radius: 999px;
-        padding: 0.35rem 0.35rem 0.35rem 1rem;
-        transition: border-color 0.2s ease, background-color 0.2s ease;
-    }
-    .ph-search:focus-within {
-        background: #fff;
-        border-color: var(--accent-deep);
-    }
-    .ph-search-icon {
-        width: 18px;
-        height: 18px;
-        flex: none;
-        color: #6B7B74;
-    }
-    .ph-search-input {
-        flex: 1;
-        min-width: 0;
-        border: 0;
-        background: transparent;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.95rem;
-        color: var(--ink);
-        outline: none;
-    }
-    .ph-search-input::placeholder { color: #8A9992; }
-    .ph-search-btn {
-        flex: none;
-        width: 2.25rem;
-        height: 2.25rem;
-        border: 0;
-        border-radius: 999px;
-        background: var(--accent-deep);
-        color: #fff;
-        display: grid;
-        place-items: center;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
-    .ph-search-btn:hover { background: #245F27; }
-    .ph-search-btn svg { width: 16px; height: 16px; }
-
-    .ph-quote {
-        flex: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.7rem 1.25rem;
-        border-radius: 999px;
-        border: 1px solid #D6DEDA;
-        background: #fff;
-        color: var(--ink);
-        font-weight: 700;
-        font-size: 0.9rem;
-        text-decoration: none;
-        transition: border-color 0.2s ease, background-color 0.2s ease;
-    }
-    .ph-quote:hover { border-color: var(--accent-deep); background: #F4F8F4; }
-
-    /* ---------- The 25 / 75 row: categories beside the banner ---------- */
-    .ph-row {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        align-items: stretch;
-    }
-    /* A grid item will not shrink below its own minimum size, and an item
-       with both an aspect-ratio and a min-height takes a minimum WIDTH from
-       the two (20rem tall at 21/8 demands 52rem wide). Left at auto that
-       pushes the banner straight through the side of the viewport. */
-    .ph-row > * { min-width: 0; }
-    @media (min-width: 1024px) {
-        /* minmax(0, …) rather than a bare track: a bare track is floored by
-           the item's own minimum size, and the banner — stretched to the row
-           height, with an aspect-ratio — asks for far more width than the
-           column has. That floor is what pushed it off the screen. */
-        .ph-row { grid-template-columns: minmax(0, 25%) minmax(0, 1fr); }
-    }
-    /* With no categories to show, the banner takes the whole width back. */
-    .ph-row--solo { grid-template-columns: 1fr !important; }
-    /* Stacked, the banner leads and the category card follows it. */
-    @media (max-width: 1023px) {
-        .ph-cats { order: 2; }
-        .ph-banner { order: 1; }
-    }
-
-    /* ---------- Category quicklinks ---------- */
-    .ph-cats {
+        isolation: isolate;
         display: flex;
         flex-direction: column;
-        min-height: 0;
-        border-radius: 1.25rem;
-        border: 1px solid #E4EAE6;
-        background: #fff;
-        box-shadow: 0 6px 20px rgba(3, 20, 16, 0.06);
+        min-height: clamp(36rem, 88vh, 54rem);
         overflow: hidden;
+        background: var(--hero-ink);
+        color: #fff;
     }
-    .ph-cats-head {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.9rem 1.1rem;
-        border-bottom: 1px solid #EEF2EF;
-        font-size: 0.72rem;
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--ink);
-    }
-    .ph-cats-head svg { width: 16px; height: 16px; color: var(--accent-deep); }
 
-    /* The list scrolls inside the card rather than stretching it, so the
-       column never outgrows the banner beside it. */
-    .ph-cats-list {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
-        padding: 0.35rem;
-        scrollbar-width: thin;
+    .hero-media,
+    .hero-media img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
     }
-    @media (min-width: 1024px) {
-        .ph-cats-list { display: block; }
+    .hero-media { z-index: -2; }
+    .hero-media img {
+        object-fit: cover;
+        /* Keeps the pylon in frame as the viewport narrows. */
+        object-position: 72% 45%;
+        animation: hero-settle 16s cubic-bezier(0.2, 0.6, 0.2, 1) both;
     }
-    /* On a narrow screen the card sits under the banner, where two columns
-       of links read better than one tall list. */
-    @media (max-width: 1023px) {
-        .ph-cats-list {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            overflow: visible;
+    @keyframes hero-settle {
+        from { transform: scale(1.08); }
+        to   { transform: scale(1); }
+    }
+
+    .hero-scrim {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+            linear-gradient(180deg, rgba(8, 22, 40, 0.55) 0%, rgba(8, 22, 40, 0) 22%),
+            linear-gradient(0deg, rgba(8, 22, 40, 0.92) 0%, rgba(8, 22, 40, 0.35) 30%, rgba(8, 22, 40, 0) 50%),
+            linear-gradient(90deg, rgba(8, 22, 40, 0.9) 0%, rgba(8, 22, 40, 0.72) 30%, rgba(8, 22, 40, 0.15) 62%, rgba(8, 22, 40, 0) 80%);
+    }
+    @media (max-width: 767px) {
+        .hero-media img { object-position: 80% 40%; }
+        .hero-scrim {
+            background: linear-gradient(180deg, rgba(8, 22, 40, 0.55) 0%, rgba(8, 22, 40, 0.7) 45%, rgba(8, 22, 40, 0.94) 100%);
         }
     }
 
-    .ph-cat {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.55rem 0.7rem;
-        border-radius: 0.7rem;
-        text-decoration: none;
-        color: var(--ink);
-        transition: background-color 0.15s ease, color 0.15s ease;
-    }
-    .ph-cat:hover { background: #EFF6EC; color: var(--accent-deep); }
-    .ph-cat-name {
+    .hero-inner {
         flex: 1;
-        min-width: 0;
-        font-size: 0.85rem;
-        font-weight: 600;
-        line-height: 1.3;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .ph-cat-count {
-        flex: none;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #7C8C85;
-        font-variant-numeric: tabular-nums;
-    }
-    .ph-cat-arrow {
-        flex: none;
-        width: 14px;
-        height: 14px;
-        color: #B6C2BC;
-        transition: transform 0.15s ease, color 0.15s ease;
-    }
-    .ph-cat:hover .ph-cat-arrow { color: var(--accent-deep); transform: translateX(2px); }
-
-    .ph-cats-foot {
-        padding: 0.7rem 1.1rem;
-        border-top: 1px solid #EEF2EF;
-    }
-    .ph-cats-all {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.8rem;
-        font-weight: 800;
-        color: var(--accent-deep);
-        text-decoration: none;
-    }
-    .ph-cats-all:hover { text-decoration: underline; }
-
-    /* ---------- The banner ---------- */
-    .ph-banner {
-        position: relative;
-        min-width: 0;
-        max-width: 100%;
-        border-radius: 1.25rem;
-        overflow: hidden;
-        background: #0A4636;
-        box-shadow: 0 10px 30px rgba(3, 20, 16, 0.18);
-        min-height: 17rem;
-        aspect-ratio: 16 / 9;
-    }
-    @media (min-width: 768px) {
-        .ph-banner { aspect-ratio: 21 / 8; min-height: 20rem; }
-    }
-    /* In the 75% column the banner is narrower, so it earns a taller crop. */
-    @media (min-width: 1024px) {
-        .ph-banner { aspect-ratio: 2 / 1; }
-    }
-    @media (min-width: 1280px) {
-        .ph-banner { aspect-ratio: 21 / 9; }
-    }
-
-    /* Slides stack and cross-fade; only the active one is visible. */
-    .ph-slide {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transition: opacity 0.6s ease;
-        pointer-events: none;
-    }
-    .ph-slide.is-active {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    .ph-shot {
-        position: absolute;
-        inset: 0;
-        background-size: cover;
-        background-position: center;
-        /* A slow drift keeps the banner alive without asking for attention. */
-        animation: ph-drift 18s ease-in-out infinite alternate;
-    }
-    .ph-shot--plain {
-        background: linear-gradient(135deg, var(--slide-accent, #8BC53F) 0%, #0A4636 100%);
-        display: grid;
-        place-items: center;
-        animation: none;
-    }
-    .ph-shot--plain img {
-        width: min(38%, 16rem);
-        filter: brightness(0) invert(1);
-        opacity: 0.9;
-    }
-    @keyframes ph-drift {
-        from { transform: scale(1.02); }
-        to   { transform: scale(1.08); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .ph-shot { animation: none; }
-        .ph-slide { transition: none; }
-    }
-
-    /* Scrim seats the copy on the left whatever the photograph is doing. */
-    .ph-scrim {
-        position: absolute;
-        inset: 0;
-        background:
-            linear-gradient(90deg, rgba(3, 20, 16, 0.86) 0%, rgba(3, 20, 16, 0.66) 38%, rgba(3, 20, 16, 0.12) 72%, rgba(3, 20, 16, 0) 100%),
-            linear-gradient(to top, rgba(3, 20, 16, 0.5) 0%, transparent 45%);
-    }
-
-    .ph-copy {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: 1.5rem 1.5rem 3.25rem;
-        max-width: 34rem;
-        color: #fff;
-    }
-    @media (min-width: 768px) {
-        .ph-copy { padding: 2rem 2rem 3.5rem 3rem; }
-    }
-
-    .ph-kicker {
-        align-self: flex-start;
-        display: inline-flex;
-        align-items: center;
-        padding: 0.3rem 0.8rem;
-        border-radius: 999px;
-        background: var(--slide-accent, #8BC53F);
-        color: #06231C;
-        font-size: 0.66rem;
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-    }
-    .ph-headline {
-        font-size: clamp(1.85rem, 4.4vw, 3.25rem);
-        line-height: 1.05;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        margin: 0;
-        text-wrap: balance;
-    }
-    .ph-sub {
-        font-size: clamp(0.95rem, 1.4vw, 1.15rem);
-        line-height: 1.5;
-        color: rgba(255, 255, 255, 0.9);
-        margin: 0;
-        max-width: 28rem;
-    }
-    .ph-cta {
-        align-self: flex-start;
-        margin-top: 0.4rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.8rem 1.6rem;
-        border-radius: 999px;
-        background: var(--accent-deep);
-        color: #fff;
-        font-weight: 800;
-        font-size: 0.95rem;
-        text-decoration: none;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-    .ph-cta:hover { background: #245F27; transform: translateY(-1px); }
-    .ph-cta-arrow { transition: transform 0.2s ease; }
-    .ph-cta:hover .ph-cta-arrow { transform: translateX(3px); }
-
-    /* ---------- Carousel controls ---------- */
-    .ph-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 2.5rem;
-        height: 2.5rem;
-        border: 0;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.92);
-        color: #06231C;
-        display: none;
-        place-items: center;
-        cursor: pointer;
-        box-shadow: 0 2px 10px rgba(3, 20, 16, 0.25);
-        transition: background-color 0.2s ease;
-        z-index: 2;
-    }
-    @media (min-width: 768px) {
-        .ph-arrow { display: grid; }
-    }
-    .ph-arrow:hover { background: #fff; }
-    .ph-arrow svg { width: 16px; height: 16px; }
-    .ph-arrow--prev { left: 1rem; }
-    .ph-arrow--next { right: 1rem; }
-
-    .ph-dots {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 1rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.4rem;
-        z-index: 2;
-    }
-    .ph-dot {
-        width: 0.55rem;
-        height: 0.55rem;
-        padding: 0;
-        border: 0;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        transition: width 0.25s ease, background-color 0.25s ease;
-    }
-    .ph-dot[aria-selected="true"] {
-        width: 1.6rem;
-        background: #fff;
-    }
-
-    /* ---------- Round shortcuts under the banner ----------
-       The discs drift past on the same seamless-loop trick as the exclusive
-       section: two identical tracks, one translated by exactly its own
-       width, so the hand-over has no seam. */
-    .ph-shortcuts {
-        position: relative;
-        display: flex;
-        margin: 1.25rem 0 0.5rem;
-        padding-bottom: 0.5rem;
-        overflow: hidden;
-        /* Fade the discs out at both edges rather than cutting them off. */
-        -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
-        mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
-    }
-    .ph-shortcuts-track {
-        display: flex;
-        flex: 0 0 auto;
-        gap: 1.25rem;
-        /* The trailing padding is the gap across the hand-over, so the
-           spacing stays even where one track meets the next. */
-        padding-right: 1.25rem;
-        min-width: 100%;
-        animation: ph-shortcuts-scroll var(--ph-shortcuts-duration, 40s) linear infinite;
-        will-change: transform;
-    }
-    .ph-shortcuts:hover .ph-shortcuts-track,
-    .ph-shortcuts:focus-within .ph-shortcuts-track { animation-play-state: paused; }
-
-    @keyframes ph-shortcuts-scroll {
-        from { transform: translateX(0); }
-        to   { transform: translateX(-100%); }
-    }
-
-    /* No motion: a plain swipeable row, with the clone dropped so no logo
-       appears twice. */
-    @media (prefers-reduced-motion: reduce) {
-        .ph-shortcuts { overflow-x: auto; scrollbar-width: none; }
-        .ph-shortcuts::-webkit-scrollbar { display: none; }
-        .ph-shortcuts-track { animation: none; min-width: 0; }
-        .ph-shortcuts-clone { display: none; }
-    }
-
-    .ph-shortcut {
-        flex: none;
-        width: 5.5rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-        color: var(--ink);
-    }
-    .ph-shortcut-disc {
-        width: 4.25rem;
-        height: 4.25rem;
-        border-radius: 999px;
-        background: #F1F4F2;
-        border: 1px solid #E4EAE6;
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-        transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-    }
-    .ph-shortcut:hover .ph-shortcut-disc {
-        transform: translateY(-2px);
-        border-color: var(--accent-deep);
-        background: #EAF3EA;
-    }
-    .ph-shortcut-disc img {
-        width: 72%;
-        height: 72%;
-        object-fit: contain;
-    }
-    .ph-shortcut-disc svg { width: 40%; height: 40%; color: var(--accent-deep); }
-    .ph-shortcut-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        line-height: 1.25;
-        text-align: center;
-    }
-
-    /* ---------- Proof bar ---------- */
-    .ph-proof {
-        background: #06231C;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        color: #fff;
-    }
-    .ph-proof-inner {
+        width: 100%;
         max-width: 80rem;
         margin: 0 auto;
-        padding: 1.5rem;
+        padding: 4rem 1rem 2.5rem;
+        display: flex;
+        align-items: center;
+    }
+    @media (min-width: 1024px) {
+        .hero-inner { padding: 5rem 2rem 3rem; }
+    }
+
+    .hero-copy { max-width: 40rem; }
+    .hero-copy > * {
+        animation: hero-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+    .hero-copy > :nth-child(2) { animation-delay: 0.08s; }
+    .hero-copy > :nth-child(3) { animation-delay: 0.16s; }
+    .hero-copy > :nth-child(4) { animation-delay: 0.24s; }
+    @keyframes hero-rise {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: none; }
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.45rem 0.95rem 0.45rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+    .hero-eyebrow-dot {
+        position: relative;
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 999px;
+        background: var(--hero-green);
+    }
+    .hero-eyebrow-dot::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: inherit;
+        animation: hero-pulse 2.4s ease-out infinite;
+    }
+    @keyframes hero-pulse {
+        from { transform: scale(1); opacity: 0.7; }
+        to   { transform: scale(3); opacity: 0; }
+    }
+
+    .hero-title {
+        margin: 1.25rem 0 0;
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(2.35rem, 5.6vw, 4.25rem);
+        font-weight: 800;
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        text-wrap: balance;
+    }
+    .hero-title-accent {
+        background: linear-gradient(90deg, #A5D66B 0%, #64B5F6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .hero-lede {
+        margin: 1.25rem 0 0;
+        max-width: 34rem;
+        font-size: clamp(1rem, 1.4vw, 1.15rem);
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.82);
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+    .hero-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.9rem 1.5rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hero-btn svg { width: 1.05rem; height: 1.05rem; transition: transform 0.2s ease; }
+    .hero-btn:hover { transform: translateY(-2px); }
+    .hero-btn:hover svg { transform: translateX(3px); }
+    .hero-btn--solid {
+        background: var(--hero-blue);
+        color: #fff;
+        box-shadow: 0 10px 30px -10px rgba(30, 136, 229, 0.8);
+    }
+    .hero-btn--solid:hover { background: #1565C0; }
+    .hero-btn--glass {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        color: #fff;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    .hero-btn--glass:hover { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.6); }
+    .hero-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+    /* Head office card, floating over the forecourt on wide screens. */
+    .hero-card {
+        display: none;
+    }
+    @media (min-width: 1100px) {
+        .hero-card {
+            position: absolute;
+            right: 2rem;
+            bottom: 8.5rem;
+            display: flex;
+            gap: 0.85rem;
+            align-items: flex-start;
+            max-width: 19rem;
+            padding: 1rem 1.15rem;
+            border-radius: 1rem;
+            background: rgba(8, 22, 40, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+            color: #fff;
+            text-decoration: none;
+            animation: hero-rise 0.8s 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .hero-card:hover { background: rgba(8, 22, 40, 0.72); transform: translateY(-2px); }
+    }
+    .hero-card-icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 0.7rem;
+        background: rgba(139, 195, 74, 0.18);
+        color: var(--hero-green);
+    }
+    .hero-card-icon svg { width: 1.2rem; height: 1.2rem; }
+    .hero-card-kicker {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    .hero-card-text {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.88rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    .hero-card-link {
+        display: inline-block;
+        margin-top: 0.4rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--hero-green);
+    }
+
+    /* ---------- Figures along the foot of the hero ---------- */
+    .hero-stats {
+        position: relative;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(8, 22, 40, 0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+    .hero-stats-inner {
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 1.25rem 1rem;
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1.25rem 1rem;
     }
     @media (min-width: 768px) {
-        .ph-proof-inner { grid-template-columns: repeat(4, 1fr); padding: 1.75rem 2rem; }
-        .ph-proof-inner > * + * {
-            border-left: 1px solid rgba(255, 255, 255, 0.12);
+        .hero-stats-inner { grid-template-columns: repeat(4, 1fr); padding: 1.6rem 2rem; }
+        .hero-stats-inner > * + * {
+            border-left: 1px solid rgba(255, 255, 255, 0.14);
             padding-left: 1.75rem;
         }
     }
-    .ph-proof-value {
+    .hero-stat-value {
         display: block;
         font-family: 'Poppins', sans-serif;
-        font-size: 1.85rem;
+        font-size: 1.75rem;
         font-weight: 800;
         line-height: 1;
         letter-spacing: -0.03em;
     }
-    @media (min-width: 768px) { .ph-proof-value { font-size: 2.15rem; } }
-    .ph-proof-label {
+    @media (min-width: 768px) { .hero-stat-value { font-size: 2.1rem; } }
+    .hero-stat-label {
         display: block;
-        margin-top: 0.3rem;
+        margin-top: 0.35rem;
         font-size: 0.78rem;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.55);
+        color: rgba(255, 255, 255, 0.62);
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .pc-shot, .pc-slide, .ph-cta, .pc-link { transition: none !important; }
-        .pc-shot.is-active { animation: none !important; transform: none; }
+        .hero-media img,
+        .hero-copy > *,
+        .hero-card,
+        .hero-eyebrow-dot::after { animation: none !important; }
+        .hero-btn, .hero-btn svg, .hero-card { transition: none !important; }
     }
 
     /* ============================================
@@ -1543,28 +1293,6 @@
         text-align: center;
     }
 
-    .exclusive-foot {
-        margin-top: 2.75rem;
-        text-align: center;
-        padding: 0 1.5rem;
-    }
-    .exclusive-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.8rem 1.6rem;
-        border-radius: 0.65rem;
-        background: linear-gradient(100deg, #d4af37, #c39a24);
-        color: #04212a;
-        font-weight: 700;
-        text-decoration: none;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .exclusive-cta:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(212, 175, 55, 0.32);
-    }
-
     @media (min-width: 1024px) {
         .exclusive { padding: 5.5rem 0 6rem; }
         .xlogo-card { width: 13.5rem; height: 8.5rem; padding: 0.65rem 0.75rem; }
@@ -1591,185 +1319,91 @@
 
 {% block content %}
 <!-- ============ HERO ============ -->
-<section class="promo-hero">
+<section class="hero" aria-labelledby="hero-title">
+    <picture class="hero-media" aria-hidden="true">
+        <source type="image/webp"
+                srcset="{% static 'images/hero_building-sm.webp' %} 1200w, {% static 'images/hero_building.webp' %} 2400w"
+                sizes="100vw">
+        <img src="{% static 'images/hero_building.jpg' %}"
+             srcset="{% static 'images/hero_building-sm.jpg' %} 1200w, {% static 'images/hero_building.jpg' %} 2400w"
+             sizes="100vw" alt="" width="2400" height="1600" fetchpriority="high" decoding="async">
+    </picture>
+    <div class="hero-scrim" aria-hidden="true"></div>
 
-    <div class="ph-inner">
-
-        <!-- Search and quote stay reachable from the top of the page. -->
-        <div class="ph-bar">
-            <form method="get" action="{% url 'products:list' %}" class="ph-search" role="search">
-                <svg class="ph-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" name="query" class="ph-search-input"
-                       placeholder="Search our catalogue" aria-label="Search products">
-                <button type="submit" class="ph-search-btn" aria-label="Search">
+    <div class="hero-inner">
+        <div class="hero-copy">
+            {% comment %} <span class="hero-eyebrow">
+                <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+                Ah Liki Investment Corporation
+            </span> {% endcomment %}
+            <h1 class="hero-title" id="hero-title">
+                We <span class="hero-title-accent">Bring</span> the <span class="hero-title-accent">World</span> To You.
+            </h1>
+            <p class="hero-lede">
+                Distribution, retail, brewing, hospitality and agriculture &mdash; five companies
+                run to one standard, serving communities across Upolu and Savai&rsquo;i.
+            </p>
+            <div class="hero-actions">
+                <a href="#companies" class="hero-btn hero-btn--solid">
+                    Explore our companies
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="13 6 19 12 13 18"></polyline>
+                        <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="13 6 19 12 13 18"></polyline>
                     </svg>
-                </button>
-            </form>
-            <a href="{% url 'quotes:create' %}" class="ph-quote">
-                Request a quote
-                <span aria-hidden="true">&rarr;</span>
-            </a>
-        </div>
-
-        <div class="ph-row{% if not hero_categories %} ph-row--solo{% endif %}">
-
-            <!-- Straight into the aisles: the categories carrying the most stock -->
-            {% if hero_categories %}
-                <nav class="ph-cats" aria-label="Product categories">
-                    <p class="ph-cats-head">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <line x1="4" y1="7" x2="20" y2="7"></line>
-                            <line x1="4" y1="12" x2="20" y2="12"></line>
-                            <line x1="4" y1="17" x2="14" y2="17"></line>
-                        </svg>
-                        Browse by category
-                    </p>
-
-                    <div class="ph-cats-list">
-                        {% for category in hero_categories %}
-                            <a href="{% url 'products:list' %}?category={{ category.pk }}" class="ph-cat">
-                                <span class="ph-cat-name">{{ category.name }}</span>
-                                <span class="ph-cat-count">{{ category.product_count }}</span>
-                                <svg class="ph-cat-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <polyline points="9 6 15 12 9 18"></polyline>
-                                </svg>
-                            </a>
-                        {% endfor %}
-                    </div>
-
-                    <div class="ph-cats-foot">
-                        <a href="{% url 'products:list' %}" class="ph-cats-all">
-                            All products
-                            <span aria-hidden="true">&rarr;</span>
-                        </a>
-                    </div>
-                </nav>
-            {% endif %}
-
-            <!-- One big banner, cross-fading through the live promotions -->
-            {% if hero_slides %}
-                <div class="ph-banner"
-                     x-data="promoSlider({{ hero_slides|length }})"
-                     x-init="start()"
-                     @mouseenter="pause()"
-                     @mouseleave="resume()"
-                     @touchstart.passive="touchStart($event)"
-                     @touchend.passive="touchEnd($event)"
-                     aria-roledescription="carousel"
-                     aria-label="Promotions">
-
-                    {% for slide in hero_slides %}
-                        <div class="ph-slide{% if forloop.first %} is-active{% endif %}"
-                             :class="active === {{ forloop.counter0 }} ? 'is-active' : ''"
-                             role="group"
-                             aria-roledescription="slide"
-                             aria-label="{{ forloop.counter }} of {{ hero_slides|length }}"
-                             style="--slide-accent: {{ slide.accent }};">
-
-                            {% if slide.image %}
-                                <div class="ph-shot" style="background-image: url('{{ slide.image }}');" aria-hidden="true"></div>
-                            {% else %}
-                                <div class="ph-shot ph-shot--plain" aria-hidden="true">
-                                    {% if slide.logo %}<img src="{{ slide.logo }}" alt="" loading="lazy">{% endif %}
-                                </div>
-                            {% endif %}
-                            <div class="ph-scrim" aria-hidden="true"></div>
-
-                            <div class="ph-copy">
-                                {% if slide.kicker %}<span class="ph-kicker">{{ slide.kicker }}</span>{% endif %}
-                                {% if forloop.first %}
-                                    <h1 class="ph-headline">{{ slide.headline }}</h1>
-                                {% else %}
-                                    <h2 class="ph-headline">{{ slide.headline }}</h2>
-                                {% endif %}
-                                {% if slide.subtext %}<p class="ph-sub">{{ slide.subtext }}</p>{% endif %}
-                                {% if slide.cta_url %}
-                                    <a href="{{ slide.cta_url }}" class="ph-cta">
-                                        {{ slide.cta_label }}
-                                        <span class="ph-cta-arrow" aria-hidden="true">&rarr;</span>
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
-
-                    {% if hero_slides|length > 1 %}
-                        <button type="button" class="ph-arrow ph-arrow--prev" @click="prev()" aria-label="Previous promotion">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polyline points="15 6 9 12 15 18"></polyline>
-                            </svg>
-                        </button>
-                        <button type="button" class="ph-arrow ph-arrow--next" @click="next()" aria-label="Next promotion">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polyline points="9 6 15 12 9 18"></polyline>
-                            </svg>
-                        </button>
-
-                        <div class="ph-dots" role="tablist" aria-label="Choose a promotion">
-                            {% for slide in hero_slides %}
-                                <button type="button" class="ph-dot"
-                                        role="tab"
-                                        :aria-selected="active === {{ forloop.counter0 }}"
-                                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
-                                        aria-label="{{ slide.tab }}"
-                                        @click="select({{ forloop.counter0 }})"></button>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Round shortcuts: the labels we distribute exclusively, drifting past -->
-        {% if exclusive_brands %}
-            {# Four seconds a disc, so the speed holds however many there are. #}
-            <div class="ph-shortcuts"
-                 style="--ph-shortcuts-duration: {% widthratio exclusive_brands|length 1 4 %}s;"
-                 aria-label="Brands we distribute exclusively">
-                <div class="ph-shortcuts-track">
-                    {% include 'components/hero_shortcuts.html' %}
-                </div>
-                <div class="ph-shortcuts-track ph-shortcuts-clone" aria-hidden="true">
-                    {% include 'components/hero_shortcuts.html' with clone=True %}
-                </div>
+                </a>
+                <a href="{{ employment_url|default:'#' }}"{% if employment_url %} target="_blank" rel="noopener"{% endif %} class="hero-btn hero-btn--glass">
+                    Join our team
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="13 6 19 12 13 18"></polyline>
+                    </svg>
+                </a>
             </div>
-        {% endif %}
+        </div>
+    </div>
+
+    {% if site_address %}
+        <a href="{% url 'core:locations' %}" class="hero-card">
+            <span class="hero-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+            </span>
+            <span>
+                <span class="hero-card-kicker">Head office</span>
+                <span class="hero-card-text">{{ site_address }}</span>
+                <span class="hero-card-link">Find a location &rarr;</span>
+            </span>
+        </a>
+    {% endif %}
+
+    <!-- Numbers, not sentences. -->
+    <div class="hero-stats">
+        <div class="hero-stats-inner">
+            <div>
+                <span class="hero-stat-value">50+</span>
+                <span class="hero-stat-label">Years trading</span>
+            </div>
+            <div>
+                <span class="hero-stat-value">{{ brands|length }}</span>
+                <span class="hero-stat-label">Companies</span>
+            </div>
+            <div>
+                <span class="hero-stat-value">{{ locations_count|default:"10" }}</span>
+                <span class="hero-stat-label">Locations</span>
+            </div>
+            <div>
+                <span class="hero-stat-value">100%</span>
+                <span class="hero-stat-label">Samoan owned</span>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- Numbers, not sentences. -->
-<div class="ph-proof">
-    <div class="ph-proof-inner">
-        <div>
-            <span class="ph-proof-value">50+</span>
-            <span class="ph-proof-label">Years trading</span>
-        </div>
-        <div>
-            <span class="ph-proof-value">{{ brands|length }}</span>
-            <span class="ph-proof-label">Companies</span>
-        </div>
-        <div>
-            <span class="ph-proof-value">{{ locations_count|default:"10" }}</span>
-            <span class="ph-proof-label">Locations</span>
-        </div>
-        <div>
-            <span class="ph-proof-value">100%</span>
-            <span class="ph-proof-label">Samoan owned</span>
-        </div>
-    </div>
-</div>
-
 <!-- ============ GROUP COMPANIES ============ -->
-<section class="companies-intro">
+<section class="companies-intro" id="companies">
     <div class="companies-intro-inner">
         <span class="companies-kicker">The Group</span>
-        <h2 class="companies-title">Five companies. One corporation.</h2>
+        <h2 class="companies-title">One corporation.</h2>
         <p class="companies-lede">
             Ah Liki Investment Corporation Limited operates across distribution, retail, brewing,
             hospitality and agriculture &mdash; each company run to the same standard, together
@@ -1877,127 +1511,24 @@
         </div>
     </div>
 
-    <div class="exclusive-foot">
-        <a href="{% url 'products:list' %}?is_exclusive=on" class="exclusive-cta">
-            Browse exclusive lines
-            <span aria-hidden="true">&rarr;</span>
-        </a>
-    </div>
 </section>
 {% endif %}
-
-<!-- Featured Products -->
-<section class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="section-heading text-center mb-12">Exclusive Products</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for product in featured_products %}
-                <div class="bg-white rounded-lg overflow-hidden shadow-md card-hover">
-                    {% if product.list_image %}
-                        <img src="{{ product.list_image.url }}" alt="{{ product.name }}" loading="lazy" class="w-full h-48 object-cover">
-                    {% else %}
-                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-4xl">📦</div>
-                    {% endif %}
-                    <div class="p-4">
-                        <span class="inline-block bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold mb-2">Exclusive</span>
-                        <h3 class="font-bold text-lg mb-1">{{ product.name }}</h3>
-                        {% if product.description %}<p class="text-sm text-gray-600 mb-3">{{ product.description|truncatewords:20 }}</p>{% endif %}
-                        <a href="{{ product.get_absolute_url }}" class="text-blue-900 font-semibold hover:underline">View Details →</a>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-        <div class="text-center mt-8">
-            <a href="{% url 'products:list' %}" class="btn-primary">View All Products</a>
-        </div>
-    </div>
-</section>
 
 <!-- CTA Section -->
 <section class="py-16 bg-blue-900 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl font-bold brand-font mb-4">Need a Quote?</h2>
-        <p class="text-xl mb-8 text-gray-100">Request competitive pricing on bulk orders. Our finance team will respond within 24 hours.</p>
-        <a href="{% url 'quotes:create' %}" class="inline-block px-6 py-3 bg-white text-blue-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Start Your Quote</a>
+        <h2 class="text-4xl font-bold brand-font mb-4">Grow with Ah Liki</h2>
+        <p class="text-xl mb-8 text-gray-100">Whether you want to work with us or join our team, we would like to hear from you.</p>
+        <div class="flex flex-wrap justify-center gap-3">
+            <a href="{% url 'core:contact' %}" class="inline-block px-6 py-3 bg-white text-blue-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Get in touch</a>
+            <a href="{{ employment_url|default:'#' }}"{% if employment_url %} target="_blank" rel="noopener"{% endif %} class="inline-block px-6 py-3 border border-white/60 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors">Join our team</a>
+        </div>
     </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Hero promotion slideshow.
-    // Auto-advances on a timer that doubles as the progress bar on the rail,
-    // pauses under the pointer, and stays put for anyone who has asked for
-    // reduced motion.
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('promoSlider', (count) => ({
-            active: 0,
-            count: count,
-            progress: 0,
-            timer: null,
-            paused: false,
-            touchX: null,
-            // How long one slide holds the stage, in milliseconds.
-            duration: 6500,
-            // Progress is stepped rather than animated so that pausing leaves
-            // the bar exactly where it was.
-            step: 50,
-
-            start() {
-                if (this.count < 2) return;
-                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                this.stop();
-                this.timer = setInterval(() => {
-                    if (this.paused) return;
-                    this.progress += (this.step / this.duration) * 100;
-                    if (this.progress >= 100) this.next();
-                }, this.step);
-            },
-
-            stop() {
-                if (this.timer) {
-                    clearInterval(this.timer);
-                    this.timer = null;
-                }
-            },
-
-            pause() { this.paused = true; },
-            resume() { this.paused = false; },
-
-            next() { this.go((this.active + 1) % this.count); },
-            prev() { this.go((this.active - 1 + this.count) % this.count); },
-            select(index) { this.go(index); },
-
-            go(index) {
-                this.active = index;
-                this.progress = 0;
-            },
-
-            // Touch devices get the gesture they expect from a carousel.
-            touchStart(event) {
-                this.touchX = event.changedTouches[0].clientX;
-            },
-            touchEnd(event) {
-                if (this.touchX === null) return;
-                const delta = event.changedTouches[0].clientX - this.touchX;
-                this.touchX = null;
-                if (Math.abs(delta) < 45) return;
-                delta < 0 ? this.next() : this.prev();
-            },
-
-            // Slides already shown stay filled, so the rail reads as a
-            // position indicator and not just a lone moving bar.
-            fillStyle(index) {
-                if (index < this.active) return 'width: 100%; opacity: 0.5;';
-                if (index > this.active) return 'width: 0%;';
-                // With auto-advance off there is no progress to show, so the
-                // active bar simply reads as "you are here" instead of empty.
-                if (!this.timer) return 'width: 100%;';
-                return 'width: ' + Math.min(this.progress, 100) + '%;';
-            },
-        }));
-    });
-
     // ---- Group company sections: scroll reveal + pointer tilt ----
     document.addEventListener('DOMContentLoaded', function () {
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -1,0 +1,125 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+    .loc-picker { margin: 0 0 1.5rem; }
+    .loc-picker-help { margin: 0 0 .6rem; color: var(--body-quiet-color); }
+    .loc-picker-map {
+        height: 420px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+    }
+    .loc-picker-actions { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+</style>
+{% endblock %}
+
+{% block after_field_sets %}
+{{ block.super }}
+{{ map_points|json_script:"loc-picker-points" }}
+{{ map_tile_url|json_script:"loc-picker-tile-url" }}
+{{ map_tile_attribution|json_script:"loc-picker-tile-attribution" }}
+<fieldset class="module aligned loc-picker" id="loc-picker">
+    <h2>Pin on the map</h2>
+    <div class="form-row">
+        <p class="loc-picker-help">
+            Click the map to drop the pin, or drag it to adjust. Latitude and longitude above
+            update automatically. Grey dots are the group's other sites.
+        </p>
+        <div class="loc-picker-map" id="loc-picker-map"></div>
+        <div class="loc-picker-actions">
+            <button type="button" class="button" id="loc-picker-locate">Use my current location</button>
+            <button type="button" class="button" id="loc-picker-clear">Remove pin</button>
+        </div>
+    </div>
+</fieldset>
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    const read = (id) => JSON.parse(document.getElementById(id).textContent);
+    const latInput = document.getElementById('id_latitude');
+    const lngInput = document.getElementById('id_longitude');
+    if (!latInput || !lngInput || !window.L) return;
+
+    // Sit the map directly under the coordinate fields.
+    const picker = document.getElementById('loc-picker');
+    const anchor = lngInput.closest('fieldset');
+    if (anchor) anchor.after(picker);
+
+    // Centre of Samoa, for a site that has no pin yet.
+    const SAMOA = [-13.85, -171.9];
+
+    const map = L.map('loc-picker-map').setView(SAMOA, 9);
+    L.tileLayer(read('loc-picker-tile-url'), {
+        attribution: read('loc-picker-tile-attribution'),
+        maxZoom: 19,
+        // OpenStreetMap blocks tile requests without a Referer.
+        referrerPolicy: 'strict-origin-when-cross-origin',
+    }).addTo(map);
+
+    read('loc-picker-points').forEach((p) => {
+        L.circleMarker([p.lat, p.lng], {
+            radius: 6, color: '#64748b', weight: 1, fillColor: '#94a3b8', fillOpacity: 0.8,
+        }).bindTooltip(p.name).addTo(map);
+    });
+
+    let marker = null;
+
+    const place = (lat, lng, pan) => {
+        latInput.value = lat.toFixed(6);
+        lngInput.value = lng.toFixed(6);
+        if (!marker) {
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            marker.on('dragend', () => {
+                const pos = marker.getLatLng();
+                place(pos.lat, pos.lng, false);
+            });
+        } else {
+            marker.setLatLng([lat, lng]);
+        }
+        if (pan) map.setView([lat, lng], Math.max(map.getZoom(), 15));
+    };
+
+    const fromInputs = () => {
+        const lat = parseFloat(latInput.value);
+        const lng = parseFloat(lngInput.value);
+        return Number.isFinite(lat) && Number.isFinite(lng) ? [lat, lng] : null;
+    };
+
+    const start = fromInputs();
+    if (start) place(start[0], start[1], true);
+
+    map.on('click', (e) => place(e.latlng.lat, e.latlng.lng, false));
+
+    // Typing coordinates in by hand moves the pin too.
+    [latInput, lngInput].forEach((input) => input.addEventListener('change', () => {
+        const pos = fromInputs();
+        if (pos) place(pos[0], pos[1], true);
+    }));
+
+    document.getElementById('loc-picker-clear').addEventListener('click', () => {
+        if (marker) { map.removeLayer(marker); marker = null; }
+        latInput.value = '';
+        lngInput.value = '';
+    });
+
+    const locate = document.getElementById('loc-picker-locate');
+    if (!navigator.geolocation) {
+        locate.hidden = true;
+    } else {
+        locate.addEventListener('click', () => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => place(pos.coords.latitude, pos.coords.longitude, true),
+                () => alert('Could not get your location. Check the browser has permission.'),
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        });
+    }
+})();
+</script>
+{% endblock %}

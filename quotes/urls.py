@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import basket_views, views
+from . import basket_views, quick_request, views
 
 app_name = 'quotes'
 
@@ -13,6 +13,8 @@ urlpatterns = [
     path('basket/clear/', basket_views.basket_clear, name='basket_clear'),
     path('checkout/', basket_views.checkout, name='checkout'),
 
+    # The floating "Request a quote" widget, open to any visitor.
+    path('request/', quick_request.quick_request, name='quick_request'),
     path('create/', views.QuoteCreateView.as_view(), name='create'),
     path('<int:pk>/confirmation/', views.QuoteConfirmationView.as_view(), name='confirmation'),
     path('', views.QuoteListView.as_view(), name='finance_dashboard'),

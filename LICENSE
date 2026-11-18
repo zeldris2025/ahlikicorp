@@ -1,0 +1,30 @@
+PROPRIETARY SOFTWARE LICENSE
+
+Copyright (c) 2026 Charlie Wilson Ah Kuoi. All rights reserved.
+
+This software, including its source code, templates, stylesheets, scripts,
+images, documentation and any related files (the "Software"), is the
+confidential and proprietary property of Charlie Wilson Ah Kuoi, and was
+developed for the Ah Liki Investment Corporation website.
+
+No part of the Software may be used, copied, modified, merged, published,
+distributed, sublicensed, sold, hosted, or otherwise made available, in whole
+or in part, by any means, without the prior written permission of
+Charlie Wilson Ah Kuoi.
+
+Permission, where granted, applies only to the person or organisation named in
+that written permission, for the purpose and period stated in it, and may be
+withdrawn at any time. Any permitted copy must keep this notice intact.
+
+Third-party components used by the Software (such as Django and other open
+source libraries) remain under their own licenses, and nothing in this notice
+changes those licenses.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Requests for permission should be sent to Charlie Wilson Ah Kuoi.

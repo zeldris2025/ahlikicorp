@@ -5,11 +5,10 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, ListView, DetailView
 from django.contrib import messages
-from django.db.models import Q
 from django.core.cache import cache
 from .models import Location, ContactMessage, NewsletterSubscriber
 from .forms import ContactForm, NewsletterForm
-from products.models import Brand, Category, ExclusiveBrand, Product, Promotion
+from products.models import Brand, ExclusiveBrand
 
 class HomeView(TemplateView):
     template_name = 'core/home.html'
@@ -25,9 +24,8 @@ class HomeView(TemplateView):
             3600,
         )
         context['companies'] = companies
-        # Hero spotlight deck reuses the same records.
+        # The hero figures count the same records.
         context['brands'] = companies
-        context['featured_products'] = cache.get_or_set('featured_products', lambda: Product.objects.filter(is_active=True, is_exclusive=True)[:6], 1800)
         # Logo marquee of the supplier labels we distribute exclusively.
         exclusive = cache.get_or_set(
             'exclusive_brands',
@@ -46,10 +44,6 @@ class HomeView(TemplateView):
             context['exclusive_marquee'] = []
             context['exclusive_marquee_duration'] = 0
         context['locations_count'] = cache.get_or_set('locations_count', lambda: Location.objects.count(), 3600)
-        context['hero_categories'] = cache.get_or_set(
-            'hero_categories', self._hero_categories, 1800
-        )
-
 
         # Hero background video. Resolution order:
         #   1. HERO_VIDEO_FILE if set explicitly
@@ -66,68 +60,7 @@ class HomeView(TemplateView):
         context['hero_video_poster'] = poster
         youtube_id = '' if video_file else settings.HERO_VIDEO_YOUTUBE_ID
         context['hero_video_youtube_id'] = youtube_id
-
-        context['hero_slides'] = self._hero_slides(companies)
         return context
-
-    # Category quicklinks beside the hero.
-    HERO_CATEGORY_COUNT = 10
-
-    @classmethod
-    def _hero_categories(cls):
-        """The categories worth a quicklink, busiest first.
-
-        A shortcut to an empty category is a dead end, so the list is ordered
-        by how much is actually in each one and anything empty is dropped.
-        """
-        from django.db.models import Count
-
-        return list(
-            Category.objects
-            .annotate(product_count=Count('products', filter=Q(products__is_active=True)))
-            .filter(product_count__gt=0)
-            .order_by('-product_count', 'name')[:cls.HERO_CATEGORY_COUNT]
-        )
-
-    @staticmethod
-    def _hero_slides(companies):
-        """Slides for the promotion card in the hero.
-
-        Live promotions are the point of the card. When there are none it
-        falls back to the group companies rather than disappearing, so the
-        hero keeps its shape on a week with nothing on offer.
-        """
-        slides = [
-            {
-                'kicker': promotion.kicker,
-                'headline': promotion.headline,
-                'subtext': promotion.subtext,
-                'image': promotion.image.url,
-                'logo': '',
-                'cta_label': promotion.cta_label,
-                'cta_url': promotion.cta_url,
-                'accent': promotion.accent_color,
-                'tab': promotion.kicker or promotion.headline,
-            }
-            for promotion in Promotion.objects.live()
-        ]
-        if slides:
-            return slides
-
-        return [
-            {
-                'kicker': company.sector or 'Our companies',
-                'headline': company.name,
-                'subtext': company.tagline,
-                'image': '',
-                'logo': company.logo.url if company.logo else '',
-                'cta_label': 'Learn more',
-                'cta_url': company.get_absolute_url(),
-                'accent': company.accent_color,
-                'tab': company.name,
-            }
-            for company in companies
-        ]
 
     @staticmethod
     def _discover_hero_video():
@@ -203,7 +136,10 @@ class CompanyDetailView(DetailView):
         # through to product pages (the others would land on a 404).
         from products.views import ProductListView
 
-        context['sells_online'] = company.slug == ProductListView.CATALOGUE_BRAND_SLUG
+        context['sells_online'] = (
+            settings.SHOW_PRODUCTS
+            and company.slug == ProductListView.CATALOGUE_BRAND_SLUG
+        )
         context['products'] = (
             list(company.products.filter(is_active=True).select_related('category')[:8])
             if context['sells_online'] else []
@@ -259,7 +195,11 @@ class LocationsView(ListView):
 
 def contact_view(request):
     if request.method == 'POST':
-        form = ContactForm(request.POST)
+        form = ContactForm(
+            request.POST,
+            captcha_token=request.POST.get('g-recaptcha-response'),
+            remote_ip=request.META.get('REMOTE_ADDR'),
+        )
         if form.is_valid():
             form.save()
             messages.success(request, 'Thank you! We will respond to your message shortly.')
@@ -267,7 +207,10 @@ def contact_view(request):
     else:
         form = ContactForm()
 
-    return render(request, 'core/contact.html', {'form': form})
+    return render(request, 'core/contact.html', {
+        'form': form,
+        'recaptcha_site_key': settings.RECAPTCHA_SITE_KEY,
+    })
 
 def newsletter_subscribe(request):
     if request.method == 'POST':
