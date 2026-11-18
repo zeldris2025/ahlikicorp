@@ -21,17 +21,37 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
+# --- Azure App Service -----------------------------------------------------
+# Azure sets WEBSITE_HOSTNAME on every App Service. Each deployment replaces
+# the code folder (/home/site/wwwroot), so anything the site writes at runtime
+# — the SQLite database, uploaded media, logs — must live OUTSIDE it, or it is
+# wiped on every push. /home is Azure's persistent share and survives deploys
+# and restarts, so runtime data goes in /home/data by default.
+AZURE_HOSTNAME = os.getenv('WEBSITE_HOSTNAME', '')
+ON_AZURE = bool(AZURE_HOSTNAME)
+DATA_DIR = Path(os.getenv('APP_DATA_DIR', '/home/data' if ON_AZURE else str(BASE_DIR)))
+if ON_AZURE:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-only-change-me')
+if ON_AZURE and SECRET_KEY == 'dev-only-change-me':
+    raise RuntimeError('Set DJANGO_SECRET_KEY in the Azure App Service configuration.')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
+DEBUG = os.getenv('DJANGO_DEBUG', 'False' if ON_AZURE else 'True').lower() == 'true'
 
 ALLOWED_HOSTS = [host for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host]
+CSRF_TRUSTED_ORIGINS = [o for o in os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if o]
+if ON_AZURE:
+    # The default *.azurewebsites.net name. Custom domains go in
+    # DJANGO_ALLOWED_HOSTS / DJANGO_CSRF_TRUSTED_ORIGINS.
+    ALLOWED_HOSTS.append(AZURE_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{AZURE_HOSTNAME}')
 
 # During development, also answer to this machine's own network addresses so
 # phones, tablets and other computers on the same Wi-Fi can open the site
@@ -60,7 +80,7 @@ if DEBUG:
     # Browsers on other devices send an Origin header with the port, so trust
     # the dev server port explicitly for form posts.
     _dev_port = os.getenv('DJANGO_DEV_PORT', '8000')
-    CSRF_TRUSTED_ORIGINS = [
+    CSRF_TRUSTED_ORIGINS += [
         f'http://{_host}:{_dev_port}' for _host in ALLOWED_HOSTS if _host != '0.0.0.0'
     ]
 
@@ -131,7 +151,10 @@ WSGI_APPLICATION = 'ahlikicorp.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        # Set DATABASE_URL (e.g. Azure Database for PostgreSQL) to use a real
+        # database server. Otherwise SQLite is used, stored in DATA_DIR so a
+        # deploy never replaces or resets it.
+        default=f"sqlite:///{DATA_DIR / 'db.sqlite3'}",
         conn_max_age=600,
         conn_health_checks=True,
     )
@@ -182,7 +205,10 @@ STORAGES = {
     'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
 }
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', str(DATA_DIR / 'media')))
+# Django only serves uploads itself when this is on. On Azure there is no
+# separate web server in front, so it is on by default there.
+SERVE_MEDIA = os.getenv('SERVE_MEDIA', 'True' if ON_AZURE else 'False').lower() == 'true'
 
 # Image optimization settings
 IMAGE_OPTIMIZATION = {
@@ -244,7 +270,10 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {'class': 'logging.StreamHandler'},
-        'file': {'class': 'logging.FileHandler', 'filename': BASE_DIR / 'debug.log'},
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': Path(os.getenv('LOG_DIR', '/home/LogFiles' if ON_AZURE else str(BASE_DIR))) / 'debug.log',
+        },
     },
     'loggers': {
         'django': {'handlers': ['console'], 'level': 'INFO'},

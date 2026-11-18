@@ -1,0 +1,14 @@
+.git
+venv/
+.venv/
+env/
+.env
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+assets_src/
+*.log
+__pycache__/
+*.pyc
+.DS_Store
