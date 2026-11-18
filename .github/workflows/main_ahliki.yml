@@ -19,6 +19,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Code only: the live database and uploads stay on Azure in /home/data.
+      # db.sqlite3 and media/ are gitignored, so they are never checked out;
+      # this stops the deploy if one is ever committed by mistake.
+      - name: Make sure no database or media is deployed
+        run: |
+          if [ -e db.sqlite3 ] || [ -e media ]; then
+            echo "Refusing to deploy: db.sqlite3 or media/ is committed to git" && exit 1
+          fi
+
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:

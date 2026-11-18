@@ -13,9 +13,8 @@ images are never part of a deploy, so pushing never resets them.
 | Logs | `/home/LogFiles/debug.log` | No |
 
 - `db.sqlite3`, `media/`, `.env` and `venv/` are in `.gitignore`, and the
-  workflow packages the site with `git archive`, which only includes committed
-  files. It also stops the deploy if a database or media folder ever ends up in
-  the package.
+  workflow (`main_ahliki.yml`) deploys only what is committed to git. It also
+  stops the deploy if a database or media folder is ever committed.
 - `startup.sh` runs `migrate`, which only applies new migrations. It never
   flushes or recreates the database. Demo data is **not** seeded unless you
   set `SEED_DEMO_DATA=true`.
@@ -34,12 +33,8 @@ images are never part of a deploy, so pushing never resets them.
      custom domain (e.g. `ahliki.com` / `https://ahliki.com`), plus the email
      settings from `.env.example`.
 3. **Configuration → General settings → Startup Command**: `bash startup.sh`
-4. **Connect GitHub:** go to Overview → *Download publish profile*. In GitHub,
-   open the repo → Settings → Secrets and variables → Actions, and add a secret
-   named `AZURE_WEBAPP_PUBLISH_PROFILE` with the file's contents. If your app
-   name isn't `ahlikicorp`, change `AZURE_WEBAPP_NAME` in
-   `.github/workflows/azure-webapp.yml`. If downloading the profile is disabled,
-   turn on *Configuration → General settings → SCM Basic Auth Publishing Credentials*.
+4. **Connect GitHub** (done): Deployment Center → GitHub created
+   `.github/workflows/main_ahliki.yml` and its own login secrets.
 5. **Push to `main`.** The workflow deploys the code, and the first start
    creates an empty database at `/home/data/db.sqlite3`.
 
