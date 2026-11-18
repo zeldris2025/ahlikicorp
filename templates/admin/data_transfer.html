@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a> &rsaquo; Import / export data
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" style="max-width:52rem;">
+
+  <div class="module aligned" style="padding:12px 14px;">
+    <h2>1. Export from this site</h2>
+    <p>Downloads one <code>.zip</code> with the site's records (companies, sites, users, quotes, promotions and so on) and the images they use.</p>
+    <ul>
+      <li>Demo accounts that still use the passwords from the sample data are exported with their password switched off.</li>
+      <li>Sessions and the admin history are not included.</li>
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="export">
+      <p>
+        <label>{{ export_form.include_products }} {{ export_form.include_products.label }}</label><br>
+        <span class="help">{{ export_form.include_products.help_text }}</span>
+      </p>
+      <input type="submit" class="default" value="Download export file" style="float:none;">
+    </form>
+  </div>
+
+  <div class="module aligned" style="padding:12px 14px;margin-top:1.5rem;">
+    <h2>2. Import into this site</h2>
+    <p>Choose an export file made on another copy of the site (for example, your local Docker site).</p>
+    <ul>
+      <li>Records in the file are <strong>added, or overwrite</strong> the matching records here (same ID, or same username for accounts). Nothing here is deleted.</li>
+      <li>Images in the file replace images with the same name.</li>
+      <li>If anything in the file is invalid, the import stops and no records are changed.</li>
+    </ul>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="import">
+      {% for error in import_form.non_field_errors %}<p class="errornote">{{ error }}</p>{% endfor %}
+      <p>
+        {{ import_form.file }}
+        {% for error in import_form.file.errors %}<br><span class="errornote" style="display:inline-block;margin-top:.4rem;">{{ error }}</span>{% endfor %}
+      </p>
+      <p>
+        <label>{{ import_form.confirm }} {{ import_form.confirm.label }}</label>
+        {% for error in import_form.confirm.errors %}<br><span class="errornote" style="display:inline-block;margin-top:.4rem;">Tick this box to confirm.</span>{% endfor %}
+      </p>
+      <input type="submit" value="Import" style="float:none;" onclick="this.value='Importing…';">
+    </form>
+  </div>
+
+</div>
+{% endblock %}

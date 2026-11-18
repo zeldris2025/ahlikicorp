@@ -9,7 +9,11 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.static import serve
 
+from core.data_transfer import data_transfer_view
+
 urlpatterns = [
+    # Before admin.site.urls, whose catch-all would otherwise claim the path.
+    path('admin/data-transfer/', admin.site.admin_view(data_transfer_view), name='admin_data_transfer'),
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
     path('products/', include('products.urls', namespace='products')),
