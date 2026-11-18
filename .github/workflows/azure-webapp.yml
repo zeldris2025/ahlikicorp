@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: ahlikicorp   # <-- change to your App Service name
+  AZURE_WEBAPP_NAME: AhLiki   # your App Service name
 
 jobs:
   deploy:

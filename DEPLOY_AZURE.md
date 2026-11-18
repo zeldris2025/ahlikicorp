@@ -52,8 +52,8 @@ don't upload again or you'll overwrite it.
 Use the publish-profile username/password (`userName` / `userPWD` in the file):
 
 ```bash
-APP=ahlikicorp              # your app name
-USER='$ahlikicorp'          # userName from the publish profile
+APP=ahliki                  # your app name
+USER='$AhLiki'              # userName from the publish profile
 PASS='...'                  # userPWD from the publish profile
 
 # Database
