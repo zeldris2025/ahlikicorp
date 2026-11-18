@@ -5,6 +5,14 @@ echo "🚀 Ah Liki Investment Corporation - Setup Script"
 echo "=================================================="
 echo ""
 
+# This script is for LOCAL development only. On Azure App Service the startup
+# command is `bash startup.sh`, and deployments are done by the GitHub Actions
+# workflow, which ships code only — never the database.
+if [ -n "$WEBSITE_HOSTNAME" ]; then
+    echo "❌ This is the local setup script. On Azure, use: bash startup.sh"
+    exit 1
+fi
+
 # Check if Python is available
 if ! command -v python &> /dev/null; then
     echo "❌ Python not found. Please install Python 3.11+"
@@ -21,7 +29,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 echo ""
-echo "🗄️  Running migrations..."
+echo "🗄️  Running migrations (existing data is kept)..."
 python manage.py migrate
 
 echo ""
