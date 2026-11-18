@@ -1,0 +1,2 @@
+# Shell scripts run on Linux (Docker, Azure); keep LF endings even on Windows.
+*.sh text eol=lf
