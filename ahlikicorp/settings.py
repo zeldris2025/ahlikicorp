@@ -324,8 +324,12 @@ SHOW_SHOP_ONLINE = os.getenv('SHOW_SHOP_ONLINE', 'False').lower() == 'true'
 SHOW_PRODUCTS = os.getenv('SHOW_PRODUCTS', 'False').lower() == 'true'
 
 # Employment links in the header, footer and hero go to the external HR
-# system. Set EMPLOYMENT_URL once it is live; until then they go nowhere.
-EMPLOYMENT_URL = os.getenv('EMPLOYMENT_URL', '')
+# system's Career Connect page, opening in a new tab. EMPLOYMENT_URL overrides
+# it; set it to an empty value to make the links go nowhere.
+EMPLOYMENT_URL = os.getenv(
+    'EMPLOYMENT_URL',
+    'https://ahliki-sms-dweaabg2cudvc0fq.austriaeast-01.azurewebsites.net/career-connect/',
+)
 
 # The floating "Request a quote" widget on every page. Set SHOW_ASSISTANT=False
 # to hide it.
