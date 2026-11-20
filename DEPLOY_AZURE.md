@@ -70,3 +70,25 @@ SQLite is fine for a modest site, but it runs with one Gunicorn worker on
 Azure's shared storage. For more traffic, create an *Azure Database for
 PostgreSQL* and set `DATABASE_URL=postgresql://...` in Application settings.
 `startup.sh` then switches to multiple workers automatically.
+
+## Custom domain (ahliki.com)
+
+The code already expects `ahliki.com`: on Azure it accepts `ahliki.com` and
+`www.ahliki.com`, redirects `www.` and plain `http://` to
+`https://ahliki.com`, and uses that address in emails and share previews.
+(Set `SITE_DOMAIN` in Application settings only to use a different domain.)
+
+1. **App Service → Custom domains → Add custom domain**, domain `ahliki.com`.
+   Azure shows two DNS records to create at your domain registrar:
+   - `A` record, host `@`, value = the app's IP address
+   - `TXT` record, host `asuid`, value = the verification ID
+2. Add `www.ahliki.com` the same way: a `CNAME` record, host `www`, value
+   `<your-app>.azurewebsites.net`, plus `TXT` host `asuid.www` with the same ID.
+3. When both validate, choose **Add binding → App Service Managed Certificate**
+   for each, so HTTPS works (free, renewed automatically).
+4. **Configuration → General settings → HTTPS Only = On.**
+5. Optional, once `https://ahliki.com` works: set `REDIRECT_TO_SITE_DOMAIN=true`
+   so the `*.azurewebsites.net` address also forwards to `ahliki.com`.
+
+If reCAPTCHA is switched back on, add `ahliki.com` to the key's domain list
+in the Google reCAPTCHA console first.

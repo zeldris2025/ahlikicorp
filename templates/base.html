@@ -6,9 +6,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block meta_description %}Ah Liki Investment Corporation - Samoan wholesale, supermarket, beverage, and restaurant brands.{% endblock %}">
-    <meta name="og:title" content="{% block og_title %}Ah Liki Investment Corporation{% endblock %}">
-    <meta name="og:description" content="{% block og_description %}Ah Liki Investment Corporation - Samoan wholesale, supermarket, beverage, and restaurant brands.{% endblock %}">
-    <meta name="og:image" content="{% block og_image %}{% static 'images/og-image.png' %}{% endblock %}">
+    <link rel="canonical" href="{{ site_base_url }}{{ request.path }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Ah Liki Investment Corporation">
+    <meta property="og:url" content="{{ site_base_url }}{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}Ah Liki Investment Corporation{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Ah Liki Investment Corporation - Samoan wholesale, supermarket, beverage, and restaurant brands.{% endblock %}">
+    {# Share previews need a full address, not a path. #}
+    <meta property="og:image" content="{{ site_base_url }}{% block og_image %}{% static 'images/og-image.png' %}{% endblock %}">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/png" href="{% static 'images/ahliki_logo.png' %}">
     <title>{% block title %}Ah Liki Investment Corporation{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>

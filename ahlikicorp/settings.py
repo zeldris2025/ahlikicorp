@@ -57,6 +57,20 @@ if ON_AZURE:
     ALLOWED_HOSTS.append(AZURE_HOSTNAME)
     CSRF_TRUSTED_ORIGINS.append(f'https://{AZURE_HOSTNAME}')
 
+# The public domain. On Azure it defaults to ahliki.com; the bare domain and
+# its www. form are both accepted, and www. is redirected to the bare domain
+# (core.middleware.CanonicalDomainMiddleware). Set SITE_DOMAIN to change it.
+SITE_DOMAIN = os.getenv('SITE_DOMAIN', 'ahliki.com' if ON_AZURE else '').strip().lower()
+if SITE_DOMAIN:
+    for _host in (SITE_DOMAIN, f'www.{SITE_DOMAIN}'):
+        if _host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(_host)
+        if f'https://{_host}' not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(f'https://{_host}')
+# Also send visitors on the *.azurewebsites.net address to the domain. Off by
+# default, so the Azure address keeps working as a way in while DNS settles.
+REDIRECT_TO_SITE_DOMAIN = os.getenv('REDIRECT_TO_SITE_DOMAIN', 'False').lower() == 'true'
+
 # During development, also answer to this machine's own network addresses so
 # phones, tablets and other computers on the same Wi-Fi can open the site
 # (run it with: python manage.py runserver 0.0.0.0:8000).
@@ -112,6 +126,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'core.middleware.CanonicalDomainMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -270,6 +285,9 @@ _secure_cookies = os.getenv('DJANGO_SECURE_COOKIES', str(not DEBUG)).lower() == 
 SESSION_COOKIE_SECURE = _secure_cookies
 CSRF_COOKIE_SECURE = _secure_cookies
 SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+# Azure ends TLS in front of the app and says so in X-Forwarded-Proto, so
+# plain-http visits are sent to https here. Local Docker serves http only.
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', str(ON_AZURE)).lower() == 'true'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
@@ -346,7 +364,10 @@ RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UM
 RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe')
 
 # Absolute URL used in emails, which have no request to build links from.
-SITE_BASE_URL = os.getenv('SITE_BASE_URL', 'http://127.0.0.1:8000').rstrip('/')
+# Also the base of canonical and share-preview links on every page.
+SITE_BASE_URL = os.getenv(
+    'SITE_BASE_URL', f'https://{SITE_DOMAIN}' if SITE_DOMAIN else 'http://127.0.0.1:8000'
+).rstrip('/')
 
 # Where new trade account applications are announced for review.
 APPLICATION_NOTIFICATION_EMAIL = os.getenv(

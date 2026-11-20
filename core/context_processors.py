@@ -60,6 +60,8 @@ def site_contact(request):
         # The floating quote widget; see SHOW_ASSISTANT.
         'show_assistant': getattr(settings, 'SHOW_ASSISTANT', False),
         # The quote widget's "I'm not a robot" box is on every page.
+        # Canonical and share-preview links; see SITE_BASE_URL.
+        'site_base_url': getattr(settings, 'SITE_BASE_URL', ''),
         'recaptcha_enabled': getattr(settings, 'RECAPTCHA_ENABLED', True),
         'recaptcha_site_key': getattr(settings, 'RECAPTCHA_SITE_KEY', ''),
     }
